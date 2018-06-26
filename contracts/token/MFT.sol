@@ -4,7 +4,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
-interface ERC1155 {
+interface ERCXXXX {
   event Transfer(address from, address to, uint256 tokenType, uint256 amount);
   event BatchTransfer(address from, address to, uint256[] tokenTypes, uint256[] amounts);
   event ApprovalForAll(address tokensHolder, address operator, bool status);
