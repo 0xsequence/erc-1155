@@ -14,17 +14,17 @@ require('chai')
 // Modify existing ERC20 and basic token related tests
 // Test the _updateClassBalance operations
 
-const LowFungibleTokensMock = artifacts.require('LowFungibleTokensMock');
+const MFTMock = artifacts.require('MFTMock');
 const RegularToken = artifacts.require('RegularToken');
 
 const LARGEVAL = 100792082237306195423570985008687907853269984665640564039457584007913129639934;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-contract.only('LowFungibleTokensMock', function ([_, owner, player1, player2, anyone, operator]) { 
+contract.only('MFTMock', function ([_, owner, player1, player2, anyone, operator]) { 
 
-  context('When LowFungibleTokensMock contract is deployed', function (){
+  context('When MFTMock contract is deployed', function (){
     beforeEach(async function () {
-      this.token = await LowFungibleTokensMock.new({from: owner});
+      this.token = await MFTMock.new({from: owner});
       //console.log(web3.eth.getTransactionReceipt(this.token.transactionHash).gasUsed);
     });
 

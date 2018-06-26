@@ -1,14 +1,14 @@
 {
-  "name": "low-fungible-tokens",
+  "name": "multi-fungible-tokens",
   "version": "0.1.0",
-  "description": "Packed Balance Implementation of ERC-1155",
-  "repository": "https://github.com/horizon-games/low-fungible-tokens",
-  "license": "(c) 2018-present Horizon Blockchain Games Inc.",
+  "description": "Multi Fungible Token contract for Ethereum",
+  "repository": "https://github.com/horizon-games/multi-fungible-tokens",
+  "license": "MIT",
   "keywords": [
     "token",
     "ERC",
-    "ERC-1155",
     "Fungible",
+    "Non-Fungible",
     "ethereum",
     "horizongames"
   ],
@@ -16,11 +16,10 @@
     "build": "rm -rf ./build && truffle compile",
     "migrate": "truffle migrate --network ganache",
     "staging:migrate": "truffle migrate --network rinkeby",
-    "prepare-abi": "echo TODO",
     "ganache": "ganache-cli -d -e 1000000000 -g 1 -l 4000000000000000",
     "ganache:verbose": "ganache-cli -d -e 1000000000 -g 1 -l 4000000000000000 -v",
-    "testrpc": "echo '*** DEPRECATED: please use \"yarn ganache\" instead ***' && yarn ganache",
-    "test": "NODE_ENV='test' scripts/test.sh",
+    "testrpc": "yarn ganache",
+    "test": "NODE_ENV=test scripts/test.sh",
     "console": "truffle console",
     "coverage": "scripts/coverage.sh"
   },
@@ -71,6 +70,6 @@
     "truffle-contract": "^1.1.11",
     "truffle-hdwallet-provider": "^0.0.3",
     "truffle-solidity-loader": "0.0.8",
-    "url-loader": "0.5.7",
+    "url-loader": "0.5.7"
   }
 }
