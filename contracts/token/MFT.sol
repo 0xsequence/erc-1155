@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-contract LowFungibleTokens is Ownable { 
+contract MultiFungibleToken is Ownable { 
   using SafeMath for uint256; 
 
   /** 
