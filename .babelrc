@@ -1,0 +1,18 @@
+{
+  "env": {
+    "test": {
+      "presets": ["es2015", "stage-2", "stage-3"]
+    },
+    "development": {
+      "presets": [
+        "react-app"
+            ]
+    },
+    "production": {
+      "presets": [
+        "react-app"
+            ]
+    }
+  }
+}
+
