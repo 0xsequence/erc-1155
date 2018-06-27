@@ -39,7 +39,6 @@ contract MultiFungibleToken {
   *  - Need to support ERC-165
   */
 
-
   //
   // Storage and Events
   //
@@ -52,7 +51,6 @@ contract MultiFungibleToken {
   uint256 constant public NUMBER_OF_TYPES   = 2**32;                 // Maximum number of object types (higher is bigger deployment cost)
   uint256 constant public TYPES_BITS_SIZE   = 16;                    // Max size of each object
   uint256 constant public TYPES_PER_UINT256 = 256 / TYPES_BITS_SIZE; // Number of types per uint256
-
 
   // Deployment cost
   // 2**16 : 3,488,299
@@ -74,6 +72,7 @@ contract MultiFungibleToken {
   event Transfer(address from, address to, uint256 tokenType, uint256 amount);
   event BatchTransfer(address from, address to, uint256[] tokenTypes, uint256[] amounts);
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
+
 
 
   //
@@ -101,7 +100,6 @@ contract MultiFungibleToken {
     // Emit transfer Event
     emit Transfer(_from, _to, _type, _amount);
   }
-
 
   /**
    * @dev Allow _from or an operator to transfer tokens from one address to another
@@ -207,7 +205,6 @@ contract MultiFungibleToken {
     operators[msg.sender][_operator] = _approved;
     emit ApprovalForAll(msg.sender, _operator, _approved);
   }
-
 
   /**
   * @dev Function that verifies whether _operator is an authorized operator of _tokenHolder.
