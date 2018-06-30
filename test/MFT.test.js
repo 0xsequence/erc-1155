@@ -101,7 +101,8 @@ contract('MFTMock', function ([_, owner, player1, player2, anyone, operator]) {
       })
 
       it('should be able to transfer if sufficient balance', async function () {
-        await this.token.transferFrom(owner, player1, 0, 1, {from: owner}).should.be.fulfilled;
+        let tx = await this.token.transferFrom(owner, player1, 0, 1, {from: owner}).should.be.fulfilled;
+        //console.log(tx.receipt.gasUsed);
       });
 
       it('should REVERT if insufficient balance', async function () {
@@ -159,7 +160,7 @@ contract('MFTMock', function ([_, owner, player1, player2, anyone, operator]) {
 
       var types, values;
 
-      var nTokenTypes    = 20;
+      var nTokenTypes    = 25;
       var nTokensPerType = 10;
 
       //types = [12, 111];

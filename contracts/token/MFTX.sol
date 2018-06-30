@@ -1,72 +1,65 @@
 pragma solidity ^0.4.24;
 pragma experimental ABIEncoderV2;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./MFT.sol";
 
 /**
-* @dev Multi-Fungible Tokens with additional functions.
+* @dev Multi-Fungible Tokens with additional functions. These additional functions allow users
+*      to presign function calls and allow third parties to execute these on their behalf. 
+*      There are also minting functions that were added that benefit from the balance packing
+*      efficiency gains via batchMinting.
 *
 * TODO : Generic delegated function calls (see https://github.com/ethereum/EIPs/pull/1077/files)
-*
-*
 */ 
-
-contract MFTX is MFT { 
-  using SafeMath for uint256;
+contract MFTX is MFT, Ownable { 
 
   // Signature structure
   struct Signature {
-    uint8 v;          // v variable from ECDSA signature.
+    uint8   v;        // v variable from ECDSA signature.
     bytes32 r;        // r variable from ECDSA signature.
     bytes32 s;        // s variable from ECDSA signature.
-    string sigPrefix; // Signature prefix message (e.g. "\x19Ethereum Signed Message:\n32");
+    string sigPrefix; // Signature prefix message (e.g. "\x19Ethereum Signed Message:\n32").
   }
 
   // Signature nonce per address
   mapping (address => uint256) nonces;
 
   // Events
-  event Mint(address to, uint256 class, uint256 amount);
-  event BatchMint(address to, uint256[] classes);
-
+  event Mint(address to, uint256 tokenType, uint256 amount);
+  event BatchMint(address to, uint256[] tokenTypes, uint256[] amounts);
 
   //
-  // Transfer Functions
+  // Signature Based Transfer
   //
-
-  // ----------------------------------------------------- //
-  //             sigTransferFrom() Functions               //
-  // ----------------------------------------------------- //
 
   /**
   * @dev Transfers objects from _from to _to if valid signature from _from is provided.
-  * @param _from Address who signed the message that wants to transfer  rom.
+  * @param _from Address who signed the message that wants to transfer tokens.
   * @param _to Address to send tokens to. If 0x1, signer did not specify a _to address.
-  * @param _class Object class to transfer
-  * @param _amount Amount of object of given _class to transfer.
+  * @param _type Object type to transfer
+  * @param _amount Amount of object of given _type to transfer.
   * @param _sig Signature struct containing signature related variables.
   * @return Address that signed the hash.
   */
   function sigTransferFrom(
     address _from, 
     address _to, 
-    uint256 _class, 
+    uint256 _type, 
     uint256 _amount,
-    Signature _sig) external 
+    Signature _sig) public 
   {
     require(_to != address(0), 'Invalid recipient');
-    require(_from != address(0), 'Invalid token owner');
  // require(_amount <= balanceFrom);  Not necessary since checked within writeValueInBin()
 
     //Sender nonce
     uint256 nonce = nonces[_from];
 
     // If valid, signer did not specify recipient
-    if( _from != recoverTransferFromSigner( _from, 0x1, _class, _amount, nonce, _sig)) 
+    if( _from != recoverTransferFromSigner( _from, 0x1, _type, _amount, nonce, _sig)) 
     {
       // If valid, signer specified recipient
-      if( _from != recoverTransferFromSigner( _from, _to, _class, _amount, nonce, _sig)) 
+      if( _from != recoverTransferFromSigner( _from, _to, _type, _amount, nonce, _sig)) 
       {
         revert('Invalid signature');
       }
@@ -76,11 +69,11 @@ contract MFTX is MFT {
     nonces[_from] += 1; 
 
     // Update balances
-    _updateClassBalance(_from, _class, _amount, Operations.Sub); // Subtract value
-    _updateClassBalance(_to, _class, _amount, Operations.Add);   // Add value
+    _updateTypeBalance(_from, _type, _amount, Operations.Sub); // Subtract value
+    _updateTypeBalance(_to, _type, _amount, Operations.Add);   // Add value
 
     // Emit event
-    emit Transfer(_from, _to, _class, _amount);
+    emit Transfer(_from, _to, _type, _amount);
   } 
 
 
@@ -100,11 +93,8 @@ contract MFTX is MFT {
     address _owner,
     address _operator, 
     bool    _approved,    
-    Signature _sig) external  
+    Signature _sig) public  
   { 
-    // To prevent ecrecover from returning 0x0
-    require(_owner != address(0), 'Invalid token owner'); 
-
     // Verify if _owner is the signer
     require( _owner == recoverApprovalSigner(_operator, _approved, nonces[_owner], _sig) );
 
@@ -125,43 +115,43 @@ contract MFTX is MFT {
   //
 
   /**
-  * @dev Mint _amount of objects of a given class 
+  * @dev Mint _amount of objects of a given type 
   * @param _to The address to mint objects to.
-  * @param _class Object class to mint
+  * @param _type Object type to mint
   * @param _amount The amount to be minted
   */
-  function mintObject(address _to, uint256 _class, uint256 _amount) onlyOwner public {
-    // require(_class < NUMBER_OF_CLASSES); Not required since out of range will throw
+  function mintObject(address _to, uint256 _type, uint256 _amount) onlyOwner public {
+    // require(_type < NUMBER_OF_types); Not required since out of range will throw
     // require(_amount <= 2**16-1);         Not required since checked in writeValueInBin  
     
     //Add _amount
-    _updateClassBalance(_to, _class, _amount, Operations.Add);   
+    _updateTypeBalance(_to, _type, _amount, Operations.Add);   
 
     // Emit event
-    emit Mint(_to, _class, _amount);
+    emit Mint(_to, _type, _amount);
   }
 
   /**
-  * @dev Mint 1 of object for each class in _classes
+  * @dev Mint 1 of object for each type in _types
   * @param _to The address to mint objects to.
-  * @param _classes Array of classes to mint
-  * @param _amounts Array of amount of tokens to mint per class
+  * @param _types Array of types to mint
+  * @param _amounts Array of amount of tokens to mint per type
   */
-  function batchMintObject(address _to, uint256[] _classes, uint256[] _amounts) onlyOwner public {
-    require(_classes.length == _amounts.length, 'Inconsistent array length between args');
+  function batchMintObject(address _to, uint256[] _types, uint256[] _amounts) onlyOwner public {
+    require(_types.length == _amounts.length, 'Inconsistent array length between args');
 
     // Load first bin and index where the object balance exists
-    (uint256 bin, uint256 index) = getClassBinIndex(_classes[0]);
+    (uint256 bin, uint256 index) = getTypeBinIndex(_types[0]);
 
-    uint256 nMints = _classes.length; // Number of mints to execute
+    uint256 nMints = _types.length; // Number of mints to execute
     uint256 lastBin = bin;            // Last bin updated
 
     // Balance for current bin in memory (initialized with first mint)
-    uint256 balTo = _viewUpdateClassBalance(balances[_to][bin], index, _amounts[0], Operations.Add); 
+    uint256 balTo = _viewUpdateTypeBalance(balances[_to][bin], index, _amounts[0], Operations.Add); 
 
     for (uint256 i = 1; i < nMints; i++){
 
-        (bin, index) = getClassBinIndex(_classes[i]);
+        (bin, index) = getTypeBinIndex(_types[i]);
 
         // If new bin
         if (bin != lastBin) {
@@ -176,14 +166,14 @@ contract MFTX is MFT {
         } 
 
         // Update memory balance
-        balTo = _viewUpdateClassBalance(balTo, index, _amounts[i], Operations.Add);
+        balTo = _viewUpdateTypeBalance(balTo, index, _amounts[i], Operations.Add);
     } 
 
     // Update storage of the last bin visited
     balances[_to][bin] = balTo;
 
     // Emit batchTransfer event
-    emit BatchMint(_to, _classes); 
+    emit BatchMint(_to, _types, _amounts); 
   }
 
 
@@ -196,8 +186,8 @@ contract MFTX is MFT {
   * @dev Returns the address of associated with the private key that signed _hash
   * @param _from Address who signed the message that wants to transfer from.
   * @param _to Address to send tokens to.
-  * @param _class Object class to transfer
-  * @param _amount Maximum amount of object of given _class to transfer.
+  * @param _type Object type to transfer
+  * @param _amount Maximum amount of object of given _type to transfer.
   * @param _nonce Signature nonce for _from.
   * @param _sig Signature struct containing signature related variables.
   * @return Address that signed the hash.
@@ -211,14 +201,14 @@ contract MFTX is MFT {
   function recoverTransferFromSigner( 
       address _from,
       address _to,
-      uint256 _class,
+      uint256 _type,
       uint256 _amount,
       uint256 _nonce,
       Signature _sig)
       public view returns (address signer)
   { 
     bytes32 prefixedHash;
-    bytes32 hash = keccak256(abi.encodePacked( address(this), _from, _to, _class, 
+    bytes32 hash = keccak256(abi.encodePacked( address(this), _from, _to, _type, 
                                               _amount, _nonce ));
 
     // If prefix provided, hash with prefix, else ignore prefix 
@@ -294,7 +284,5 @@ contract MFTX is MFT {
   function getNonce(address _signer) view public returns (uint256 nonce) {
     return nonces[_signer];
   }
-
-
 
 }
