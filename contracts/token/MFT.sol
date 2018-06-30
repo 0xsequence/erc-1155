@@ -151,8 +151,8 @@ contract MFT {
     // Requirements
     require( (msg.sender == _from) || operators[_from][msg.sender], 'msg.sender is neither _from nor operator');
     require(_to != address(0),                                      'Invalid recipient');
-    // require(_amount <= balances);  Not necessary since checked with .sub16 method
-
+    // require(_amount <= balances);  Not necessary since checked with writeValueInBin() checks
+    
     // Update balances
     _updateTypeBalance(_from, _type, _amount, Operations.Sub); // Subtract value from sender
     _updateTypeBalance(_to,   _type, _amount, Operations.Add); // Add value to recipient
