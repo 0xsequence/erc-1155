@@ -9,7 +9,7 @@ Multi Fungible Token interface and implementation for Ethereum.
 3. `yarn test` - executes test suite
 
 # Simple Summary
-An implementation example of a standard Multi-Fungible Tokens contract, which contains multiple types of fungible tokens referenced by IDs. Standard interface discussion on [ERC-1055](https://github.com/ethereum/EIPs/issues/1155). 
+An implementation example of a standard Multi-Fungible Tokens contract, which contains multiple types of fungible tokens referenced by IDs. Standard interface discussion at [ERC-1055](https://github.com/ethereum/EIPs/issues/1155). 
 
 # Abstract
 The follow standard allows for the implementation of a standard API for MFTs within smart contracts.This standard provides basic functionality to track and transfer MFTs.
