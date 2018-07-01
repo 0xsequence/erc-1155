@@ -74,7 +74,7 @@ interface ERC165 {
 
 A wallet/broker/auction application MUST implement the **wallet interface** if it will accept safe transfers.
 
-```javascript
+```solidity
  // @dev Note: the ERC-165 identifier for this interface is 0x150b7a02.
 interface ERCXXXXTokenReceiver {
 
