@@ -1,4 +1,6 @@
 pragma solidity ^0.4.24;
+pragma experimental ABIEncoderV2;
+
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/AddressUtils.sol";
@@ -63,7 +65,7 @@ contract MFT {
   bytes4 constant ERCXXXX_BATCH_RECEIVE_SIG = 0xe9e5be6a; // bytes4(keccak256("onERCXXXXBatchReceived(address,address,uint256[],uint256[],bytes)"));
  
   // Constants regarding bin or chunk sizes for balance packing
-  uint256 constant TYPES_BITS_SIZE   = 16;                    // Max size of each object
+  uint256 constant TYPES_BITS_SIZE   = 16;                     // Max size of each object
   uint256 constant TYPES_PER_UINT256 = 256 / TYPES_BITS_SIZE; // Number of types per uint256
 
   // Operations for _updateTypeBalance
@@ -73,25 +75,7 @@ contract MFT {
   mapping(uint256 => uint256) totalSupply;
 
   // Objects balances ; balances[address][type] => balance (using array instead of mapping for efficiency)
-  mapping (address => uint256[2**256-1]) balances;
-  //mapping (address => mapping(uint256 => uint256)) balances;
-
-  // Deployment cost with balances using array :
-  // Array size = 2**15    => 1,988,009 gas
-  // Array size = 2**63    => 1,997,808 gas
-  // Array size = 2**127   => 2,017,413 gas
-  // Array size = 2**256-1 => 2,080,226 gas
-  
-  // Deployment cost with balances using mapping(mapping()) :: 
-  //          1,988,649 gas
-
-  // transferFrom() cost with balances using array
-  //          54,716 gas
-
-  // transferFrom() cost with balances using mapping(mapping())
-  //          54,904 gas
-
-  // gasUsed: 102401  / gasUsed: 102283
+  mapping (address => mapping(uint256 => uint256)) balances;
 
   // Operators
   mapping (address => mapping(address => bool)) operators;
