@@ -120,7 +120,7 @@ contract MFTX is MFT, Ownable {
   * @param _type Object type to mint
   * @param _amount The amount to be minted
   */
-  function mintObject(address _to, uint256 _type, uint256 _amount) onlyOwner public {
+  function mint(address _to, uint256 _type, uint256 _amount) onlyOwner public {
     // require(_type < NUMBER_OF_types); Not required since out of range will throw
     // require(_amount <= 2**16-1);         Not required since checked in writeValueInBin  
     
@@ -137,20 +137,22 @@ contract MFTX is MFT, Ownable {
   * @param _types Array of types to mint
   * @param _amounts Array of amount of tokens to mint per type
   */
-  function batchMintObject(address _to, uint256[] _types, uint256[] _amounts) onlyOwner public {
+  function batchMint(address _to, uint256[] _types, uint256[] _amounts) onlyOwner public {
     require(_types.length == _amounts.length, 'Inconsistent array length between args');
 
     // Load first bin and index where the object balance exists
-    (uint256 bin, uint256 index) = getTypeBinIndex(_types[0]);
-
-    uint256 nMints = _types.length; // Number of mints to execute
-    uint256 lastBin = bin;            // Last bin updated
+    (uint256 bin, uint256 index) = getTypeBinIndex(_types[0]);   
 
     // Balance for current bin in memory (initialized with first mint)
     uint256 balTo = _viewUpdateTypeBalance(balances[_to][bin], index, _amounts[0], Operations.Add); 
 
-    for (uint256 i = 1; i < nMints; i++){
+    // Number of mints to execute
+    uint256 nMints = _types.length; 
 
+    // Last bin updated
+    uint256 lastBin = bin;   
+
+    for (uint256 i = 1; i < nMints; i++){
         (bin, index) = getTypeBinIndex(_types[i]);
 
         // If new bin
@@ -281,7 +283,7 @@ contract MFTX is MFT, Ownable {
   * @dev Returns the current nonce associated with a given address
   * @param _signer Address to query signature nonce for
   */
-  function getNonce(address _signer) view public returns (uint256 nonce) {
+  function getNonce(address _signer) view external returns (uint256 nonce) {
     return nonces[_signer];
   }
 
