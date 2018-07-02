@@ -132,14 +132,14 @@ Current repository is one implementation example which utilizes balance packing.
 
 
 # References
-1. Template EIP : https://github.com/ethereum/EIPs/blob/master/eip-X.md
-2. ERC-1155 : https://github.com/ethereum/EIPs/issues/1155
-3. Enjicoin Item Standard (ERC-1155) : https://blog.enjincoin.io/erc-1155-the-crypto-item-standard-ac9cf1c5a226
-4. RFC 2119 Key words for use in RFCs to Indicate Requirement Levels. https://www.ietf.org/rfc/rfc2119.txt
-5. [EIP-721](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md)
-6. ERC-223 : https://github.com/ethereum/EIPs/issues/223 
-7. ERC-677 : https://github.com/ethereum/EIPs/issues/677
-8. Loom Plasma cash release : https://medium.com/loom-network/plasma-cash-initial-release-plasma-backed-nfts-now-available-on-loom-network-sidechains-37976d0cfccd
-9. ERC-20 : https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
-10. 0x Unlimited Allowance Function : https://0xproject.com/docs/0x.js#token-setUnlimitedAllowanceAsync
-11. ERC-165 - https://github.com/ethereum/EIPs/blob/master/EIPS/eip-165.md 
+1. **Template EIP** : https://github.com/ethereum/EIPs/blob/master/eip-X.md
+2. **ERC-1155** : https://github.com/ethereum/EIPs/issues/1155
+3. **Enjicoin Item Standard (ERC-1155)** : https://blog.enjincoin.io/erc-1155-the-crypto-item-standard-ac9cf1c5a226
+4. **RFC 2119 Key Requirement Levels Words : https://www.ietf.org/rfc/rfc2119.txt
+5. **ERC-721** : [EIP-721](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md)
+6. **ERC-223** : https://github.com/ethereum/EIPs/issues/223 
+7. **ERC-677** : https://github.com/ethereum/EIPs/issues/677
+8. **Loom Plasma Cash Release** : https://medium.com/loom-network/plasma-cash-initial-release-plasma-backed-nfts-now-available-on-loom-network-sidechains-37976d0cfccd
+9. **ERC-20** : https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
+10. **0x Unlimited Allowance Function** : https://0xproject.com/docs/0x.js#token-setUnlimitedAllowanceAsync
+11. **ERC-165** : https://github.com/ethereum/EIPs/blob/master/EIPS/eip-165.md 
