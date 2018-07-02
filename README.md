@@ -79,7 +79,6 @@ A wallet/broker/auction application MUST implement the **wallet interface** if i
 interface ERCXXXXTokenReceiver {
 
   function onERCXXXXReceived(address _operator, address _from, uint256 _tokenType, uint256 _amount, bytes _data) external returns(bytes4);
-
   function onERCXXXXBatchReceived(address _operator, address _from, uint256[] _tokenTypes, uint256[] _amounts, bytes _data) external returns(bytes4)
 }
 ```
