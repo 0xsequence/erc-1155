@@ -28,7 +28,6 @@ interface ERCXXXXTokenReceiver {
     external 
     returns(bytes4);
 
-
   /**
    * @dev Handle the receipt of multiple fungible tokens from an MFT contract. The ERCXXXX smart contract calls 
    * this function on the recipient after a `batchTransfer`. This function MAY throw to revert and reject the 

@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
+pragma experimental ABIEncoderV2;
 
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/AddressUtils.sol";
 import "./ERCXXXXTokenReceiver.sol";
@@ -11,59 +12,70 @@ import "./ERCXXXXTokenReceiver.sol";
 // * Implement transferAndCall (or safeTransfer)
 // * Optimize everything
 // * Need to support ERC-165
+// * TODO: SafeBatchTransfer()
 
 interface ERCXXXX {
+  // Events
   event Transfer(address from, address to, uint256 tokenType, uint256 amount);
   event BatchTransfer(address from, address to, uint256[] tokenTypes, uint256[] amounts);
-  event ApprovalForAll(address tokensHolder, address operator, bool status);
+  event ApprovalForAll(address tokensOwner, address operator, bool approved);
 
+  // Regular transfers functions
   function transferFrom(address _from, address _to, uint256 _type, uint256 _amount) external;
-  function batchTransferFrom(address _from, address _to, uint256[] _types, uint256[] _amounts) external;
+  function batchTransferFrom(address _from, address _to, uint256[] _types, uint256[] _amounts) public;
+  
+  // Safe Transfer functions
   function safeTransferFrom(address _from, address _to, uint256 _type, uint256 _amount, bytes _data) external;
+  function safeBatchTransferFrom(address _from, address _to, uint256[] _types, uint256[] _amounts, bytes _data) public;
+  
+  // Return balance function
   function balanceOf(address _address, uint256 _type) external view returns (uint256);
 
+  // Operator functions
   function setApprovalForAll(address _operator, address _tokenHolder) external;
   function isApprovedForAll(address _owner, address _operator) external view returns (bool isOperator);
 }
 
-
-contract MultiFungibleToken { 
-  using SafeMath     for uint256;
+/**
+* @dev Multi-Fungible Tokens contract. This implementation of the MFT standard exploit the fact that
+*      balances of different token types can be concatenated within individual uint256 storage slots.
+*      This allows the contract to batch transfer tokens more efficiently at the cost of limiting the 
+*      maximum token balance each address can hold. This limit is 2^TYPES_BITS_SIZE, which can be 
+*      adjusted below. In practice, using TYPES_BITS_SIZE smaller than 16 did not lead to major 
+*      efficiency gains. This token contract tries to adhere to ERC-1055 standard, but currently
+*      diverges from it as the standard is currently being constructed.
+*/
+contract MFT { 
+  using SafeMath for uint256;
   using AddressUtils for address;
 
   /** 
   * TO DO
-  *  - Optimize bin, index quering - Maybe struct? smaller uint for bin and index?
-  *  - Implement transferAndCall (or safeTransfer)
+  *  - Optimize bin, index quering, update balance process
   *  - Optimize everything 
   *  - Need to support ERC-165
   */
 
   //
-  // Storage and Events
+  // Storage
   //
 
-  // Constants
-  uint8   constant public decimals            = 0;                   // Number of decimals                               
-  bytes4  constant public ERCXXXX_RECEIVE_SIG = 0xeb510be8;          // onERCXXXXReceive function signature, obtained via : 
-                                                                     //   bytes4(keccak256("onERCXXXXReceived(address,address,uint256,uint256,bytes)"));
-
-  uint256 constant public NUMBER_OF_TYPES   = 2**32;                 // Maximum number of object types (higher is bigger deployment cost)
-  uint256 constant public TYPES_BITS_SIZE   = 16;                    // Max size of each object
-  uint256 constant public TYPES_PER_UINT256 = 256 / TYPES_BITS_SIZE; // Number of types per uint256
-
-  // Deployment cost
-  // 2**16 : 3,488,299
-  // 2**64 : 3,507,993
+  // onReceive function signatures                              
+  bytes4 constant ERCXXXX_RECEIVE_SIG       = 0xeb510be8; // bytes4(keccak256("onERCXXXXReceived(address,address,uint256,uint256,bytes)"));                
+  bytes4 constant ERCXXXX_BATCH_RECEIVE_SIG = 0xe9e5be6a; // bytes4(keccak256("onERCXXXXBatchReceived(address,address,uint256[],uint256[],bytes)"));
+ 
+  // Constants regarding bin or chunk sizes for balance packing
+  uint256 constant TYPES_BITS_SIZE   = 16;                     // Max size of each object
+  uint256 constant TYPES_PER_UINT256 = 256 / TYPES_BITS_SIZE; // Number of types per uint256
 
   // Operations for _updateTypeBalance
   enum Operations { Add, Sub, Replace }
 
   // Objects total supply
-  mapping(uint256 => uint256) public totalSupply;
+  mapping(uint256 => uint256) totalSupply;
 
   // Objects balances ; balances[address][type] => balance (using array instead of mapping for efficiency)
-  mapping (address => uint256[NUMBER_OF_TYPES / TYPES_PER_UINT256]) balances;
+  mapping (address => mapping(uint256 => uint256)) balances;
 
   // Operators
   mapping (address => mapping(address => bool)) operators;
@@ -87,18 +99,8 @@ contract MultiFungibleToken {
    * @param _amount uint256 the amount of tokens to be transferred
    */
   function transferFrom(address _from, address _to, uint256 _type, uint256 _amount) external {
-
-    // Requirements
-    require( (msg.sender == _from) || operators[_from][msg.sender], 'msg.sender is neither _from nor operator');
-    require(_to != address(0),                                      'Invalid recipient');
-    // require(_amount <= balances);  Not necessary since checked with .sub16 method
-
-    // Update balances
-    _updateTypeBalance(_from, _type, _amount, Operations.Sub); // Subtract value from sender
-    _updateTypeBalance(_to,   _type, _amount, Operations.Add); // Add value to recipient
-
-    // Emit transfer Event
-    emit Transfer(_from, _to, _type, _amount);
+    //Transfering tokens
+    _transferFrom(_from, _to, _type, _amount);
   }
 
   /**
@@ -107,8 +109,28 @@ contract MultiFungibleToken {
    * @param _to Address The address which you want to transfer to
    * @param _type type to update balance of 
    * @param _amount The amount of tokens of provided type to be transferred
+   * @param _data Data to pass to onERCXXXXReceived() function if recipient is contract
    */
   function safeTransferFrom(address _from, address _to, uint256 _type, uint256 _amount, bytes _data) external {
+    
+    //Transfering tokens
+    _transferFrom(_from, _to, _type, _amount);
+
+    // Pass data if recipient is contract
+    if (_to.isContract()) {
+      bytes4 retval =  ERCXXXXTokenReceiver(_to).onERCXXXXReceived(msg.sender, _from, _type, _amount, _data);
+      require(retval == ERCXXXX_RECEIVE_SIG);
+    }
+  }
+
+  /**
+   * @dev Allow _from or an operator to transfer tokens from one address to another
+   * @param _from address The address which you want to send tokens from
+   * @param _to address The address which you want to transfer to
+   * @param _type type to update balance of
+   * @param _amount uint256 the amount of tokens to be transferred
+   */
+  function _transferFrom(address _from, address _to, uint256 _type, uint256 _amount) internal {
 
     // Requirements
     require( (msg.sender == _from) || operators[_from][msg.sender], 'msg.sender is neither _from nor operator');
@@ -118,16 +140,24 @@ contract MultiFungibleToken {
     // Update balances
     _updateTypeBalance(_from, _type, _amount, Operations.Sub); // Subtract value from sender
     _updateTypeBalance(_to,   _type, _amount, Operations.Add); // Add value to recipient
-  
-    // Pass data if recipient is contract
-    if (_to.isContract()) {
-      bytes4 retval =  ERCXXXXTokenReceiver(_to).onERCXXXXReceived(msg.sender, _from, _type, _amount, _data);
-      require(retval == ERCXXXX_RECEIVE_SIG);
-    }
 
     // Emit transfer Event
     emit Transfer(_from, _to, _type, _amount);
   }
+
+  /**
+   * @dev transfer objects from different types to specified address
+   * @param _from The address to BatchTransfer objects from.
+   * @param _to The address to batchTransfer objects to.
+   * @param _types Array of types to update balance of
+   * @param _amounts Array of amount of object per type to be transferred.
+   * Note:  Arrays should be sorted so that all types in a same bin are adjacent (more efficient).
+   */
+  function batchTransferFrom(address _from, address _to, uint256[] _types, uint256[] _amounts) public {
+    // Batch Transfering
+    _batchTransferFrom(_from, _to, _types, _amounts);
+  }
+
 
  /**
   * @dev transfer objects from different types to specified address
@@ -135,9 +165,31 @@ contract MultiFungibleToken {
   * @param _to The address to batchTransfer objects to.
   * @param _types Array of types to update balance of
   * @param _amounts Array of amount of object per type to be transferred.
+  * @param _data Data to pass to onERCXXXXReceived() function if recipient is contract
   * Note:  Arrays should be sorted so that all types in a same bin are adjacent (more efficient).
   */
-  function batchTransferFrom(address _from, address _to, uint256[] _types, uint256[] _amounts) external {
+  function safeBatchTransferFrom(address _from, address _to, uint256[] _types, uint256[] _amounts, bytes _data) public {
+
+    // Batch Transfering
+    _batchTransferFrom(_from, _to, _types, _amounts);
+
+    // Pass data if recipient is contract
+    if (_to.isContract()) {
+      bytes4 retval =  ERCXXXXTokenReceiver(_to).onERCXXXXBatchReceived(msg.sender, _from, _types, _amounts, _data);
+      require(retval == ERCXXXX_BATCH_RECEIVE_SIG);
+    }
+  }
+
+
+  /**
+   * @dev transfer objects from different types to specified address
+   * @param _from The address to BatchTransfer objects from.
+   * @param _to The address to batchTransfer objects to.
+   * @param _types Array of types to update balance of
+   * @param _amounts Array of amount of object per type to be transferred.
+   * Note:  Arrays should be sorted so that all types in a same bin are adjacent (more efficient).
+   */
+  function _batchTransferFrom(address _from, address _to, uint256[] _types, uint256[] _amounts) internal {
 
     // Requirements
     require( (msg.sender == _from) || operators[_from][msg.sender], 'msg.sender is neither sender or operator');
@@ -190,7 +242,6 @@ contract MultiFungibleToken {
   }
 
 
-
   //
   // Operator Functions
   //
@@ -216,7 +267,7 @@ contract MultiFungibleToken {
     return operators[_owner][_operator];
   }
 
-
+ 
 
   //
   // Objects and Types Functions

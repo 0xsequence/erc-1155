@@ -142,4 +142,4 @@ Current repository is one implementation example which utilizes balance packing.
 8. **Loom Plasma Cash Release** : https://medium.com/loom-network/plasma-cash-initial-release-plasma-backed-nfts-now-available-on-loom-network-sidechains-37976d0cfccd
 9. **ERC-20** : https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
 10. **0x Unlimited Allowance Function** : https://0xproject.com/docs/0x.js#token-setUnlimitedAllowanceAsync
-11. **ERC-165** : https://github.com/ethereum/EIPs/blob/master/EIPS/eip-165.md 
+11. **ERC-165** : https://github.com/ethereum/EIPs/blob/master/EIPS/eip-165.md

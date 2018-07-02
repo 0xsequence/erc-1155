@@ -1,7 +1,15 @@
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
   // to customize your Truffle configuration!
-  
+
+  solc: {
+    optimizer: {
+      enabled: true,
+      runs: 1000
+    },
+    evmVersion: "byzantium"
+  },
+
   networks: {
     ganache: {
       host: '127.0.0.1',
