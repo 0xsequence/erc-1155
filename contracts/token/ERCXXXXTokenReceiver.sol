@@ -50,5 +50,5 @@ interface ERCXXXXTokenReceiver {
     bytes _data
     )
     external
-    returns(bytes4)
+    returns(bytes4);
 }
