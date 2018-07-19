@@ -6,11 +6,12 @@ contract RegularToken {
   using SafeMath for uint256;  
 
   //Copy constants from LFT contract
-  uint256 constant public NUMBER_OF_CLASSES   = 2**13;    // Maximum number of object classes
   uint256 constant public CLASSES_BITS_SIZE   = 16;       // Max size of each object
   uint256 constant public CLASSES_PER_UINT256 = 256 / 16; // 256 / CLASSES_BITS_SIZE
 
-  mapping (address => mapping(uint256 => uint256)) public balances; 
+  // Balances
+  mapping (address => mapping(uint256 => uint256)) balances; 
+
   // Operators
   mapping (address => mapping(address => bool)) operators;
 
