@@ -11,27 +11,27 @@ contract RegularToken {
   uint256 constant public CLASSES_PER_UINT256 = 256 / 16; // 256 / CLASSES_BITS_SIZE
 
   mapping (address => mapping(uint256 => uint256)) public balances; 
-  mapping (address => bool) public starterDeckReceived;
+  // Operators
+  mapping (address => mapping(address => bool)) operators;
 
   //Event 
   event Transfer(address from, address to, uint256 value);
   event BatchTransfer(address from, address to, uint256[] classes, uint256[] amounts);
 
-  constructor(uint256 _initBalance) public {
-    for (uint256 i = 0; i<32; i++) {
-      balances[msg.sender][i] = _initBalance;
-    }
-  }
+  constructor() public { }
 
   function balanceOf(address _address, uint256 _class) public view returns (uint256) {
     return balances[_address][_class];
   }
 
-  function mint(address _address, uint256 _class, uint256 _value) public {
+  function mockMint(address _address, uint256 _class, uint256 _value) public {
     balances[_address][_class] += _value; 
   }
 
-  function batchTransfer(address _to, uint256[] _classes, uint256[] _values) public {
+  function batchTransferFrom(address _from, address _to, uint256[] _classes, uint256[] _values) public {
+    require( (msg.sender == _from) || operators[_from][msg.sender], 'msg.sender is neither _from nor operator');
+    require(_to != address(0),                                      'Invalid recipient');
+
     uint256 cnt = _values.length;
     uint256 amount;
     uint256 class;
@@ -41,11 +41,11 @@ contract RegularToken {
       class  = _classes[i];
 
       //Transfering
-      balances[msg.sender][class] = balances[msg.sender][class].sub(amount);
+      balances[_from][class] = balances[_from][class].sub(amount);
       balances[_to][class] = balances[_to][class].add(amount);
     }
 
-    emit BatchTransfer(msg.sender, _to, _classes, _values);
+    emit BatchTransfer(_from, _to, _classes, _values);
   }
 
  
