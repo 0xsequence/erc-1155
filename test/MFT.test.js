@@ -17,7 +17,7 @@ require('chai')
 const MFTMock = artifacts.require('MFTMock');
 const RegularToken = artifacts.require('RegularToken');
 
-const LARGEVAL = 100792082237306195423570985008687907853269984665640564039457584007913129639934;
+const LARGEVAL = 2**256-2;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 contract('MFTMock', function ([_, owner, receiver, anyone, operator]) { 
@@ -31,8 +31,8 @@ contract('MFTMock', function ([_, owner, receiver, anyone, operator]) {
     describe('Bitwise functions', function () { 
 
       it('getValueInBin should return expected balance for given types', async function () {
-        let expected = 57046;
-        let balance = await this.token.getValueInBin(LARGEVAL, 0);
+        let expected = 2**16-2;
+        let balance = await this.token.getValueInBin(LARGEVAL, 15);
         balance.should.be.bignumber.equal(expected);
       });
 
@@ -75,7 +75,7 @@ contract('MFTMock', function ([_, owner, receiver, anyone, operator]) {
 
       beforeEach(async function () {
         let tx = await this.token.mockMint(owner, 5, 256, {gasPrice: 1});
-        console.log(tx.receipt.gasUsed)
+        // console.log(tx.receipt.gasUsed)
       })
 
       /*
@@ -101,9 +101,9 @@ contract('MFTMock', function ([_, owner, receiver, anyone, operator]) {
         await this.token.mockMint(owner, 0, 256, {gasPrice: 1});
       })
 
-      it('should be able to transfer if sufficient balance', async function () {
-        let tx = await this.token.transferFrom(owner, receiver, 0, 1, {from: owner}).should.be.fulfilled;
-        //console.log(tx.receipt.gasUsed);
+      it.only('should be able to transfer if sufficient balance', async function () {
+        let tx = await this.token.transferFrom(receiver, 0, 1, {from: owner}).should.be.fulfilled;
+        console.log(tx.receipt.gasUsed);
       });
 
       it('should REVERT if insufficient balance', async function () {
@@ -197,42 +197,11 @@ contract('MFTMock', function ([_, owner, receiver, anyone, operator]) {
 
       })
 
-      it('BatchTransfer 100 gas cost', async function () {
-          let tx = await this.token.batchTransferFrom(owner, receiver, types, values, {from: owner});
-          console.log('BatchTransferFrom single gas :' + tx.receipt.gasUsed)
-      });
-
-      it('Transfer single gas cost', async function () {
-          let tx = await this.token.transferFrom(owner, receiver, 0, 5, {from: owner});
-          console.log('transferFrom single gas :' + tx.receipt.gasUsed)
-      });
-
       it('should emit BatchTransfer event', async function () {
           let tx = await this.token.batchTransferFrom(owner, receiver, types, values, {from: owner});
           let event = tx.logs[0].event;
           event.should.be.equal('BatchTransfer');
       });
-
-      it('efficiency test load: ordered bin visted', async function (){
-        let tx = await this.token.batchTransferFrom(owner, anyone, types, values, {from: owner});
-        let gasPerBalance = tx.receipt.gasUsed / nTokenTypes;
-        console.log('gasUsed:', tx.receipt.gasUsed);
-        console.log('gasPerType:', gasPerBalance);
-      })
-
-      it('efficiency test regular ERC-20', async function (){
-        let ERC20 = await RegularToken.new(10000000000, {from: owner});
-
-        for (var i = 0; i < types.length; i++){
-          await ERC20.mint(owner, types[i], values[i]);
-        }
-
-        let tx = await ERC20.batchTransfer(receiver, types, values, {from: owner});
-        let gasPerBalance = tx.receipt.gasUsed / types.length;
-        console.log('gasUsed:', tx.receipt.gasUsed);
-        console.log('gasPerType:', gasPerBalance);
-      })
-
 
     })
 
