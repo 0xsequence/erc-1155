@@ -17,7 +17,7 @@ require('chai')
 const MFTMock = artifacts.require('MFTMock');
 const RegularToken = artifacts.require('RegularToken');
 
-const LARGEVAL = 2**256-2;
+const LARGEVAL = new BigNumber(2).pow(256).minus(2); // 2^256 - 2
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 contract('MFTMock', function ([_, owner, receiver, anyone, operator]) { 
@@ -31,7 +31,7 @@ contract('MFTMock', function ([_, owner, receiver, anyone, operator]) {
     describe('Bitwise functions', function () { 
 
       it('getValueInBin should return expected balance for given types', async function () {
-        let expected = 2**16-2;
+        let expected = new BigNumber(2).pow(16).minus(2); // 2**16-2
         let balance = await this.token.getValueInBin(LARGEVAL, 15);
         balance.should.be.bignumber.equal(expected);
       });
@@ -43,8 +43,9 @@ contract('MFTMock', function ([_, owner, receiver, anyone, operator]) {
         balance.should.be.bignumber.equal(targetVal);
       });
 
-      it('writeValueInBin should throw if value is above 2**16', async function () {
-        let targetVal  = 2**16+1;
+      it('writeValueInBin should throw if value is above 2**16-1', async function () {
+
+        let targetVal  = new BigNumber(2).pow(16);
         let writtenBin = await this.token.writeValueInBin(LARGEVAL, 0, targetVal).should.be.rejected;
       });
 
@@ -101,9 +102,8 @@ contract('MFTMock', function ([_, owner, receiver, anyone, operator]) {
         await this.token.mockMint(owner, 0, 256, {gasPrice: 1});
       })
 
-      it.only('should be able to transfer if sufficient balance', async function () {
-        let tx = await this.token.transferFrom(receiver, 0, 1, {from: owner}).should.be.fulfilled;
-        console.log(tx.receipt.gasUsed);
+      it('should be able to transfer if sufficient balance', async function () {
+        let tx = await this.token.transferFrom(owner, receiver, 0, 1, {from: owner}).should.be.fulfilled;
       });
 
       it('should REVERT if insufficient balance', async function () {
