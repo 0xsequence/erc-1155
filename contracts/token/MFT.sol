@@ -1,11 +1,10 @@
 pragma solidity ^0.4.24;
 pragma experimental ABIEncoderV2;
 
-
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/AddressUtils.sol";
 import "./ERCXXXXTokenReceiver.sol";
-
+import "./IMFT.sol";
 
 // TODO
 // * Optimize bin, index quering - Maybe struct? smaller uint for bin and index?
@@ -13,28 +12,6 @@ import "./ERCXXXXTokenReceiver.sol";
 // * Optimize everything
 // * Need to support ERC-165
 // * TODO: SafeBatchTransfer()
-
-interface ERCXXXX {
-  // Events
-  event Transfer(address from, address to, uint256 tokenType, uint256 amount);
-  event BatchTransfer(address from, address to, uint256[] tokenTypes, uint256[] amounts);
-  event ApprovalForAll(address tokensOwner, address operator, bool approved);
-
-  // Regular transfers functions
-  function transferFrom(address _from, address _to, uint256 _type, uint256 _amount) external;
-  function batchTransferFrom(address _from, address _to, uint256[] _types, uint256[] _amounts) public;
-  
-  // Safe Transfer functions
-  function safeTransferFrom(address _from, address _to, uint256 _type, uint256 _amount, bytes _data) external;
-  function safeBatchTransferFrom(address _from, address _to, uint256[] _types, uint256[] _amounts, bytes _data) public;
-  
-  // Return balance function
-  function balanceOf(address _address, uint256 _type) external view returns (uint256);
-
-  // Operator functions
-  function setApprovalForAll(address _operator, address _tokenHolder) external;
-  function isApprovedForAll(address _owner, address _operator) external view returns (bool isOperator);
-}
 
 /**
 * @dev Multi-Fungible Tokens contract. This implementation of the MFT standard exploit the fact that
@@ -45,16 +22,9 @@ interface ERCXXXX {
 *      efficiency gains. This token contract tries to adhere to ERC-1055 standard, but currently
 *      diverges from it as the standard is currently being constructed.
 */
-contract MFT { 
+contract MFT is IMFT { 
   using SafeMath for uint256;
   using AddressUtils for address;
-
-  /** 
-  * TO DO
-  *  - Optimize bin, index quering, update balance process
-  *  - Optimize everything 
-  *  - Need to support ERC-165
-  */
 
   //
   // Storage

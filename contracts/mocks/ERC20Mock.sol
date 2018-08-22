@@ -8,7 +8,7 @@ contract ERC20Mock is StandardToken {
 
   constructor() public { }
 
-  event TTtransfer(address token);
+  event Transfer(address token);
 
   function mockMint(address _address, uint256 _amount) public {
     balances[_address] = balances[_address].add(_amount);
@@ -20,7 +20,7 @@ contract ERC20Mock is StandardToken {
 
     for (uint256 i = 0; i < _amounts.length; i++){
       require( StandardToken(_tokens[i]).transfer(to, _amounts[i]) );
-      TTtransfer(_tokens[i]);
+      emit Transfer(_tokens[i]);
     }
 
   }
