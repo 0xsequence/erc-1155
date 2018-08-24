@@ -91,27 +91,27 @@ Here, some design decisions are explained.
 #### 1. Possibling balance packing efficiency gains 
 Every optimization claim should be backed by some tests and you will find these in this section. We transferred 100 token types using each token standard discussed in this post and we show the total gas cost and the gas cost per token type. In the case of ERC-721, each token type is a different NFT. In the case of ERC-20, each token type is a different ERC-20 token, stored in different contracts. For both ERC-721 and ERC-20, we also wrote a wrapper contract that transfer on the behalf of users, saving on the base transaction cost. The cost here does not include the approval call cost that such wrapping contracts would necessitate. 
 
-##### Transferring 100 ERC-721 tokens in different transaction calls:
+*Transferring 100 ERC-721 tokens in different transaction calls:*
 - **Total gas cost :** 5,113,036
 - **Gas Cost Per Transfer :** 51,130
 
-##### Transferring 100 ERC-721 tokens with a wrapper contract:
+*Transferring 100 ERC-721 tokens with a wrapper contract:*
 - **Total gas cost :** 2,463,700
 - **Gas Cost Per Transfer :** 24,637
 
-##### Transferring 100 ERC-20 tokens in different transaction calls:
+*Transferring 100 ERC-20 tokens in different transaction calls:*
 - **Total gas cost :** 5,153,300
 - **Gas Cost Per Transfer :** 51,533
 
-##### Transferring 100 ERC-20 tokens with wrapper contract:
+*Transferring 100 ERC-20 tokens with wrapper contract:*
 - **Total gas cost :** 3,373,822
 - **Gas Cost Per Transfer :** 33,738
 
-##### Transferring 100 fungible tokens from MFT contract without balance packing:
+*Transferring 100 fungible tokens from MFT contract without balance packing:*
 - **Total gas cost :** 2,788,039
 - **Gas Cost Per Transfer :** 27,880
 
-##### Transferring 100 fungible tokens from MFT contract with balance packing:
+*Transferring 100 fungible tokens from MFT contract with balance packing:*
 - **Total gas cost :** 467,173
 - **Gas Cost Per Transfer :** 4,671
 
