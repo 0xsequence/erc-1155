@@ -115,7 +115,7 @@ Every optimization claim should be backed by some tests and you will find these 
 - **Total gas cost :** 467,173
 - **Gas Cost Per Transfer :** 4,671
 
-We can see that the balance packing can offer significant efficiency gain under the right circumstances, up to 10x saving compared to regular transfers and 5x–7x when using wrapper contracts for batch transfers. In addition, I am fairly convinced additional significant optimization are possible without adding much complexity.
+Note that the balance packing calculation assumes tokens are IDs are neighbours, hence the result above is a cost lower bound. We can see that the balance packing can offer significant efficiency gain under the right circumstances, up to 10x saving compared to regular transfers and 5x–7x when using wrapper contracts for batch transfers. In addition, we are fairly convinced additional significant optimization are possible without adding much complexity.
 
 #### 2. Boolean Logic For "Approvals" Instead of Using `uints`
 
