@@ -86,39 +86,50 @@ interface ERCXXXXTokenReceiver {
 
 # Rationale
 
-The present interface diverges from the interface proposed in [ERC-1155]( https://github.com/ethereum/EIPs/issues/1155) in a few ways. 
+Here, some design decisions are explained.
 
+#### 1. Possibling balance packing efficiency gains 
+Every optimization claim should be backed by some tests and you will find these in this section. We transferred 100 token types using each token standard discussed in this post and we show the total gas cost and the gas cost per token type. In the case of ERC-721, each token type is a different NFT. In the case of ERC-20, each token type is a different ERC-20 token, stored in different contracts. For both ERC-721 and ERC-20, we also wrote a wrapper contract that transfer on the behalf of users, saving on the base transaction cost. The cost here does not include the approval call cost that such wrapping contracts would necessitate. 
 
+##### Transferring 100 ERC-721 tokens in different transaction calls:
+- **Total gas cost :** 5,113,036
+- **Gas Cost Per Transfer :** 51,130
 
-#### 1. Removing the `transfer()` Function
+##### Transferring 100 ERC-721 tokens with a wrapper contract:
+- **Total gas cost :** 2,463,700
+- **Gas Cost Per Transfer :** 24,637
 
-In concordance to [EIP-721](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md), the `transfer()` function has been removed for simplicity and explicitly. `transfer()` is a special case of `transferFrom()` where the `_from == msg.sender`. Removing this special case and encouraging the more explicit transfer function form, `transferFrom()`, both simplifies user experience and reduces the chance of human errors. 
+##### Transferring 100 ERC-20 tokens in different transaction calls:
+- **Total gas cost :** 5,153,300
+- **Gas Cost Per Transfer :** 51,533
 
-#### 2. Adding `safeTransfer` Methods
+##### Transferring 100 ERC-20 tokens with wrapper contract:
+- **Total gas cost :** 3,373,822
+- **Gas Cost Per Transfer :** 33,738
 
-As discussed in various ERCs, such as [223](https://github.com/ethereum/EIPs/issues/223), [677](https://github.com/ethereum/EIPs/issues/677) and [721](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md), verifying if the recipient is a contract and if it is, whether it supports a given token standard is both useful and secure. Useful because contracts without a `onERCXXXXReceived()` method can not be notified that some tokens were transfered to it and therefore can not react properly. For instance, [Loom](https://loomx.io/) [released a plasma cash](https://medium.com/loom-network/plasma-cash-initial-release-plasma-backed-nfts-now-available-on-loom-network-sidechains-37976d0cfccd) implementation draft supporting ERC-721 tokens where users need to transfer their tokens by calling the `safeTransferFrom()` function. This function will then call the `deposit()` function on the plasma contract, properly depositing the transfered token. Without the implementation of the `safeTransferFrom()`, users would first need to call the `approveForAll()` function to set the plasma contract as an operator and then make a second transaction to call the `deposit()` function on the plasma contract. 
+##### Transferring 100 fungible tokens from MFT contract without balance packing:
+- **Total gas cost :** 2,788,039
+- **Gas Cost Per Transfer :** 27,880
 
-Verifying whether the recipient is a contract or not mitigate the risk of transferring tokens to an address where they would be permanently frozen, hence the term `safe`. 
+##### Transferring 100 fungible tokens from MFT contract with balance packing:
+- **Total gas cost :** 467,173
+- **Gas Cost Per Transfer :** 4,671
 
-#### 3. Boolean Logic For "Approvals" Instead of Using `uints`
+We can see that the balance packing can offer significant efficiency gain under the right circumstances, up to 10x saving compared to regular transfers and 5x–7x when using wrapper contracts for batch transfers. In addition, I am fairly convinced additional significant optimization are possible without adding much complexity.
+
+#### 2. Boolean Logic For "Approvals" Instead of Using `uints`
 
 The current [ERC-1155]( https://github.com/ethereum/EIPs/issues/1155) interface uses the [ERC-20](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md) approval logic which is somewhat cumbersome and inefficient. In practice, *approvals* are almost exclusively used when users want to interact with a contract and this contract want to control the users fund on their behalf. Indeed, users usually set an "unlimited allowance" (e.g. `2^256-1`) to contracts so that they only need to set this allowance once (see [0x.js example](https://0xproject.com/docs/0x.js#token-setUnlimitedAllowanceAsync)). In addition, using a quantitative allowance approach means that every `transferFrom()` call will need to update the `allowance()` of each `n` token types transfered, adding a base cost of `n*5000` gas. 
 
 Instead, we propose using a simple boolean mapping via the `setApprovalForAll()` function. This function will set any address as an operator, meaning that it will be able to transfer all the users tokens stored in the MFT contracts on their behalf. This is both simpler and more efficient than the currently proposed approach. In addition, the interface is simplified to one "approval" function instead of six. We would've preferred using the term "operator" in the function name itself, such as `setOperator()`, but decided otherwise to conform to other standards like ERC-721.  Stronger security could be added by only allowing contracts to be operators, although this does not seem necessary.
 
-#### 4. Setting `totalSupply()` as an Optional View Function
+#### 3. Setting `totalSupply()` as an Optional View Function
 
 Tracking the total supply of each token type on-chain means that minting cost will be increase by at least `5k` gas, up to `20k` gas for initial supply. This increase the minting cost significantly in the case of packed balance MFT contracts, where the current cost of minting 100 token types is around `350k` gas (`3.5k` gas per token type minted) if all balances were at 0. Hence, tracking the total supply would more than double the gas cost per token type minted, which seems unreasonable. 
 
 In addition, it is also not clear how useful it is for third parties to know the total supply of each token type. The only third parties we know of that display total supplies are block chain explorers (e.g. [Etherscan](https://etherscan.io/)) and market trackers (e.g. [CoinMarketCap](https://coinmarketcap.com/)). To the best of our knowledge, we are not aware of any exchange or wallet using this information. 
 
 Regardless of usefulness, since contract event emission is deterministic, it is always possible for anyone to compute the total supply of all token types *off-chain* by syncing a full node and adding up all the minting events since the contract's block creation. Hence, even if not explicitly stored on-chain, anyone has the possibility to calculate accurately the total supply of all token types within an MFT contract. In general, it is our opinion that better off-chain contract state querying tools would greatly benefit the community while significantly decreasing on-chain transaction costs. 
-
-#### 5. Only Fungible Tokens vs Mixed Fungible and Non-Fungible Tokens
-
-The current [ERC-1155]( https://github.com/ethereum/EIPs/issues/1155) standard discusses how this type of contract can support fungible tokens *and* Non-Fungible Tokens (NFTs). While this is an interesting use case, **we believe two standard interfaces would be more appropriate** ; **fungible tokens only** and **mix of fungible tokens and NFTs.** We believe that all mix implementations will implement the "optional" NFT functions proposed, or at the very least the`ownerOf(_itemId)` function. Indeed, the latter is mandatory in the ERC-721 standard, which is currently the most popular NFT standard interface, and is a very useful function when the total number of token ID becomes large. Hence, it make more sense for us to have an explicit difference between fungible tokens only implementations and mixed ones, where the mixed implementation *should* implement the `ownerOf(_itemID)` function among others.
-
-[ERC-165](<https://github.com/ethereum/EIPs/blob/master/EIPS/eip-165.md>) could be used to distinguish these two standards. 
 
 # Backwards Compatibility
 
