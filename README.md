@@ -1,6 +1,6 @@
-# Multi-Fungible-Tokens (MFT) contract for Ethereum
+# Multi Fungible-Tokens (MFT) contract for Ethereum
 
-Multi Fungible Token interface and implementation for Ethereum.
+A specific implementation of a Multi Class Token (MCT) contracts where all token classes are fungible. 
 
 # Dev / running the tests
 
@@ -10,19 +10,19 @@ Multi Fungible Token interface and implementation for Ethereum.
 
 # Simple Summary
 
-An implementation example of a standard **Multi-Fungible Tokens (MFT)** contract, which contains multiple types of fungible tokens referenced by IDs. Standard interface discussion at [ERC-1155](https://github.com/ethereum/EIPs/issues/1155). 
+An implementation example of a standard **Multi-Fungible Tokens (MFT)** contract, which contains multiple classes of fungible tokens referenced by IDs. Standard interface discussion at [ERC-1155](https://github.com/ethereum/EIPs/issues/1155). 
 
 # Abstract
 
-The contracts in this repository follow a standard implementation of an MFT contract. This standard provides basic functionality to track and transfer MFTs and the interface provide an API other contracts and off-chain third parties can use.
+The contracts in this repository follow a standard implementation of an MCT contract. This standard provides basic functionality to track and transfer MCT and the interface provide an API other contracts and off-chain third parties can use.
 
-MFT contracts keep track of many token balances, which can lead to significant efficiency gains when batch transferring multiple token types simultaneously. This is particularly useful for fungible tokens that are likely to be transfered together, such as gaming items (cards, weapons, parts of objects, minerals, etc.). The possible efficiency gains are more significant if the amount of tokens each address can own is capped, as shown in this implementation examples. 
+MCT contracts keep track of many token balances, which can lead to significant efficiency gains when batch transferring multiple token classes simultaneously. This is particularly useful for fungible tokens that are likely to be transfered together, such as gaming items (cards, weapons, parts of objects, minerals, etc.). The possible efficiency gains are more significant if the amount of tokens each address can own is capped, as shown in this implementation examples. 
 
-With the current implementation, which packs multiple balances within a single `uint256` using bitwise operations, transferring 100 different token types costs `467,173` gas, an average of `4,671` gas per token type transfer. Still using MFTs, but without balance packing, transferring 100 different token types costs `2,763,399` gas, an average of `27,633` gas per token transfer. The latter is already an improvement over multiple fungible tokens that are stored on different contracts, since cross-contract calls have a base cost of 700 gas. This is ignoring the cost of initial approvals that would need to be set for each user and existing ERC-20 tokens. MFT contracts also benefit from allowing users to do a single `setApprovalForAll()` call, which will allow an operator to transfer on the users behalf all the contract's token types. 
+With the current implementation, which packs multiple balances within a single `uint256` using bitwise operations, transferring 100 different token classes costs `467,173` gas, an average of `4,671` gas per token type transfer. Still using MFTs, but without balance packing, transferring 100 different token types costs `2,763,399` gas, an average of `27,633` gas per token transfer. The latter is already an improvement over multiple fungible tokens that are stored on different contracts, since cross-contract calls have a base cost of 700 gas. This is ignoring the cost of initial approvals that would need to be set for each user and existing ERC-20 tokens. This contract also benefit from allowing users to do a single `setApprovalForAll()` call as the current ERC-721 standard proposal, which will allow an operator to transfer on the users behalf all the contract's token classes. 
 
 # Motivation
 
-Various applications would benefit from having a single contract keeping track of multiple token types. MFTs Agreeing on a standard interface allows wallet/broker/auction applications to work with any MFT contract on Ethereum. 
+Various applications would benefit from having a single contract keeping track of multiple token classes. Agreeing on a standard interface allows wallet/broker/auction applications to work with any MCT contract on Ethereum. 
 
 # Specification
 
