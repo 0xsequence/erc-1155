@@ -1,6 +1,6 @@
-# Multi Fungible-Tokens (MFT) contract for Ethereum
+# Multi-Tokens (MT) Contract for Ethereum
 
-A specific implementation of a Multi Class Token (MCT) contracts where all token classes are fungible. 
+An implementation of a Multi-Token contracts where all token types are fungible. 
 
 # Dev / running the tests
 
@@ -10,15 +10,15 @@ A specific implementation of a Multi Class Token (MCT) contracts where all token
 
 # Simple Summary
 
-An implementation example of a standard **Multi-Fungible Tokens (MFT)** contract, which contains multiple classes of fungible tokens referenced by IDs. Standard interface discussion at [ERC-1155](https://github.com/ethereum/EIPs/issues/1155). 
+An implementation example of a standard **Multi-Tokens (MT)** contract, which contains multiple classes of fungible tokens referenced by IDs. Standard interface discussion at [ERC-1155](https://github.com/ethereum/EIPs/issues/1155). 
 
 # Abstract
 
-The contracts in this repository follow a standard implementation of an MCT contract. This standard provides basic functionality to track and transfer MCT and the interface provide an API other contracts and off-chain third parties can use.
+The contracts in this repository follow a standard implementation of an MT contract. This standard provides basic functionality to track and transfer MCT and the interface provide an API other contracts and off-chain third parties can use.
 
 MCT contracts keep track of many token balances, which can lead to significant efficiency gains when batch transferring multiple token classes simultaneously. This is particularly useful for fungible tokens that are likely to be transfered together, such as gaming items (cards, weapons, parts of objects, minerals, etc.). The possible efficiency gains are more significant if the amount of tokens each address can own is capped, as shown in this implementation examples. 
 
-With the current implementation, which packs multiple balances within a single `uint256` using bitwise operations, transferring 100 different token classes costs `467,173` gas, an average of `4,671` gas per token type transfer. Still using MFTs, but without balance packing, transferring 100 different token types costs `2,763,399` gas, an average of `27,633` gas per token transfer. The latter is already an improvement over multiple fungible tokens that are stored on different contracts, since cross-contract calls have a base cost of 700 gas. This is ignoring the cost of initial approvals that would need to be set for each user and existing ERC-20 tokens. This contract also benefit from allowing users to do a single `setApprovalForAll()` call as the current ERC-721 standard proposal, which will allow an operator to transfer on the users behalf all the contract's token classes. 
+With the current implementation, which packs multiple balances within a single `uint256` using bitwise operations, transferring 100 different token classes costs `467,173` gas, an average of `4,671` gas per token type transfer. Still using MT, but without balance packing, transferring 100 different token types costs `2,763,399` gas, an average of `27,633` gas per token transfer. The latter is already an improvement over multiple fungible tokens that are stored on different contracts, since cross-contract calls have a base cost of 700 gas. This is ignoring the cost of initial approvals that would need to be set for each user and existing ERC-20 tokens. This contract also benefit from allowing users to do a single `setApprovalForAll()` call as the current ERC-721 standard proposal, which will allow an operator to transfer on the users behalf all the contract's token classes. 
 
 # Motivation
 
@@ -107,11 +107,11 @@ Every optimization claim should be backed by some tests and you will find these 
 - **Total gas cost :** 3,373,822
 - **Gas Cost Per Transfer :** 33,738
 
-*Transferring 100 fungible tokens from MFT contract without balance packing:*
+*Transferring 100 fungible tokens from MT contract without balance packing:*
 - **Total gas cost :** 2,788,039
 - **Gas Cost Per Transfer :** 27,880
 
-*Transferring 100 fungible tokens from MFT contract with balance packing:*
+*Transferring 100 fungible tokens from MT contract with balance packing:*
 - **Total gas cost :** 467,173
 - **Gas Cost Per Transfer :** 4,671
 
@@ -121,15 +121,15 @@ Note that the balance packing calculation assumes tokens are IDs are neighbours,
 
 The current [ERC-1155]( https://github.com/ethereum/EIPs/issues/1155) interface uses the [ERC-20](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md) approval logic which is somewhat cumbersome and inefficient. In practice, *approvals* are almost exclusively used when users want to interact with a contract and this contract want to control the users fund on their behalf. Indeed, users usually set an "unlimited allowance" (e.g. `2^256-1`) to contracts so that they only need to set this allowance once (see [0x.js example](https://0xproject.com/docs/0x.js#token-setUnlimitedAllowanceAsync)). In addition, using a quantitative allowance approach means that every `transferFrom()` call will need to update the `allowance()` of each `n` token types transfered, adding a base cost of `n*5000` gas. 
 
-Instead, we propose using a simple boolean mapping via the `setApprovalForAll()` function. This function will set any address as an operator, meaning that it will be able to transfer all the users tokens stored in the MFT contracts on their behalf. This is both simpler and more efficient than the currently proposed approach. In addition, the interface is simplified to one "approval" function instead of six. We would've preferred using the term "operator" in the function name itself, such as `setOperator()`, but decided otherwise to conform to other standards like ERC-721.  Stronger security could be added by only allowing contracts to be operators, although this does not seem necessary.
+Instead, we propose using a simple boolean mapping via the `setApprovalForAll()` function. This function will set any address as an operator, meaning that it will be able to transfer all the users tokens stored in the MT contracts on their behalf. This is both simpler and more efficient than the currently proposed approach. In addition, the interface is simplified to one "approval" function instead of six. We would've preferred using the term "operator" in the function name itself, such as `setOperator()`, but decided otherwise to conform to other standards like ERC-721.  Stronger security could be added by only allowing contracts to be operators, although this does not seem necessary.
 
 #### 3. Setting `totalSupply()` as an Optional View Function
 
-Tracking the total supply of each token type on-chain means that minting cost will be increase by at least `5k` gas, up to `20k` gas for initial supply. This increase the minting cost significantly in the case of packed balance MFT contracts, where the current cost of minting 100 token types is around `350k` gas (`3.5k` gas per token type minted) if all balances were at 0. Hence, tracking the total supply would more than double the gas cost per token type minted, which seems unreasonable. 
+Tracking the total supply of each token type on-chain means that minting cost will be increase by at least `5k` gas, up to `20k` gas for initial supply. This increase the minting cost significantly in the case of packed balance MT contracts, where the current cost of minting 100 token types is around `350k` gas (`3.5k` gas per token type minted) if all balances were at 0. Hence, tracking the total supply would more than double the gas cost per token type minted, which seems unreasonable. 
 
 In addition, it is also not clear how useful it is for third parties to know the total supply of each token type. The only third parties we know of that display total supplies are block chain explorers (e.g. [Etherscan](https://etherscan.io/)) and market trackers (e.g. [CoinMarketCap](https://coinmarketcap.com/)). To the best of our knowledge, we are not aware of any exchange or wallet using this information. 
 
-Regardless of usefulness, since contract event emission is deterministic, it is always possible for anyone to compute the total supply of all token types *off-chain* by syncing a full node and adding up all the minting events since the contract's block creation. Hence, even if not explicitly stored on-chain, anyone has the possibility to calculate accurately the total supply of all token types within an MFT contract. In general, it is our opinion that better off-chain contract state querying tools would greatly benefit the community while significantly decreasing on-chain transaction costs. 
+Regardless of usefulness, since contract event emission is deterministic, it is always possible for anyone to compute the total supply of all token types *off-chain* by syncing a full node and adding up all the minting events since the contract's block creation. Hence, even if not explicitly stored on-chain, anyone has the possibility to calculate accurately the total supply of all token types within an MT contract. In general, it is our opinion that better off-chain contract state querying tools would greatly benefit the community while significantly decreasing on-chain transaction costs. 
 
 # Backwards Compatibility
 
