@@ -2,9 +2,9 @@ pragma solidity ^0.4.24;
 pragma experimental ABIEncoderV2;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/AddressUtils.sol";
-import "./ERCXXXXTokenReceiver.sol";
-import "./IMFT.sol";
+import "openzeppelin-solidity/contracts/utils/Address.sol";
+import "./ERC1155TokenReceiver.sol";
+import "./IERC1155.sol";
 
 // TODO
 // * Optimize bin, index quering - Maybe struct? smaller uint for bin and index?
@@ -22,17 +22,17 @@ import "./IMFT.sol";
 *      efficiency gains. This token contract tries to adhere to ERC-1055 standard, but currently
 *      diverges from it as the standard is currently being constructed.
 */
-contract MFT is IMFT { 
+contract ERC1155 is IERC1155 { 
   using SafeMath for uint256;
-  using AddressUtils for address;
+  using Address for address;
 
   //
   // Storage
   //
 
   // onReceive function signatures                              
-  bytes4 constant ERCXXXX_RECEIVE_SIG       = 0xeb510be8; // bytes4(keccak256("onERCXXXXReceived(address,address,uint256,uint256,bytes)"));                
-  bytes4 constant ERCXXXX_BATCH_RECEIVE_SIG = 0xe9e5be6a; // bytes4(keccak256("onERCXXXXBatchReceived(address,address,uint256[],uint256[],bytes)"));
+  bytes4 constant ERC1155_RECEIVE_SIG       = 0xeb510be8; // bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));                
+  bytes4 constant ERC1155_BATCH_RECEIVE_SIG = 0xe9e5be6a; // bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"));
  
   // Constants regarding bin or chunk sizes for balance packing
   uint256 constant TYPES_BITS_SIZE   = 16;                     // Max size of each object
@@ -79,7 +79,7 @@ contract MFT is IMFT {
    * @param _to Address The address which you want to transfer to
    * @param _type type to update balance of 
    * @param _amount The amount of tokens of provided type to be transferred
-   * @param _data Data to pass to onERCXXXXReceived() function if recipient is contract
+   * @param _data Data to pass to onERC1155Received() function if recipient is contract
    */
   function safeTransferFrom(address _from, address _to, uint256 _type, uint256 _amount, bytes _data) external {
     
@@ -88,8 +88,8 @@ contract MFT is IMFT {
 
     // Pass data if recipient is contract
     if (_to.isContract()) {
-      bytes4 retval =  ERCXXXXTokenReceiver(_to).onERCXXXXReceived(msg.sender, _from, _type, _amount, _data);
-      require(retval == ERCXXXX_RECEIVE_SIG);
+      bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _type, _amount, _data);
+      require(retval == ERC1155_RECEIVE_SIG);
     }
   }
 
@@ -135,7 +135,7 @@ contract MFT is IMFT {
   * @param _to The address to batchTransfer objects to.
   * @param _types Array of types to update balance of
   * @param _amounts Array of amount of object per type to be transferred.
-  * @param _data Data to pass to onERCXXXXReceived() function if recipient is contract
+  * @param _data Data to pass to onERC1155Received() function if recipient is contract
   * Note:  Arrays should be sorted so that all types in a same bin are adjacent (more efficient).
   */
   function safeBatchTransferFrom(address _from, address _to, uint256[] _types, uint256[] _amounts, bytes _data) public {
@@ -145,8 +145,8 @@ contract MFT is IMFT {
 
     // Pass data if recipient is contract
     if (_to.isContract()) {
-      bytes4 retval =  ERCXXXXTokenReceiver(_to).onERCXXXXBatchReceived(msg.sender, _from, _types, _amounts, _data);
-      require(retval == ERCXXXX_BATCH_RECEIVE_SIG);
+      bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender, _from, _types, _amounts, _data);
+      require(retval == ERC1155_BATCH_RECEIVE_SIG);
     }
   }
 
@@ -173,7 +173,10 @@ contract MFT is IMFT {
     uint256 balFrom = _viewUpdateTypeBalance(balances[_from][bin], index, _amounts[0], Operations.Sub);
     uint256 balTo   = _viewUpdateTypeBalance(balances[_to][bin],   index, _amounts[0], Operations.Add);
 
-    // Number of transfer to execute1
+    // Trigger event for first transfer
+    emit Transfer(_from, _to, _types[0], _amounts[0]);
+
+    // Number of transfer to execute
     uint256 nTransfer = _types.length;
 
     // Last bin updated
@@ -201,6 +204,9 @@ contract MFT is IMFT {
       // require(_amounts[i] <= balFrom);  Not required since checked with .sub16 method
       balFrom = _viewUpdateTypeBalance(balFrom, index, _amounts[i], Operations.Sub);
       balTo   = _viewUpdateTypeBalance(balTo,   index, _amounts[i], Operations.Add);
+
+      // Emit Transfer event
+      emit Transfer(_from, _to, _types[i], _amounts[i]);
     }
 
     // Update storage of the last bin visited
@@ -208,7 +214,7 @@ contract MFT is IMFT {
     balances[_to][bin]   = balTo;
 
     // Emit batchTransfer event
-    emit BatchTransfer(_from, _to, _types, _amounts);
+    //emit BatchTransfer(_from, _to, _types, _amounts);
   }
 
 

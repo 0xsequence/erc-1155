@@ -1,10 +1,9 @@
 pragma solidity ^0.4.24;
+pragma experimental ABIEncoderV2;
 
-import '../token/MFT.sol';
+import '../token/ERC1155X.sol';
 
-contract MFTMock is MFT {
-
-  constructor() public { }
+contract ERC1155XMock is ERC1155X {
 
   function mockMint(address _address, uint256 _type, uint256 _value) public {
     _updateTypeBalance(_address, _type, _value, Operations.Add);

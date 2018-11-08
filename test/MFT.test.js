@@ -14,17 +14,17 @@ require('chai')
 // Modify existing ERC20 and basic token related tests
 // Test the _updatetypesBalance operations
 
-const MFTMock = artifacts.require('MFTMock');
+const ERC1155Mock = artifacts.require('ERC1155Mock');
 const RegularToken = artifacts.require('RegularToken');
 
 const LARGEVAL = new BigNumber(2).pow(256).minus(2); // 2^256 - 2
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-contract('MFTMock', function ([_, owner, receiver, anyone, operator]) { 
+contract('ERC1155Mock', function ([_, owner, receiver, anyone, operator]) { 
 
-  context('When MFTMock contract is deployed', function (){
+  context('When ERC1155Mock contract is deployed', function (){
     beforeEach(async function () {
-      this.token = await MFTMock.new({from: owner});
+      this.token = await ERC1155Mock.new({from: owner});
       //console.log(web3.eth.getTransactionReceipt(this.token.transactionHash).gasUsed);
     });
 
@@ -197,10 +197,11 @@ contract('MFTMock', function ([_, owner, receiver, anyone, operator]) {
 
       })
 
-      it('should emit BatchTransfer event', async function () {
+      it('should emit N Transfer events', async function () {
           let tx = await this.token.batchTransferFrom(owner, receiver, types, values, {from: owner});
           let event = tx.logs[0].event;
-          event.should.be.equal('BatchTransfer');
+          event.should.be.equal('Transfer');
+          (values.length).should.be.equal(tx.logs.length)
       });
 
     })

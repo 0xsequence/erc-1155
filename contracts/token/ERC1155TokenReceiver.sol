@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 /**
  * @dev ERC-XXXX interface for accepting safe transfers.
  */
-interface ERCXXXXTokenReceiver {
+interface ERC1155TokenReceiver {
 
   /**
    * @dev Handle the receipt of a fungible token from an MFT contract. The ERCXXXX smart contract calls 
@@ -18,7 +18,7 @@ interface ERCXXXXTokenReceiver {
    * @param _amount The amount of token of a given type that was transfered.
    * @param _data Additional data with no specified format.
    */
-  function onERCXXXXReceived(
+  function onERC1155Received(
     address _operator,
     address _from,
     uint256 _type,
@@ -41,7 +41,7 @@ interface ERCXXXXTokenReceiver {
    * @param _amounts Array of amount of object per type to be transferred.
    * @param _data Additional data with no specified format.
    */
-  function onERCXXXXBatchReceived(
+  function onERC1155BatchReceived(
     address _operator,
     address _from,
     uint256[] _types,

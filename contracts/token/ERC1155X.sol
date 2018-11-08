@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 pragma experimental ABIEncoderV2;
 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "./MFT.sol";
+import "./ERC1155.sol";
 
 /**
 * @dev Multi-Fungible Tokens with additional functions. These additional functions allow users
@@ -12,7 +12,7 @@ import "./MFT.sol";
 *
 * TODO : Generic delegated function calls (see https://github.com/ethereum/EIPs/pull/1077/files)
 */ 
-contract MFTX is MFT, Ownable { 
+contract ERC1155X is ERC1155, Ownable { 
 
   // Signature structure
   struct Signature {

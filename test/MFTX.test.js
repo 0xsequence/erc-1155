@@ -14,10 +14,10 @@ require('chai')
 // Modify existing ERC20 and basic token related tests
 // Test the _updatetypesBalance operations
 
-const MFTXMock = artifacts.require('MFTXMock');
+const ERC1155XMock = artifacts.require('ERC1155XMock');
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-contract('MFTXMock', function ([_, owner, receiver, anyone, operator]) { 
+contract('ERC1155XMock', function ([_, owner, receiver, anyone, operator]) { 
 
 
   var Ntypes = 100;
@@ -25,9 +25,9 @@ contract('MFTXMock', function ([_, owner, receiver, anyone, operator]) {
   const typesArray  = Array.apply(null, {length: Ntypes}).map(Number.call, Number);
   const amountArray = Array.apply(null, Array(Ntypes)).map(Number.prototype.valueOf, amountToMint); 
 
-  context('When MFTXMock contract is deployed', function (){
+  context('When ERC1155XMock contract is deployed', function (){
     beforeEach(async function () {
-      this.token = await MFTXMock.new({from: owner});
+      this.token = await ERC1155XMock.new({from: owner});
       //console.log(web3.eth.getTransactionReceipt(this.token.transactionHash).gasUsed);
     });
 

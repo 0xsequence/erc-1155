@@ -1,14 +1,12 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/token/ERC721/ERC721BasicToken.sol";
+import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
-contract ERC721Mock is ERC721BasicToken{
+contract ERC721Mock is ERC721 {
 
   constructor() public { }
-
-  event BatchTransfer(address from, address to, uint256[] tokenIDs);
 
   function mockMint(address _address, uint256 _tokenID) public {
     _mint(_address, _tokenID);
@@ -22,13 +20,8 @@ contract ERC721Mock is ERC721BasicToken{
 
     for (uint256 i = 0; i < _tokenIDs.length; i++){
       tokenID = _tokenIDs[i];
-
-      clearApproval(_from, tokenID);
-      removeTokenFrom(_from, tokenID);
-      addTokenTo(_to, tokenID);
+      transferFrom(_from, _to, tokenID);
     }
-
-    emit BatchTransfer(_from, _to, _tokenIDs);
   }
 
 }
