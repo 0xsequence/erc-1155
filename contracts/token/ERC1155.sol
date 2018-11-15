@@ -31,7 +31,7 @@ contract ERC1155 is IERC1155 {
   //
 
   // onReceive function signatures                              
-  bytes4 constant ERC1155_RECEIVE_SIG       = 0xeb510be8; // bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));                
+  bytes4 constant ERC1155_RECEIVE_SIG       = 0xf23a6e61; // bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));                
   bytes4 constant ERC1155_BATCH_RECEIVE_SIG = 0xe9e5be6a; // bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"));
  
   // Constants regarding bin or chunk sizes for balance packing
@@ -89,7 +89,7 @@ contract ERC1155 is IERC1155 {
     // Pass data if recipient is contract
     if (_to.isContract()) {
       bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _type, _amount, _data);
-      require(retval == ERC1155_RECEIVE_SIG);
+      require(retval == ERC1155_RECEIVE_SIG, 'DOES NOT SUPPORT ERC1155TokenReceiver');
     }
   }
 

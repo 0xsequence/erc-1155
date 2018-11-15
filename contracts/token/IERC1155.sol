@@ -6,7 +6,6 @@ contract IERC1155 {
 
   /**
    * @dev MUST emit when tokens are transferred, including zero value transfers as well as minting or burning.
-   * A `Transfer` event from address `0x0` signifies a minting operation. The total value transferred from address 0x0 minus the total value transferred to 0x0 may be used by clients and exchanges to be added to the "circulating supply" for a given token ID
    * A `Transfer` event to address `0x0` signifies a burning or melting operation. 
    * This MUST emit a zero value, from `0x0` to the creator's address if a token has no initial balance but is being defined/created.
    */
@@ -18,8 +17,6 @@ contract IERC1155 {
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
 
   // ----------------- NOT IN STANDARD ----------------- //
-  //event BatchTransfer(address from, address to, uint256[] tokenTypes, uint256[] amounts);
-  function transferFrom(address _from, address _to, uint256 _type, uint256 _amount) external;
   function batchTransferFrom(address _from, address _to, uint256[] _types, uint256[] _amounts) public;
   // --------------------------------------------------- //
 
