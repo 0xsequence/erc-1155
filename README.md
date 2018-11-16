@@ -16,13 +16,13 @@ An implementation example of a standard **Multi-Tokens (MT)** contract, which co
 
 The contracts in this repository follow a standard implementation of an MT contract. This standard provides basic functionality to track and transfer MCT and the interface provide an API other contracts and off-chain third parties can use.
 
-MCT contracts keep track of many token balances, which can lead to significant efficiency gains when batch transferring multiple token classes simultaneously. This is particularly useful for fungible tokens that are likely to be transfered together, such as gaming items (cards, weapons, parts of objects, minerals, etc.). The possible efficiency gains are more significant if the amount of tokens each address can own is capped, as shown in this implementation examples. 
+MCT contracts keep track of many token balances, which can lead to significant efficiency gains when batch transferring multiple token classes simultaneously. This is particularly useful for fungible tokens that are likely to be transfered together, such as gaming items (cards, weapons, parts of objects, minerals, etc.). The possible efficiency gains are more significant if the amount of tokens each address can own is capped, as shown in this implementation examples.
 
 With the current implementation, which packs multiple balances within a single `uint256` using bitwise operations, transferring 100 different token classes costs `467,173` gas, an average of `4,671` gas per token type transfer. Still using MT, but without balance packing, transferring 100 different token types costs `2,763,399` gas, an average of `27,633` gas per token transfer. The latter is already an improvement over multiple fungible tokens that are stored on different contracts, since cross-contract calls have a base cost of 700 gas. This is ignoring the cost of initial approvals that would need to be set for each user and existing ERC-20 tokens. This contract also benefit from allowing users to do a single `setApprovalForAll()` call as the current ERC-721 standard proposal, which will allow an operator to transfer on the users behalf all the contract's token classes. 
 
 # Motivation
 
-Various applications would benefit from having a single contract keeping track of multiple token classes. Agreeing on a standard interface allows wallet/broker/auction applications to work with any MCT contract on Ethereum. 
+Various applications would benefit from having a single contract keeping track of multiple token classes. Agreeing on a standard interface allows wallet/broker/auction applications to work with any MCT contract on Ethereum.
 
 # Specification
 
@@ -33,11 +33,11 @@ pragma solidity ^0.4.24;
 
 /**
 * @title ERC-XXXX Multi-Fungible Token Standard
-* @dev 
+* @dev
 *   Note: the ERC-165 identifier for this interface is ???TODO???
 */
 interface ERCXXXX {
-  // REQUIRED events 
+  // REQUIRED events
   event Transfer(address from, address to, uint256 tokenType, uint256 amount);
   event BatchTransfer(address from, address to, uint256[] tokenTypes, uint256[] amounts);
   event ApprovalForAll(address tokensOwner, address operator, bool approved);
@@ -88,7 +88,7 @@ interface ERCXXXXTokenReceiver {
 
 Here, some design decisions are explained.
 
-#### 1. Possibling balance packing efficiency gains 
+#### 1. Possibling balance packing efficiency gains
 Every optimization claim should be backed by some tests and you will find these in this section. We transferred 100 token types using each token standard discussed in this post and we show the total gas cost and the gas cost per token type. In the case of ERC-721, each token type is a different NFT. In the case of ERC-20, each token type is a different ERC-20 token, stored in different contracts. For both ERC-721 and ERC-20, we also wrote a wrapper contract that transfer on the behalf of users, saving on the base transaction cost. The cost here does not include the approval call cost that such wrapping contracts would necessitate. 
 
 *Transferring 100 ERC-721 tokens in different transaction calls:*
@@ -119,7 +119,7 @@ Note that the balance packing calculation assumes tokens are IDs are neighbours,
 
 #### 2. Boolean Logic For "Approvals" Instead of Using `uints`
 
-The current [ERC-1155]( https://github.com/ethereum/EIPs/issues/1155) interface uses the [ERC-20](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md) approval logic which is somewhat cumbersome and inefficient. In practice, *approvals* are almost exclusively used when users want to interact with a contract and this contract want to control the users fund on their behalf. Indeed, users usually set an "unlimited allowance" (e.g. `2^256-1`) to contracts so that they only need to set this allowance once (see [0x.js example](https://0xproject.com/docs/0x.js#token-setUnlimitedAllowanceAsync)). In addition, using a quantitative allowance approach means that every `transferFrom()` call will need to update the `allowance()` of each `n` token types transfered, adding a base cost of `n*5000` gas. 
+The current [ERC-1155]( https://github.com/ethereum/EIPs/issues/1155) interface uses the [ERC-20](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md) approval logic which is somewhat cumbersome and inefficient. In practice, *approvals* are almost exclusively used when users want to interact with a contract and this contract want to control the users fund on their behalf. Indeed, users usually set an "unlimited allowance" (e.g. `2^256-1`) to contracts so that they only need to set this allowance once (see [0x.js example](https://0xproject.com/docs/0x.js#token-setUnlimitedAllowanceAsync)). In addition, using a quantitative allowance approach means that every `transferFrom()` call will need to update the `allowance()` of each `n` token types transfered, adding a base cost of `n*5000` gas.
 
 Instead, we propose using a simple boolean mapping via the `setApprovalForAll()` function. This function will set any address as an operator, meaning that it will be able to transfer all the users tokens stored in the MT contracts on their behalf. This is both simpler and more efficient than the currently proposed approach. In addition, the interface is simplified to one "approval" function instead of six. We would've preferred using the term "operator" in the function name itself, such as `setOperator()`, but decided otherwise to conform to other standards like ERC-721.  Stronger security could be added by only allowing contracts to be operators, although this does not seem necessary.
 
@@ -127,7 +127,7 @@ Instead, we propose using a simple boolean mapping via the `setApprovalForAll()`
 
 Tracking the total supply of each token type on-chain means that minting cost will be increase by at least `5k` gas, up to `20k` gas for initial supply. This increase the minting cost significantly in the case of packed balance MT contracts, where the current cost of minting 100 token types is around `350k` gas (`3.5k` gas per token type minted) if all balances were at 0. Hence, tracking the total supply would more than double the gas cost per token type minted, which seems unreasonable. 
 
-In addition, it is also not clear how useful it is for third parties to know the total supply of each token type. The only third parties we know of that display total supplies are block chain explorers (e.g. [Etherscan](https://etherscan.io/)) and market trackers (e.g. [CoinMarketCap](https://coinmarketcap.com/)). To the best of our knowledge, we are not aware of any exchange or wallet using this information. 
+In addition, it is also not clear how useful it is for third parties to know the total supply of each token type. The only third parties we know of that display total supplies are block chain explorers (e.g. [Etherscan](https://etherscan.io/)) and market trackers (e.g. [CoinMarketCap](https://coinmarketcap.com/)). To the best of our knowledge, we are not aware of any exchange or wallet using this information.
 
 Regardless of usefulness, since contract event emission is deterministic, it is always possible for anyone to compute the total supply of all token types *off-chain* by syncing a full node and adding up all the minting events since the contract's block creation. Hence, even if not explicitly stored on-chain, anyone has the possibility to calculate accurately the total supply of all token types within an MT contract. In general, it is our opinion that better off-chain contract state querying tools would greatly benefit the community while significantly decreasing on-chain transaction costs. 
 
@@ -136,7 +136,7 @@ Regardless of usefulness, since contract event emission is deterministic, it is 
 This token standard is not backward compatible with most existing token standards.
 
 # Test Cases
-**INCOMPLETE** test cases written with truffle can be found in the [test](https://github.com/horizon-games/multi-fungible-tokens/tree/master/test) folder of the current repository. 
+**INCOMPLETE** test cases written with truffle can be found in the [test](https://github.com/horizon-games/multi-token-standard/tree/master/test) folder of the current repository.
 
 # Implementation
 Current repository is one implementation example which utilizes balance packing. This implementation has not been audited and should not be used in production without proper security audit.
@@ -148,7 +148,7 @@ Current repository is one implementation example which utilizes balance packing.
 3. **Enjicoin Item Standard (ERC-1155)** : https://blog.enjincoin.io/erc-1155-the-crypto-item-standard-ac9cf1c5a226
 4. **RFC 2119 Key Requirement Levels Words** : https://www.ietf.org/rfc/rfc2119.txt
 5. **ERC-721** : [EIP-721](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md)
-6. **ERC-223** : https://github.com/ethereum/EIPs/issues/223 
+6. **ERC-223** : https://github.com/ethereum/EIPs/issues/223
 7. **ERC-677** : https://github.com/ethereum/EIPs/issues/677
 8. **Loom Plasma Cash Release** : https://medium.com/loom-network/plasma-cash-initial-release-plasma-backed-nfts-now-available-on-loom-network-sidechains-37976d0cfccd
 9. **ERC-20** : https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
