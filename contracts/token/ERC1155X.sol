@@ -25,9 +25,6 @@ contract ERC1155X is ERC1155, Ownable {
   // Signature nonce per address
   mapping (address => uint256) nonces;
 
-  // Events
-  event Mint(address to, uint256 tokenType, uint256 amount);
-  event BatchMint(address to, uint256[] tokenTypes, uint256[] amounts);
 
   //
   // Signature Based Transfer
@@ -37,16 +34,17 @@ contract ERC1155X is ERC1155, Ownable {
   * @dev Transfers objects from _from to _to if valid signature from _from is provided.
   * @param _from Address who signed the message that wants to transfer tokens.
   * @param _to Address to send tokens to. If 0x1, signer did not specify a _to address.
-  * @param _type Object type to transfer
-  * @param _amount Amount of object of given _type to transfer.
+  * @param _id Object id to transfer
+  * @param _amount Amount of object of given _id to transfer.
   * @param _sig Signature struct containing signature related variables.
   * @return Address that signed the hash.
   */
-  function sigTransferFrom(
+  function sigSafeTransferFrom(
     address _from, 
     address _to, 
-    uint256 _type, 
+    uint256 _id, 
     uint256 _amount,
+    bytes _data,
     Signature _sig) public 
   {
     require(_to != address(0), 'Invalid recipient');
@@ -56,10 +54,10 @@ contract ERC1155X is ERC1155, Ownable {
     uint256 nonce = nonces[_from];
 
     // If valid, signer did not specify recipient
-    if( _from != recoverTransferFromSigner( _from, 0x1, _type, _amount, nonce, _sig)) 
+    if( _from != recoverTransferFromSigner( _from, 0x1, _id, _amount, _data, nonce, _sig)) 
     {
       // If valid, signer specified recipient
-      if( _from != recoverTransferFromSigner( _from, _to, _type, _amount, nonce, _sig)) 
+      if( _from != recoverTransferFromSigner( _from, _to, _id, _amount, _data, nonce, _sig)) 
       {
         revert('Invalid signature');
       }
@@ -69,11 +67,16 @@ contract ERC1155X is ERC1155, Ownable {
     nonces[_from] += 1; 
 
     // Update balances
-    _updateTypeBalance(_from, _type, _amount, Operations.Sub); // Subtract value
-    _updateTypeBalance(_to, _type, _amount, Operations.Add);   // Add value
+    _updateIDBalance(_from, _id, _amount, Operations.Sub); // Subtract value
+    _updateIDBalance(_to, _id, _amount, Operations.Add);   // Add value
+
+    if (_to.isContract()) {
+      bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _amount, _data);
+      require(retval == ERC1155_RECEIVE_SIG, 'DOES NOT SUPPORT ERC1155TokenReceiver');
+    }
 
     // Emit event
-    emit Transfer(_from, _to, _type, _amount);
+    emit Transfer(_from, _to, _id, _amount);
   } 
 
 
@@ -115,45 +118,49 @@ contract ERC1155X is ERC1155, Ownable {
   //
 
   /**
-  * @dev Mint _amount of objects of a given type 
+  * @dev Mint _amount of objects of a given id 
   * @param _to The address to mint objects to.
-  * @param _type Object type to mint
+  * @param _id Object id to mint
   * @param _amount The amount to be minted
   */
-  function mint(address _to, uint256 _type, uint256 _amount) onlyOwner public {
-    // require(_type < NUMBER_OF_types); Not required since out of range will throw
+  function mint(address _to, uint256 _id, uint256 _amount) onlyOwner public {
+    // require(_id < NUMBER_OF_ids); Not required since out of range will throw
     // require(_amount <= 2**16-1);         Not required since checked in writeValueInBin  
     
     //Add _amount
-    _updateTypeBalance(_to, _type, _amount, Operations.Add);   
+    _updateIDBalance(_to, _id, _amount, Operations.Add);   
 
     // Emit event
-    emit Mint(_to, _type, _amount);
+    emit Transfer(0x0, _to, _id, _amount);
   }
 
   /**
-  * @dev Mint 1 of object for each type in _types
+  * @dev Mint 1 of object for each id in _ids
   * @param _to The address to mint objects to.
-  * @param _types Array of types to mint
-  * @param _amounts Array of amount of tokens to mint per type
+  * @param _ids Array of ids to mint
+  * @param _amounts Array of amount of tokens to mint per id
+  * IMRPOVEMENT : Could be simplified if EIP-1283 (https://eips.ethereum.org/EIPS/eip-1283) is implemented
   */
-  function batchMint(address _to, uint256[] _types, uint256[] _amounts) onlyOwner public {
-    require(_types.length == _amounts.length, 'Inconsistent array length between args');
+  function batchMint(address _to, uint256[] _ids, uint256[] _amounts) onlyOwner public {
+    require(_ids.length == _amounts.length, 'Inconsistent array length between args');
 
     // Load first bin and index where the object balance exists
-    (uint256 bin, uint256 index) = getTypeBinIndex(_types[0]);   
+    (uint256 bin, uint256 index) = getIDBinIndex(_ids[0]);   
 
     // Balance for current bin in memory (initialized with first mint)
-    uint256 balTo = _viewUpdateTypeBalance(balances[_to][bin], index, _amounts[0], Operations.Add); 
+    uint256 balTo = _viewUpdateIDBalance(balances[_to][bin], index, _amounts[0], Operations.Add); 
+
+    // Trigger event for first mint
+    emit Transfer(0x0, _to, _ids[0], _amounts[0]);
 
     // Number of mints to execute
-    uint256 nMints = _types.length; 
+    uint256 nMints = _ids.length; 
 
     // Last bin updated
     uint256 lastBin = bin;   
 
     for (uint256 i = 1; i < nMints; i++){
-        (bin, index) = getTypeBinIndex(_types[i]);
+        (bin, index) = getIDBinIndex(_ids[i]);
 
         // If new bin
         if (bin != lastBin) {
@@ -168,14 +175,14 @@ contract ERC1155X is ERC1155, Ownable {
         } 
 
         // Update memory balance
-        balTo = _viewUpdateTypeBalance(balTo, index, _amounts[i], Operations.Add);
+        balTo = _viewUpdateIDBalance(balTo, index, _amounts[i], Operations.Add);
+
+        // Emit mint event
+        emit Transfer(0x0, _to, _ids[i], _amounts[i]);
     } 
 
     // Update storage of the last bin visited
     balances[_to][bin] = balTo;
-
-    // Emit batchTransfer event
-    emit BatchMint(_to, _types, _amounts); 
   }
 
 
@@ -188,8 +195,8 @@ contract ERC1155X is ERC1155, Ownable {
   * @dev Returns the address of associated with the private key that signed _hash
   * @param _from Address who signed the message that wants to transfer from.
   * @param _to Address to send tokens to.
-  * @param _type Object type to transfer
-  * @param _amount Maximum amount of object of given _type to transfer.
+  * @param _id Object id to transfer
+  * @param _amount Maximum amount of object of given _id to transfer.
   * @param _nonce Signature nonce for _from.
   * @param _sig Signature struct containing signature related variables.
   * @return Address that signed the hash.
@@ -203,15 +210,16 @@ contract ERC1155X is ERC1155, Ownable {
   function recoverTransferFromSigner( 
       address _from,
       address _to,
-      uint256 _type,
+      uint256 _id,
       uint256 _amount,
+      bytes   _data,
       uint256 _nonce,
       Signature _sig)
       public view returns (address signer)
   { 
     bytes32 prefixedHash;
-    bytes32 hash = keccak256(abi.encodePacked( address(this), _from, _to, _type, 
-                                              _amount, _nonce ));
+    bytes32 hash = keccak256(abi.encodePacked( address(this), _from, _to, _id, 
+                                              _amount, _data, _nonce ));
 
     // If prefix provided, hash with prefix, else ignore prefix 
     prefixedHash = keccak256(abi.encodePacked(_sig.sigPrefix, hash));

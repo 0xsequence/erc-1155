@@ -7,7 +7,7 @@ contract ERC1155Mock is ERC1155 {
   constructor() public { }
 
   function mockMint(address _address, uint256 _type, uint256 _value) public {
-    _updateTypeBalance(_address, _type, _value, Operations.Add);
+    _updateIDBalance(_address, _type, _value, Operations.Add);
   }
 
 }

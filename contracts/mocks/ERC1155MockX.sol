@@ -6,7 +6,7 @@ import '../token/ERC1155X.sol';
 contract ERC1155XMock is ERC1155X {
 
   function mockMint(address _address, uint256 _type, uint256 _value) public {
-    _updateTypeBalance(_address, _type, _value, Operations.Add);
+    _updateIDBalance(_address, _type, _value, Operations.Add);
   }
 
 }
