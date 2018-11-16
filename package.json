@@ -1,8 +1,8 @@
 {
-  "name": "multi-fungible-tokens",
+  "name": "multi-token-standard",
   "version": "0.1.0",
   "description": "Multi Fungible Token contract for Ethereum",
-  "repository": "https://github.com/horizon-games/multi-fungible-tokens",
+  "repository": "https://github.com/horizon-games/multi-token-standard",
   "license": "MIT",
   "keywords": [
     "token",
