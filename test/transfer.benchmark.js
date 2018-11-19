@@ -17,24 +17,25 @@ require('chai')
 const ERC721Mock  = artifacts.require('ERC721Mock');
 const ERC20Mock   = artifacts.require('ERC20Mock');
 const MFTMock     = artifacts.require('RegularToken');
-const MFTPackMock = artifacts.require('MFTMock');
+const ERC1155Mock = artifacts.require('ERC1155Mock');
 
 
 contract('Efficiency Comparaison Tests', function ([_, owner, receiver, receiver2, anyone]) {
 
+  const nTransfers = 30;
   const toTransfer = 10; // Amount to transfer per transfer
   const toMint = 15; // Amount to mint per transfer
 
   // Array of amount
-  const IDArray  = Array.apply(null, {length: 100}).map(Number.call, Number);
-  const amountArray = Array.apply(null, Array(100)).map(Number.prototype.valueOf, toTransfer); 
+  const IDArray  = Array.apply(null, {length: nTransfers}).map(Number.call, Number);
+  const amountArray = Array.apply(null, Array(nTransfers)).map(Number.prototype.valueOf, toTransfer); 
 
   describe('ERC721 Tokens', function (){
 
     beforeEach(async function () {
       token = await ERC721Mock.new({from: owner});
       
-      for (var i = 0; i < 100; i ++){
+      for (var i = 0; i < nTransfers; i ++){
         await token.mockMint(owner, i, {from : owner});
       }
     });
@@ -46,13 +47,13 @@ contract('Efficiency Comparaison Tests', function ([_, owner, receiver, receiver
         var sumGasCost = 0;
         var tx;
 
-        for (var i = 0; i < 100; i++){
+        for (var i = 0; i < nTransfers; i++){
           tx = await token.transferFrom(owner, receiver, i, {from: owner});
           sumGasCost += tx.receipt.gasUsed;
         }
 
         console.log('Total gas cost  : ', sumGasCost);
-        console.log('Per Tx Gas cost : ', sumGasCost/100);
+        console.log('Per Tx Gas cost : ', sumGasCost/nTransfers);
       }); 
 
     })
@@ -63,7 +64,7 @@ contract('Efficiency Comparaison Tests', function ([_, owner, receiver, receiver
         let tx = await token.batchTransferFrom(owner, receiver, IDArray, {from: owner});
         
         console.log('Total gas cost  : ', tx.receipt.gasUsed);
-        console.log('Per Tx Gas cost : ', tx.receipt.gasUsed / 100);
+        console.log('Per Tx Gas cost : ', tx.receipt.gasUsed / nTransfers);
       }); 
 
     })
@@ -75,7 +76,7 @@ contract('Efficiency Comparaison Tests', function ([_, owner, receiver, receiver
     tokens = []
 
     beforeEach(async function () {
-      for (var i = 0; i < 100; i ++){
+      for (var i = 0; i < nTransfers; i ++){
         let token = await ERC20Mock.new({from: owner});
         await token.mockMint(owner, toMint, {from : owner});
         tokens.push(token);
@@ -89,13 +90,13 @@ contract('Efficiency Comparaison Tests', function ([_, owner, receiver, receiver
         var sumGasCost = 0;
         var tx;
 
-        for (var i = 0; i < 100; i++){
+        for (var i = 0; i < nTransfers; i++){
           tx = await tokens[i].transfer(receiver, toTransfer, {from: owner});
           sumGasCost += tx.receipt.gasUsed;
         }
 
         console.log('Total gas cost  : ', sumGasCost);
-        console.log('Per Tx Gas cost : ', sumGasCost/100);
+        console.log('Per Tx Gas cost : ', sumGasCost/nTransfers);
       }); 
 
     })
@@ -107,7 +108,7 @@ contract('Efficiency Comparaison Tests', function ([_, owner, receiver, receiver
         tokenAddresses = []
 
         metaToken = await ERC20Mock.new({from: owner});
-        for (var i = 0; i < 100; i ++){
+        for (var i = 0; i < nTransfers; i ++){
           await tokens[i].mockMint(metaToken.address, toMint, {from : owner});
           tokenAddresses.push(tokens[i].address);
         }
@@ -115,7 +116,7 @@ contract('Efficiency Comparaison Tests', function ([_, owner, receiver, receiver
         let tx = await metaToken.batchTransfer(tokenAddresses, receiver2, amountArray, {from: owner});
         
         console.log('Total gas cost  : ', tx.receipt.gasUsed);
-        console.log('Per Tx Gas cost : ', tx.receipt.gasUsed / 100);
+        console.log('Per Tx Gas cost : ', tx.receipt.gasUsed / nTransfers);
 
         //(10).should.be.equal(2);
       }); 
@@ -129,7 +130,7 @@ contract('Efficiency Comparaison Tests', function ([_, owner, receiver, receiver
     beforeEach(async function () {
       token = await MFTMock.new({from: owner});
       
-      for (var i = 0; i < 100; i ++){
+      for (var i = 0; i < nTransfers; i ++){
         await token.mockMint(owner, i, toMint, {from : owner});
       }
     });
@@ -140,7 +141,7 @@ contract('Efficiency Comparaison Tests', function ([_, owner, receiver, receiver
         let tx = await token.batchTransferFrom(owner, receiver, IDArray, amountArray, {from: owner});
         
         console.log('Total gas cost  : ', tx.receipt.gasUsed);
-        console.log('Per Tx Gas cost : ', tx.receipt.gasUsed / 100);
+        console.log('Per Tx Gas cost : ', tx.receipt.gasUsed / nTransfers);
       }); 
 
     })
@@ -148,23 +149,23 @@ contract('Efficiency Comparaison Tests', function ([_, owner, receiver, receiver
   })
 
 
-  describe('MFT "packed Balance" Tokens', function (){
+  describe('ERC-1155 "packed Balance" Tokens', function (){
 
     beforeEach(async function () {
-      token = await MFTPackMock.new({from: owner});
+      token = await ERC1155Mock.new({from: owner});
       
-      for (var i = 0; i < 100; i ++){
+      for (var i = 0; i < nTransfers; i ++){
         await token.mockMint(owner, i, toMint, {from : owner});
       }
     });
 
-    describe('Transferring 100 ERC1155 packed balance tokens',function () {
+    describe('Transferring 30 ERC1155 tokens with packed balance',function () {
 
       it('', async function () {
-        let tx = await token.batchTransferFrom(owner, receiver, IDArray, amountArray, {from: owner});
+        let tx = await token.safeBatchTransferFrom(owner, receiver, IDArray, amountArray, '', {from: owner});
         
         console.log('Total gas cost  : ', tx.receipt.gasUsed);
-        console.log('Per Tx Gas cost : ', tx.receipt.gasUsed / 100);
+        console.log('Per Tx Gas cost : ', tx.receipt.gasUsed / nTransfers);
       }); 
 
     })

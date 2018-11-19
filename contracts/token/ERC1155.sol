@@ -80,6 +80,18 @@ contract ERC1155 is IERC1155 {
 
     // Pass data if recipient is contract
     if (_to.isContract()) {
+
+      // Convert integer to array for receiver
+      // uint256[] memory id = new uint256[](1);
+      // id[0] = _id;
+
+      // uint256[] memory amount = new uint256[](1);
+      // amount[0] = _amount;
+      
+      // Call receiver function on recipient
+      //bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender, _from, id, amount, _data);
+      //require(retval == ERC1155_BATCH_RECEIVE_SIG, 'DOES NOT SUPPORT ERC1155TokenReceiver');
+      
       bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _amount, _data);
       require(retval == ERC1155_RECEIVE_SIG, 'DOES NOT SUPPORT ERC1155TokenReceiver');
     }

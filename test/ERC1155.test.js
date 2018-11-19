@@ -104,7 +104,7 @@ contract('ERC1155Mock', function ([_, owner, receiver, anyone, operator]) {
       })
 
       it('should be able to transfer if sufficient balance', async function () {
-        await this.token.safeTransferFrom(owner, receiver, 0, 1, "", {from: owner}).should.be.fulfilled;
+       await this.token.safeTransferFrom(owner, receiver, 0, 1, "", {from: owner}).should.be.fulfilled;
       });
 
       it('should REVERT if insufficient balance', async function () {
@@ -135,7 +135,8 @@ contract('ERC1155Mock', function ([_, owner, receiver, anyone, operator]) {
       });
 
       it('should pass if valid response from receiver contract', async function () {
-        await this.token.safeTransferFrom(owner, this.receiverContract.address, 0, 1, "", {from: owner}).should.be.fulfilled;
+        let tx = await this.token.safeTransferFrom(owner, this.receiverContract.address, 0, 1, "", {from: owner}).should.be.fulfilled;
+        //console.log(tx.receipt.gasUsed)
       });
 
       it('should pass if data is not null from receiver contract', async function () {

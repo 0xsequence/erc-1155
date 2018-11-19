@@ -38,11 +38,8 @@ contract ERC1155ReceiverMock {
         uint256 _value, 
         bytes _data ) 
         external returns(bytes4) 
-    {
-        lastOperator = _operator;
-        lastId = _id;
-        lastValue = _value;
-        lastData = _data;
+    {   
+
         if (shouldReject == true) {
             return bytes4(_from); // Some random value
         } else {
@@ -73,9 +70,8 @@ contract ERC1155ReceiverMock {
         uint256[] _values,
         bytes _data)
         external returns(bytes4) 
-    {
-        lastOperator = _operator;
-        lastData = _data;
+    {   
+
         if (shouldReject == true) {
             return bytes4(_from); // Some random value
         } else {
