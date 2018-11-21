@@ -16,10 +16,6 @@ contract IERC1155 {
    */
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
 
-  // ----------------- NOT IN STANDARD ----------------- //
-  // function batchTransferFrom(address _from, address _to, uint256[] _types, uint256[] _amounts) public;
-  // --------------------------------------------------- //
-
   // ----------------- COULD BE REMOVED ----------------- //
   event URI(uint256 indexed _id, string _value);
   event Name(uint256 indexed _id, string _value);
