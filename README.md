@@ -14,15 +14,15 @@ An implementation example of a standard **Multi-Tokens (MT)** contract, which co
 
 # Abstract
 
-The contracts in this repository follow a standard implementation of an MT contract. This standard provides basic functionality to track and transfer MCT and the interface provide an API other contracts and off-chain third parties can use.
+The contracts in this repository follow a standard implementation of an MT contract. This standard provides basic functionality to track and transfer MTs and the interface provide an API other contracts and off-chain third parties can use.
 
-MCT contracts keep track of many token balances, which can lead to significant efficiency gains when batch transferring multiple token classes simultaneously. This is particularly useful for fungible tokens that are likely to be transfered together, such as gaming items (cards, weapons, parts of objects, minerals, etc.). The possible efficiency gains are more significant if the amount of tokens each address can own is capped, as shown in this implementation examples.
+MTs contracts keep track of many token balances, which can lead to significant efficiency gains when batch transferring multiple token classes simultaneously. This is particularly useful for fungible tokens that are likely to be transfered together, such as gaming items (cards, weapons, parts of objects, minerals, etc.). The possible efficiency gains are more significant if the amount of tokens each address can own is capped, as shown in this implementation examples.
 
 With the current implementation, which packs multiple balances within a single `uint256` using bitwise operations, transferring 100 different token classes costs `467,173` gas, an average of `4,671` gas per token type transfer. Still using MT, but without balance packing, transferring 100 different token types costs `2,763,399` gas, an average of `27,633` gas per token transfer. The latter is already an improvement over multiple fungible tokens that are stored on different contracts, since cross-contract calls have a base cost of 700 gas. This is ignoring the cost of initial approvals that would need to be set for each user and existing ERC-20 tokens. This contract also benefit from allowing users to do a single `setApprovalForAll()` call as the current ERC-721 standard proposal, which will allow an operator to transfer on the users behalf all the contract's token classes. 
 
 # Motivation
 
-Various applications would benefit from having a single contract keeping track of multiple token classes. Agreeing on a standard interface allows wallet/broker/auction applications to work with any MCT contract on Ethereum.
+Various applications would benefit from having a single contract keeping track of multiple token classes. Agreeing on a standard interface allows wallet/broker/auction applications to work with any MTs contract on Ethereum.
 
 # Specification
 
@@ -36,29 +36,75 @@ pragma solidity ^0.4.24;
 * @dev
 *   Note: the ERC-165 identifier for this interface is ???TODO???
 */
-interface ERCXXXX {
-  // REQUIRED events
-  event Transfer(address from, address to, uint256 tokenType, uint256 amount);
-  event BatchTransfer(address from, address to, uint256[] tokenTypes, uint256[] amounts);
-  event ApprovalForAll(address tokensOwner, address operator, bool approved);
+contract IERC1155 {
+  // Events
 
-  // REQUIRED state functions
-  function transferFrom(address _from, address _to, uint256 _tokenType, uint256 _amount) external;
-  function safeTransferFrom(address _from, address _to, uint256 _tokenType, uint256 _amount, bytes _data) external;
-  function batchTransferFrom(address _to, uint256[] _tokenTypes, uint256[] _amounts) external;
-  function safeBatchTransferFrom(address _from, address _to, uint256[] _tokenTypes, uint256[] _amounts, bytes _data) public;
-  function setApprovalForAll(address _operator, address _tokenHolder) external;
+  /**
+   * @dev MUST emit when tokens are transferred, including zero value transfers as well as minting or burning.
+   * A `Transfer` event to address `0x0` signifies a burning or melting operation. 
+   * This MUST emit a zero value, from `0x0` to the creator's address if a token has no initial balance but is being defined/created.
+   */
+  event Transfer(address operator, address from, address to, uint256 tokenType, uint256 amount);
 
-  // REQUIRED View Functions
-  function balanceOf(address _address, uint256 _type) external view returns (uint256);
+  /**
+   * @dev MUST emit on any successful call to setApprovalForAll(address _operator, bool _approved)
+   */
+  event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
+
+  event URI(uint256 indexed _id, string _value);
+  event Name(uint256 indexed _id, string _value);
+
+  /**
+   * @notice Transfers value amount of an _id from the _from address to the _to addresses specified. Each parameter array should be the same length, with each index correlating.
+   * @dev MUST emit Transfer event on success.
+   * Caller must have sufficient allowance by _from for the _id/_value pair, or isApprovedForAll must be true.
+   * Throws if `_to` is the zero address.
+   * Throws if `_id` is not a valid token ID.
+   * When transfer is complete, this function checks if `_to` is a smart contract (code size > 0). If so, it calls `onERC1155Received` on `_to` and throws if the return value is not `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`.
+   * @param _from    source addresses
+   * @param _to      target addresses
+   * @param _id      ID of the Token
+   * @param _value   transfer amounts
+   * @param _data    Additional data with no specified format, sent in call to `_to`
+   */
+  function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes _data) external;
+
+  /**
+   * @notice Send multiple types of Tokens from a 3rd party in one transfer (with safety call)
+   * @dev MUST emit Transfer event per id on success.
+   * Caller must have a sufficient allowance by _from for each of the id/value pairs.
+   * Throws on any error rather than return a false flag to minimize user errors.
+   * @param _from    Source address
+   * @param _to      Target address
+   * @param _ids     Types of Tokens
+   * @param _values  Transfer amounts per token type
+   * @param _data    Additional data with no specified format, sent in call to `_to`
+   */
+  function safeBatchTransferFrom(address _from, address _to, uint256[] _ids, uint256[] _values, bytes _data) public;
+  
+  /**
+   * @notice Get the balance of an account's Tokens
+   * @param _id     ID of the Token
+   * @param _owner  The address of the token holder
+   * @return        The _owner's balance of the Token type requested
+   */   
+  function balanceOf(address _owner, uint256 _id) external view returns (uint256);
+
+  /**
+   * @notice Enable or disable approval for a third party ("operator") to manage all of `msg.sender`'s tokens.
+   * @dev MUST emit the ApprovalForAll event on success.
+   * @param _operator  Address to add to the set of authorized operators
+   * @param _approved  True if the operator is approved, false to revoke approval
+   */
+  function setApprovalForAll(address _operator, bool _approved) external;
+
+  /** 
+   * @notice Queries the approval status of an operator for a given Token and owner
+   * @param _owner     The owner of the Tokens
+   * @param _operator  Address of authorized operator
+   * @return           True if the operator is approved, false if not
+   */
   function isApprovedForAll(address _owner, address _operator) external view returns (bool isOperator);
-
-  /** Optional View Functions
-  function totalSupply(uint256 _tokenType) external view returns (uint256);
-  function name(uint256 _tokenType) external view returns (string);
-  function symbol(uint256 _tokenType) external view returns (string);
-  function decimals(uint256 _tokenType) external view returns (uint8);
-  */
 }
 
 interface ERC165 {
@@ -76,11 +122,10 @@ interface ERC165 {
 A wallet/broker/auction application MUST implement the **wallet interface** if it will accept safe transfers.
 
 ```solidity
- // @dev Note: the ERC-165 identifier for this interface is 0x150b7a02.
-interface ERCXXXXTokenReceiver {
+ // @dev Note: the ERC-165 identifier for this interface is 0xe9e5be6a.
+interface ERC1155TokenReceiver {
 
-  function onERCXXXXReceived(address _operator, address _from, uint256 _tokenType, uint256 _amount, bytes _data) external returns(bytes4);
-  function onERCXXXXBatchReceived(address _operator, address _from, uint256[] _tokenTypes, uint256[] _amounts, bytes _data) external returns(bytes4)
+   function onERC1155Received(address operator, address from, uint256[] ids, uint256[] amounts, bytes data) external returns(bytes4);
 }
 ```
 
