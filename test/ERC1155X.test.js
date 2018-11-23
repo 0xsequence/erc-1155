@@ -8,12 +8,6 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-
-// TO DO
-// Check over/under flow for both uin256 and uint16
-// Modify existing ERC20 and basic token related tests
-// Test the _updatetypesBalance operations
-
 const ERC1155XMock = artifacts.require('ERC1155XMock');
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 

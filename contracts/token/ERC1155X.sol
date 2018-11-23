@@ -9,8 +9,6 @@ import "./ERC1155.sol";
 *      to presign function calls and allow third parties to execute these on their behalf. 
 *      There are also minting functions that were added that benefit from the balance packing
 *      efficiency gains via batchMinting.
-*
-* TODO : Generic delegated function calls (see https://github.com/ethereum/EIPs/pull/1077/files)
 */ 
 contract ERC1155X is ERC1155, Ownable { 
 
@@ -70,13 +68,19 @@ contract ERC1155X is ERC1155, Ownable {
     _updateIDBalance(_from, _id, _amount, Operations.Sub); // Subtract value
     _updateIDBalance(_to, _id, _amount, Operations.Add);   // Add value
 
+    // Convert integer to array for receiver and event
+    uint256[] memory id = new uint256[](1);
+    uint256[] memory amount = new uint256[](1);
+    id[0]     = _id;
+    amount[0] = _amount;
+
     if (_to.isContract()) {
-      bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _amount, _data);
+      bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, id, amount, _data);
       require(retval == ERC1155_RECEIVE_SIG, 'DOES NOT SUPPORT ERC1155TokenReceiver');
     }
 
     // Emit event
-    emit Transfer(_from, _to, _id, _amount);
+    emit Transfer(msg.sender, _from, _to, id, amount);
   } 
 
 
@@ -128,10 +132,16 @@ contract ERC1155X is ERC1155, Ownable {
     // require(_amount <= 2**16-1);         Not required since checked in writeValueInBin  
     
     //Add _amount
-    _updateIDBalance(_to, _id, _amount, Operations.Add);   
+    _updateIDBalance(_to, _id, _amount, Operations.Add);
+
+    // Convert integer to array for event
+    uint256[] memory id = new uint256[](1);
+    uint256[] memory amount = new uint256[](1);
+    id[0]     = _id;
+    amount[0] = _amount;
 
     // Emit event
-    emit Transfer(0x0, _to, _id, _amount);
+    emit Transfer(msg.sender, 0x0, _to, id, amount);
   }
 
   /**
@@ -177,14 +187,14 @@ contract ERC1155X is ERC1155, Ownable {
         // Update memory balance
         balTo = _viewUpdateIDBalance(balTo, index, _amounts[i], Operations.Add);
 
-        // Emit mint event
-        emit Transfer(0x0, _to, _ids[i], _amounts[i]);
     } 
 
     // Update storage of the last bin visited
     balances[_to][bin] = balTo;
-  }
 
+    // Emit mint event
+    emit Transfer(msg.sender, 0x0, _to, _ids, _amounts);
+  }
 
 
   // 

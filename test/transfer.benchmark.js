@@ -16,7 +16,7 @@ require('chai')
 
 const ERC721Mock  = artifacts.require('ERC721Mock');
 const ERC20Mock   = artifacts.require('ERC20Mock');
-const MFTMock     = artifacts.require('RegularToken');
+const ERC1155MockNoBalancePacking = artifacts.require('ERC1155MockNoBalancePacking');
 const ERC1155Mock = artifacts.require('ERC1155Mock');
 
 
@@ -128,7 +128,7 @@ contract('Efficiency Comparaison Tests', function ([_, owner, receiver, receiver
   describe('ERC1155 Tokens', function (){
 
     beforeEach(async function () {
-      token = await MFTMock.new({from: owner});
+      token = await ERC1155MockNoBalancePacking.new({from: owner});
       
       for (var i = 0; i < nTransfers; i ++){
         await token.mockMint(owner, i, toMint, {from : owner});
@@ -172,44 +172,4 @@ contract('Efficiency Comparaison Tests', function ([_, owner, receiver, receiver
 
   })
 
-  /*
-
-    beforeEach(async function () {
-      this.token = await MFTMock.new({from: owner});
-      //console.log(web3.eth.getTransactionReceipt(this.token.transactionHash).gasUsed);
-    });
-
-
-      it('efficiency test load: ordered bin visted', async function (){
-        let tx = await this.token.batchTransferFrom(owner, anyone, types, values, {from: owner});
-        let gasPerBalance = tx.receipt.gasUsed / nTokenTypes;
-        console.log('gasUsed:', tx.receipt.gasUsed);
-        console.log('gasPerType:', gasPerBalance);
-      })
-
-      it('efficiency test regular ERC-20', async function (){
-        let ERC20 = await RegularToken.new(10000000000, {from: owner});
-
-        for (var i = 0; i < types.length; i++){
-          await ERC20.mint(owner, types[i], values[i]);
-        }
-
-        let tx = await ERC20.batchTransfer(receiver, types, values, {from: owner});
-        let gasPerBalance = tx.receipt.gasUsed / types.length;
-        console.log('gasUsed:', tx.receipt.gasUsed);
-        console.log('gasPerType:', gasPerBalance);
-      })
-
-
-            it('BatchTransfer 100 gas cost', async function () {
-          let tx = await this.token.batchTransferFrom(owner, receiver, types, values, {from: owner});
-          console.log('BatchTransferFrom single gas :' + tx.receipt.gasUsed)
-      });
-
-      it('Transfer single gas cost', async function () {
-          let tx = await this.token.transferFrom(owner, receiver, 0, 5, {from: owner});
-          console.log('transferFrom single gas :' + tx.receipt.gasUsed)
-      });
-
-    */
 });

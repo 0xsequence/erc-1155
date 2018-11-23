@@ -6,15 +6,8 @@ import "openzeppelin-solidity/contracts/utils/Address.sol";
 import "./ERC1155TokenReceiver.sol";
 import "./IERC1155.sol";
 
-// TODO
-// * Optimize bin, index quering - Maybe struct? smaller uint for bin and index?
-// * Implement transferAndCall (or safeTransfer)
-// * Optimize everything
-// * Need to support ERC-165
-// * TODO: SafeBatchTransfer()
-
 /**
-* @dev Multi-Fungible Tokens contract. This implementation of the MFT standard exploit the fact that
+* @dev Implementation of Multi-Tokens Standard contract. This implementation of the MT standard exploit the fact that
 *      balances of different token ids can be concatenated within individual uint256 storage slots.
 *      This allows the contract to batch transfer tokens more efficiently at the cost of limiting the 
 *      maximum token balance each address can hold. This limit is 2^IDS_BITS_SIZE, which can be 
@@ -31,8 +24,7 @@ contract ERC1155 is IERC1155 {
   //
 
   // onReceive function signatures                              
-  bytes4 constant ERC1155_RECEIVE_SIG       = 0xf23a6e61; // bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));                
-  bytes4 constant ERC1155_BATCH_RECEIVE_SIG = 0xe9e5be6a; // bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"));
+  bytes4 constant ERC1155_RECEIVE_SIG = 0xe9e5be6a; // bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"));
  
   // Constants regarding bin or chunk sizes for balance packing
   uint256 constant IDS_BITS_SIZE   = 16;                     // Max size of each object
@@ -51,7 +43,7 @@ contract ERC1155 is IERC1155 {
   mapping (address => mapping(address => bool)) operators;
 
   // Events
-  event Transfer(address from, address to, uint256 id, uint256 amount);
+  event Transfer(address operator, address from, address to, uint256[] ids, uint256[] amounts);
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
 
 
@@ -78,26 +70,21 @@ contract ERC1155 is IERC1155 {
     _updateIDBalance(_from, _id, _amount, Operations.Sub); // Subtract value from sender
     _updateIDBalance(_to,   _id, _amount, Operations.Add); // Add value to recipient
 
+    // Convert integer to array for receiver and event
+    uint256[] memory id = new uint256[](1);
+    uint256[] memory amount = new uint256[](1);
+    id[0]     = _id;
+    amount[0] = _amount;
+      
     // Pass data if recipient is contract
     if (_to.isContract()) {
-
-      // Convert integer to array for receiver
-      // uint256[] memory id = new uint256[](1);
-      // id[0] = _id;
-
-      // uint256[] memory amount = new uint256[](1);
-      // amount[0] = _amount;
-      
       // Call receiver function on recipient
-      //bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender, _from, id, amount, _data);
-      //require(retval == ERC1155_BATCH_RECEIVE_SIG, 'DOES NOT SUPPORT ERC1155TokenReceiver');
-      
-      bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _amount, _data);
+      bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender, _from, id, amount, _data);
       require(retval == ERC1155_RECEIVE_SIG, 'DOES NOT SUPPORT ERC1155TokenReceiver');
     }
 
     // Emit transfer Event
-    emit Transfer(_from, _to, _id, _amount);
+    emit Transfer(msg.sender, _from, _to, id, amount);
   }
 
   /**
@@ -155,9 +142,6 @@ contract ERC1155 is IERC1155 {
       // require(_amounts[i] <= balFrom);  Not required since checked with .sub16 method
       balFrom = _viewUpdateIDBalance(balFrom, index, _amounts[i], Operations.Sub);
       balTo   = _viewUpdateIDBalance(balTo,   index, _amounts[i], Operations.Add);
-
-      // Emit Transfer event
-      emit Transfer(_from, _to, _ids[i], _amounts[i]);
     }
 
     // Update storage of the last bin visited
@@ -167,8 +151,10 @@ contract ERC1155 is IERC1155 {
     // Pass data if recipient is contract
     if (_to.isContract()) {
       bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender, _from, _ids, _amounts, _data);
-      require(retval == ERC1155_BATCH_RECEIVE_SIG);
+      require(retval == ERC1155_RECEIVE_SIG);
     }
+
+    emit Transfer(msg.sender, _from, _to, _ids, _amounts);
   }
 
 

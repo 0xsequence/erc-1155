@@ -16,7 +16,7 @@ contract IERC1155 {
    */
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
 
-  // ----------------- COULD BE REMOVED ----------------- //
+  // ----------------- NEVER TRIGGERED  ----------------- //
   event URI(uint256 indexed _id, string _value);
   event Name(uint256 indexed _id, string _value);
   // ---------------------------------------------------- //  

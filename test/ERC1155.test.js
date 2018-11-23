@@ -8,14 +8,8 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-
-// TO DO
-// Check over/under flow for both uin256 and uint16
-// Modify existing ERC20 and basic token related tests
-// Test the _updatetypesBalance operations
-
 const ERC1155Mock = artifacts.require('ERC1155Mock');
-const RegularToken = artifacts.require('RegularToken');
+const ERC1155MockNoBalancePacking = artifacts.require('ERC1155MockNoBalancePacking');
 const ERC1155ReceiverMock = artifacts.require('ERC1155ReceiverMock')
 
 const LARGEVAL = new BigNumber(2).pow(256).minus(2); // 2^256 - 2
@@ -78,13 +72,6 @@ contract('ERC1155Mock', function ([_, owner, receiver, anyone, operator]) {
         let tx = await this.token.mockMint(owner, 5, 256, {gasPrice: 1});
         // console.log(tx.receipt.gasUsed)
       })
-
-      /*
-      it('totalSupply() should return the number of object for given types', async function () {
-        let totalSupply5 = await this.token.totalSupply(5);
-        totalSupply5.should.be.bignumber.equal(256);
-      });
-      */
 
       it('balanceOf() should return types balance for queried address', async function () {
         let balance6 = await this.token.balanceOf(owner, 5);
