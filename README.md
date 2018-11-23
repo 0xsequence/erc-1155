@@ -175,6 +175,9 @@ In addition, it is also not clear how useful it is for third parties to know the
 
 Regardless of usefulness, since contract event emission is deterministic, it is always possible for anyone to compute the total supply of all token types *off-chain* by syncing a full node and adding up all the minting events since the contract's block creation. Hence, even if not explicitly stored on-chain, anyone has the possibility to calculate accurately the total supply of all token types within an MT contract. In general, it is our opinion that better off-chain contract state querying tools would greatly benefit the community while significantly decreasing on-chain transaction costs. 
 
+#### 4. Custodial limitations
+In our implementation of the ERC-1155 standard, we restrict the amount of tokens a given address can hold for a given token ID. This is necessary for balance packing, which offers significant efficiency gains as shown above. However, this limitation can become a problem for custodial addresses like custodial decentralized exchanges, side-chains, plasma chains, etc. Indeed, a given contract is also limited by how many tokens it can hold without hitting overflow errors. This should be considered when choosing what the maximum balance per token ID should be, which is defined by the `IDS_BITS_SIZE` constant in [ERC1155.sol](https://github.com/horizon-games/multi-token-standard/blob/b671fd2a30ef5481ba1766887e7fd7ce97e9442a/contracts/token/ERC1155.sol#L38).
+
 # Backwards Compatibility
 
 This token standard is not backward compatible with most existing token standards.
