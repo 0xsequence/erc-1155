@@ -14,7 +14,7 @@ An implementation example of a standard **Multi-Tokens (MT)** contract, which co
 
 # Abstract
 
-The contracts in this repository follow a standard implementation of an MT contract. This standard provides basic functionality to track and transfer MTs and the interface provide an API other contracts and off-chain third parties can use.
+The contracts in this repository follow a standard implementation of an MT contract ([ERC-1155](https://github.com/ethereum/EIPs/issues/1155)). This standard provides basic functionality to track and transfer MTs and the interface provide an API other contracts and off-chain third parties can use.
 
 MTs contracts keep track of many token balances, which can lead to significant efficiency gains when batch transferring multiple token classes simultaneously. This is particularly useful for fungible tokens that are likely to be transfered together, such as gaming items (cards, weapons, parts of objects, minerals, etc.). The possible efficiency gains are more significant if the amount of tokens each address can own is capped, as shown in this implementation examples.
 
@@ -32,9 +32,9 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 pragma solidity ^0.4.24;
 
 /**
-* @title ERC-XXXX Multi-Fungible Token Standard
+* @title ERC-1155 Multi-Tokens Standard
 * @dev
-*   Note: the ERC-165 identifier for this interface is ???TODO???
+*   Note: the ERC-165 identifier for this interface is 0xf23a6e61
 */
 contract IERC1155 {
   // Events
@@ -50,9 +50,11 @@ contract IERC1155 {
    * @dev MUST emit on any successful call to setApprovalForAll(address _operator, bool _approved)
    */
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
-
-  event URI(uint256 indexed _id, string _value);
-  event Name(uint256 indexed _id, string _value);
+  
+  /** vvvv Not used in this implementation vvvv
+   * event URI(uint256 indexed _id, string _value);
+   * event Name(uint256 indexed _id, string _value);
+   */ 
 
   /**
    * @notice Transfers value amount of an _id from the _from address to the _to addresses specified. Each parameter array should be the same length, with each index correlating.
@@ -119,8 +121,6 @@ interface ERC165 {
 
 ```
 
-A wallet/broker/auction application MUST implement the **wallet interface** if it will accept safe transfers.
-
 ```solidity
  // @dev Note: the ERC-165 identifier for this interface is 0xe9e5be6a.
 interface ERC1155TokenReceiver {
@@ -133,7 +133,7 @@ interface ERC1155TokenReceiver {
 
 Here, some design decisions are explained.
 
-#### 1. Possibling balance packing efficiency gains
+#### 1. Balance packing efficiency gains
 Every optimization claim should be backed by some tests and you will find these in this section. We transferred 100 token types using each token standard discussed in this post and we show the total gas cost and the gas cost per token type. In the case of ERC-721, each token type is a different NFT. In the case of ERC-20, each token type is a different ERC-20 token, stored in different contracts. For both ERC-721 and ERC-20, we also wrote a wrapper contract that transfer on the behalf of users, saving on the base transaction cost. The cost here does not include the approval call cost that such wrapping contracts would necessitate. 
 
 *Transferring 100 ERC-721 tokens in different transaction calls:*
@@ -160,18 +160,16 @@ Every optimization claim should be backed by some tests and you will find these 
 - **Total gas cost :** 467,173
 - **Gas Cost Per Transfer :** 4,671
 
-Note that the balance packing calculation assumes tokens are IDs are neighbours, hence the result above is a cost lower bound. We can see that the balance packing can offer significant efficiency gain under the right circumstances, up to 10x saving compared to regular transfers and 5x–7x when using wrapper contracts for batch transfers. In addition, we are fairly convinced additional significant optimization are possible without adding much complexity.
+Note that the balance packing calculation assumes tokens are IDs are neighbours, hence the result above is a cost lower bound. We can see that the balance packing can offer significant efficiency gain under the right circumstances, up to 10x saving compared to regular transfers and 5x–7x when using wrapper contracts for batch transfers. In addition, we are fairly convinced optimizing further these functions is possible without adding much complexity.
 
 #### 2. Boolean Logic For "Approvals" Instead of Using `uints`
-In practice, *approvals* are almost exclusively used when users want to interact with a contract and this contract want to control the users fund on their behalf. Indeed, users usually set an "unlimited allowance" (e.g. `2^256-1`) to contracts so that they only need to set this allowance once (see [0x.js example](https://0xproject.com/docs/0x.js#token-setUnlimitedAllowanceAsync)). In addition, using a quantitative allowance approach means that every `transferFrom()` call will need to update the `allowance()` of each `n` token types transfered, adding a base cost of `n*5000` gas.
+In practice, *approvals* are almost exclusively used when users want to interact with a contract and this contract want to control the users fund on their behalf (blogpost on this coming soon). Indeed, users usually set an "unlimited allowance" (e.g. `2^256-1`) to contracts so that they only need to set this allowance once (see [0x.js example](https://0xproject.com/docs/0x.js#token-setUnlimitedAllowanceAsync)). In addition, using a quantitative allowance approach means that every `transferFrom()` call will need to update the `allowance()` of each `n` token types transfered, adding a base cost of `n*5000` gas.
 
-Instead, we use a simple boolean mapping via the `setApprovalForAll()` function. This function will set any address as an operator, meaning that it will be able to transfer all the users tokens stored in the MT contracts on their behalf. This is both simpler and more efficient than the currently proposed approach. In addition, the interface is simplified to one "approval" function instead of six. We would've preferred using the term "operator" in the function name itself, such as `setOperator()`, but decided otherwise to conform to other standards like ERC-721. 
+Instead, we use a simple boolean mapping via the `setApprovalForAll()` function. This function will set any address as an operator, meaning that it will be able to transfer all the users tokens stored in the MT contracts on their behalf. This is both simpler and more efficient than the currently proposed approach.
 
 #### 3. Setting `totalSupply()` as an Optional View Function
 
-Tracking the total supply of each token type on-chain means that minting cost will be increase by at least `5k` gas, up to `20k` gas for initial supply. This increase the minting cost significantly in the case of packed balance MT contracts, where the current cost of minting 100 token types is around `350k` gas (`3.5k` gas per token type minted) if all balances were at 0. Hence, tracking the total supply would more than double the gas cost per token type minted, which seems unreasonable. 
-
-In addition, it is also not clear how useful it is for third parties to know the total supply of each token type. The only third parties we know of that display total supplies are block chain explorers (e.g. [Etherscan](https://etherscan.io/)) and market trackers (e.g. [CoinMarketCap](https://coinmarketcap.com/)). To the best of our knowledge, we are not aware of any exchange or wallet using this information.
+Tracking the total supply of each token type on-chain means that minting cost will be increase by at least `5k` gas, up to `20k` gas for initial supply. This increases the minting cost significantly in the case of packed balance MT contracts, where the current cost of minting 100 token types is around `350k` gas (`3.5k` gas per token type minted) if all balances were at 0. Hence, tracking the total supply would more than double the gas cost per token type minted, which seems unreasonable. 
 
 Regardless of usefulness, since contract event emission is deterministic, it is always possible for anyone to compute the total supply of all token types *off-chain* by syncing a full node and adding up all the minting events since the contract's block creation. Hence, even if not explicitly stored on-chain, anyone has the possibility to calculate accurately the total supply of all token types within an MT contract. In general, it is our opinion that better off-chain contract state querying tools would greatly benefit the community while significantly decreasing on-chain transaction costs. 
 
