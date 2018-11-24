@@ -79,7 +79,7 @@ contract ERC1155 is IERC1155 {
     // Pass data if recipient is contract
     if (_to.isContract()) {
       // Call receiver function on recipient
-      bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender, _from, id, amount, _data);
+      bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, id, amount, _data);
       require(retval == ERC1155_RECEIVE_SIG, 'DOES NOT SUPPORT ERC1155TokenReceiver');
     }
 
@@ -110,9 +110,6 @@ contract ERC1155 is IERC1155 {
     // Balance for current bin in memory (initialized with first transfer)
     uint256 balFrom = _viewUpdateIDBalance(balances[_from][bin], index, _amounts[0], Operations.Sub);
     uint256 balTo   = _viewUpdateIDBalance(balances[_to][bin],   index, _amounts[0], Operations.Add);
-
-    // Trigger event for first transfer
-    emit Transfer(_from, _to, _ids[0], _amounts[0]);
 
     // Number of transfer to execute
     uint256 nTransfer = _ids.length;
@@ -150,7 +147,7 @@ contract ERC1155 is IERC1155 {
 
     // Pass data if recipient is contract
     if (_to.isContract()) {
-      bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender, _from, _ids, _amounts, _data);
+      bytes4 retval =  ERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _ids, _amounts, _data);
       require(retval == ERC1155_RECEIVE_SIG);
     }
 

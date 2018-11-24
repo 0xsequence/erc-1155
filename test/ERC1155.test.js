@@ -223,11 +223,11 @@ contract('ERC1155Mock', function ([_, owner, receiver, anyone, operator]) {
 
       })
 
-      it('should emit N Transfer events', async function () {
+      it('should emit 1 Transfer events of N transfers', async function () {
           let tx = await this.token.safeBatchTransferFrom(owner, receiver, types, values, "", {from: owner});
           let event = tx.logs[0].event;
           event.should.be.equal('Transfer');
-          (values.length).should.be.equal(tx.logs.length)
+          (values.length).should.be.equal(tx.logs[0].args.ids.length)
       });
 
       it('should REVERT when sending to non-receiver contract', async function () {

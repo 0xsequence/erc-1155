@@ -107,21 +107,18 @@ contract('ERC1155XMock', function ([_, owner, receiver, anyone, operator]) {
         await this.token.batchMint(receiver, [0, maxClass, 2], [1, 2, 3], {from : owner}).should.be.rejected;
       });
 
-      it('should emit N Transfer events', async function () {
+      it('should emit 1 Transfer events of N transfers', async function () {
           let tx = await this.token.batchMint(receiver, typesArray, amountArray, {from: owner});
           let event = tx.logs[0].event;
           event.should.be.equal('Transfer');
-          (amountArray.length).should.be.equal(tx.logs.length)
+          (typesArray.length).should.be.equal(tx.logs[0].args.ids.length)
       });
 
-      it('should have 0x0 as `from` argument in all Transfer events', async function () {
+      it('should have 0x0 as `from` argument in Transfer events', async function () {
         const { logs } = await this.token.batchMint(receiver, typesArray, amountArray, {from: owner});
 
-        for (let i = 0; i < amountArray.length; i++){
-          let from = logs[i].args.from;
-          from.should.be.equal(ZERO_ADDRESS);
-        }
-        
+        let from = logs[0].args.from;
+        from.should.be.equal(ZERO_ADDRESS);
       });
 
     })

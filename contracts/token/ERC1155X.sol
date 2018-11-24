@@ -160,9 +160,6 @@ contract ERC1155X is ERC1155, Ownable {
     // Balance for current bin in memory (initialized with first mint)
     uint256 balTo = _viewUpdateIDBalance(balances[_to][bin], index, _amounts[0], Operations.Add); 
 
-    // Trigger event for first mint
-    emit Transfer(0x0, _to, _ids[0], _amounts[0]);
-
     // Number of mints to execute
     uint256 nMints = _ids.length; 
 
