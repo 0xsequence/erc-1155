@@ -10,7 +10,7 @@ An implementation of a Multi-Token contracts where all token types are fungible.
 
 # Simple Summary
 
-An implementation example of a standard **Multi-Tokens (MT)** contract, which contains multiple classes of fungible tokens referenced by IDs. Standard interface discussion at [ERC-1155](https://github.com/ethereum/EIPs/issues/1155). 
+An implementation example of a standard **Multi-Token (MT)** contract, which contains multiple classes of fungible tokens referenced by IDs. Standard interface discussion at [ERC-1155](https://github.com/ethereum/EIPs/issues/1155). 
 
 # Abstract
 
@@ -32,7 +32,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 pragma solidity ^0.4.24;
 
 /**
-* @title ERC-1155 Multi-Tokens Standard
+* @title ERC-1155 Multi-Token Standard
 * @dev
 *   Note: the ERC-165 identifier for this interface is 0xf23a6e61
 */
