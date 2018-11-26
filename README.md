@@ -1,4 +1,4 @@
-# Multi-Tokens (MT) Contract for Ethereum
+# Multi-Token Standard (ERC1155) for Ethereum
 
 An implementation of a Multi-Token contracts where all token types are fungible. 
 
