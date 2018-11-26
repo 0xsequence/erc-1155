@@ -5,6 +5,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/utils/Address.sol";
 import "./ERC1155TokenReceiver.sol";
 import "./IERC1155.sol";
+import "./ERC165.sol";
 
 /**
 * @dev Implementation of Multi-Tokens Standard contract. This implementation of the MT standard exploit the fact that
@@ -15,7 +16,7 @@ import "./IERC1155.sol";
 *      efficiency gains. This token contract tries to adhere to ERC-1055 standard, but currently
 *      diverges from it as the standard is currently being constructed.
 */
-contract ERC1155 is IERC1155 { 
+contract ERC1155 is IERC1155, ERC165 { 
   using SafeMath for uint256;
   using Address for address;
 
@@ -45,7 +46,6 @@ contract ERC1155 is IERC1155 {
   // Events
   event Transfer(address operator, address from, address to, uint256[] ids, uint256[] amounts);
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
-
 
   //
   // Transfer Functions
@@ -309,6 +309,37 @@ contract ERC1155 is IERC1155 {
     // Shift amount
     uint256 leftShift = 256 - IDS_BITS_SIZE*(_index + 1);
     return (_binValue & ~(mask << leftShift) ) | (_amount << leftShift);
+  }
+
+
+  /* ----------------------------------- ERC165 ----------------------------------- */
+
+  /*
+      INTERFACE_SIGNATURE_ERC165 = bytes4(keccak256('supportsInterface(bytes4)'));
+  */
+  bytes4 constant private INTERFACE_SIGNATURE_ERC165 = 0x01ffc9a7;
+
+  /**
+   * INTERFACE_SIGNATURE_ERC1155 =  
+   *   bytes4(keccak256("safeTransferFrom(address,address,uint256,uint256,bytes)")) ^
+   *   bytes4(keccak256("safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)")) ^
+   *   bytes4(keccak256("balanceOf(address,uint256)")) ^
+   *   bytes4(keccak256("setApprovalForAll(address,bool)")) ^
+   *   bytes4(keccak256("isApprovedForAll(address,address)"));
+   */
+  bytes4 constant private INTERFACE_SIGNATURE_ERC1155 = 0x97a409d2;
+
+  /**
+   * @dev Query if a contract implements an interface
+   * @param _interfaceID The interface identifier, as specified in ERC-165
+   * @return `true` if the contract implements `_interfaceID` and
+   */
+  function supportsInterface(bytes4 _interfaceID) external view returns (bool) {
+    if (_interfaceID == INTERFACE_SIGNATURE_ERC165 ||
+        _interfaceID == INTERFACE_SIGNATURE_ERC1155) {
+       return true;
+    }
+    return false;
   }
 
 }

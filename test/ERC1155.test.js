@@ -4,7 +4,6 @@ const fromRpcSig = require('ethereumjs-util').fromRpcSig;
 const Math = require('math');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -287,6 +286,22 @@ contract('ERC1155Mock', function ([_, owner, receiver, anyone, operator]) {
         });
       });
     });
+
+    describe('Supports ERC165', function () {
+
+      describe('supportsInterface()', function () {
+
+        it('should return true for 0x01ffc9a7', async function () {
+          const support = await this.token.supportsInterface('0x01ffc9a7');
+          support.should.be.equal(true);
+        });
+
+        it('should return true for 0x97a409d2', async function () {
+          const support = await this.token.supportsInterface('0x97a409d2');
+          support.should.be.equal(true);
+        });
+      })
+    })
 
   });
 });
