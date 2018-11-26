@@ -314,9 +314,9 @@ contract ERC1155 is IERC1155, ERC165 {
 
   /* ----------------------------------- ERC165 ----------------------------------- */
 
-  /*
-      INTERFACE_SIGNATURE_ERC165 = bytes4(keccak256('supportsInterface(bytes4)'));
-  */
+  /**
+   * INTERFACE_SIGNATURE_ERC165 = bytes4(keccak256('supportsInterface(bytes4)'));
+   */
   bytes4 constant private INTERFACE_SIGNATURE_ERC165 = 0x01ffc9a7;
 
   /**
