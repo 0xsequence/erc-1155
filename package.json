@@ -19,7 +19,7 @@
     "clean": "rm -rf build",
     "migrate": "truffle migrate --network ganache --reset",
     "migrate:rinkeby": "truffle migrate --network rinkeby",
-    "test": "tsc -b && truffle test --network ganache build/scripts/*.spec.js",
+    "test": "tsc -b && truffle test --network ganache build/scripts/*.spec.js build/scripts/*.bench.js",
     "test:coverage": "solidity-coverage",
     "gen:contract-typings": "typechain --target ethers --outDir typings/contracts './build/contracts/*.json'",
     "lint": "yarn lint:ts && yarn lint:sol",

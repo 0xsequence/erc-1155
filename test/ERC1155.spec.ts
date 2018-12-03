@@ -339,7 +339,7 @@ contract('ERC1155Mock', (accounts: string[]) => {
     })
 
     it('should set the operator status to _status argument', async () => {
-      const tx = erc1155Contract.functions.setApprovalForAll(ownerAddress, true)
+      const tx = erc1155Contract.functions.setApprovalForAll(operatorAddress, true)
       await expect(tx).to.be.fulfilled
 
       const status = await erc1155Contract.functions.isApprovedForAll(ownerAddress, operatorAddress)
