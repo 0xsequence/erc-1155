@@ -1,12 +1,13 @@
-# Efficient Multi-Token Standard (ERC1155) Implementation
+# Multi-Token Standard (ERC1155) Implementation
 
 An implementation of a Multi-Token contracts where all token types are fungible. 
 
 # Dev / running the tests
 
-1. Install node v8 or v10 and yarn
+1. Install node v11 and yarn (npm install -g yarn)
 2. `yarn install`
-3. `yarn test` - executes test suite
+3. `yarn ganache`
+4. in another terminal run, `yarn test` - executes test suite
 
 # Simple Summary
 

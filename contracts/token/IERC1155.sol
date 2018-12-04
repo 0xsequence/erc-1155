@@ -1,6 +1,7 @@
 
 pragma solidity ^0.4.24;
 
+
 contract IERC1155 {
   // Events
 
@@ -19,7 +20,8 @@ contract IERC1155 {
   // ----------------- NEVER TRIGGERED  ----------------- //
   event URI(uint256 indexed _id, string _value);
   event Name(uint256 indexed _id, string _value);
-  // ---------------------------------------------------- //  
+  // ---------------------------------------------------- //
+  
 
   /**
    * @notice Transfers value amount of an _id from the _from address to the _to addresses specified. Each parameter array should be the same length, with each index correlating.
@@ -72,4 +74,5 @@ contract IERC1155 {
    * @return           True if the operator is approved, false if not
    */
   function isApprovedForAll(address _owner, address _operator) external view returns (bool isOperator);
+
 }

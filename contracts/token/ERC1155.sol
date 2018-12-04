@@ -1,14 +1,15 @@
 pragma solidity ^0.4.24;
 pragma experimental ABIEncoderV2;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/utils/Address.sol";
+import "openzeppelin-eth/contracts/math/SafeMath.sol";
+import "openzeppelin-eth/contracts/utils/Address.sol";
 import "./ERC1155TokenReceiver.sol";
 import "./IERC1155.sol";
 import "./ERC165.sol";
 
+
 /**
-* @dev Implementation of Multi-Tokens Standard contract. This implementation of the MT standard exploit the fact that
+* @dev Implementation of Multi-Token Standard contract. This implementation of the MT standard exploit the fact that
 *      balances of different token ids can be concatenated within individual uint256 storage slots.
 *      This allows the contract to batch transfer tokens more efficiently at the cost of limiting the 
 *      maximum token balance each address can hold. This limit is 2^IDS_BITS_SIZE, which can be 

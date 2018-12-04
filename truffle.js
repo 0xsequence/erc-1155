@@ -2,6 +2,14 @@ module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
   // to customize your Truffle configuration!
 
+  networks: {
+    ganache: {
+      network_id: 127001,
+      host: "127.0.0.1",
+      port: 8545
+    }
+  },
+
   solc: {
     optimizer: {
       enabled: true,
@@ -10,12 +18,14 @@ module.exports = {
     evmVersion: "byzantium"
   },
 
-  networks: {
-    ganache: {
-      host: '127.0.0.1',
-      port: 8545,
-      network_id: '*'
+  mocha: {
+    reporter: "eth-gas-reporter",
+    reporterOptions: {
+      currency: "USD",
+      gasPrice: 21,
+      outputFile: "/dev/null",
+      showTimeSpent: true
     }
   }
 
-};
+}
