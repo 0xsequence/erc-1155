@@ -44,8 +44,8 @@ const {
 
 contract('Efficiency Comparison Tests', (accounts: string[]) => {
 
-  const nTransfers = 5
-  const toTransfer = 30 // Amount to transfer per transfer
+  const nTransfers = 30
+  const toTransfer = 10 // Amount to transfer per transfer
   const toMint = 15 // Amount to mint per transfer
 
   // Array of amount

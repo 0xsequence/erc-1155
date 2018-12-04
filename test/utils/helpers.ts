@@ -57,13 +57,6 @@ export class Web3DebugProvider extends ethers.providers.JsonRpcProvider {
 
   send(method: string, params: any): Promise<any> {
 
-    // Metamask complains about eth_sign (and on some versions hangs)
-    if (method === 'eth_sign' && this._web3Provider.isMetaMask) {
-      // https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal_sign
-      method = 'personal_sign'
-      params = [ params[1], params[0] ]
-    }
-
     this.reqCounter++
 
     return new Promise((resolve, reject) => {

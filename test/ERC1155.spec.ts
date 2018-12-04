@@ -275,7 +275,7 @@ contract('ERC1155Mock', (accounts: string[]) => {
       await expect(tx).to.be.rejected
     })
 
-    it('Should update balances of sender and receiver', async () => {
+    it('should update balances of sender and receiver', async () => {
       await erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, types, values, [])
 
       let balanceFrom: ethers.utils.BigNumber
