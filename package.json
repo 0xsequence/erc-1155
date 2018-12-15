@@ -57,7 +57,7 @@
     "chai-string": "^1.5.0",
     "dotenv": "^6.1.0",
     "eth-gas-reporter": "^0.1.12",
-    "ethers": "^4.0.15",
+    "ethers": "^4.0.20",
     "ganache-cli": "6.1.8",
     "openzeppelin-eth": "^2.0.2",
     "solc": "^0.4.25",
@@ -65,10 +65,10 @@
     "solium": "^1.1.8",
     "truffle": "^5.0.0-beta.2",
     "truffle-contract": "^3.0.6",
-    "truffle-hdwallet-provider": "^1.0.0-web3one.2",
+    "truffle-hdwallet-provider": "1.0.0-web3one.2",
     "tslint": "^5.11.0",
     "typechain": "^0.3.9",
-    "typescript": "3.2.1",
+    "typescript": "3.2.2",
     "zos-lib": "^2.0.1"
   }
 }
