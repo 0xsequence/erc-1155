@@ -58,7 +58,7 @@
     "dotenv": "^6.1.0",
     "eth-gas-reporter": "^0.1.12",
     "ethers": "^4.0.20",
-    "ganache-cli": "6.1.8",
+    "ganache-cli": "6.2.4",
     "openzeppelin-eth": "^2.0.2",
     "solc": "^0.4.25",
     "solidity-coverage": "^0.5.11",
