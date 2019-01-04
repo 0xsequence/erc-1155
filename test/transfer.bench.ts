@@ -82,7 +82,12 @@ contract('Efficiency Comparison Tests', (accounts: string[]) => {
 
     describe('Transferring ' + nTransfers + ' ERC721 tokens with wrapper contract', () => {
       it('', async () => {
-        const tx = await erc721Contract.functions.batchTransferFrom(owner.address, receiver.address, IDArray)
+        const data = ethers.utils.toUtf8Bytes('hello')
+
+        // NOTE: typechain generates the wrong type for `bytes` type at this time
+        // see https://github.com/ethereum-ts/TypeChain/issues/123
+        // @ts-ignore
+        const tx = await erc721Contract.functions.batchTransferFrom(owner.address, receiver.address, IDArray, data)
         const receipt = await tx.wait()
 
         console.log('Total gas cost  : ', receipt.gasUsed!.toNumber())
@@ -173,7 +178,7 @@ contract('Efficiency Comparison Tests', (accounts: string[]) => {
       }
     })
 
-    describe('Transferring ' + nTransfers +  ' ERC1155 tokens via safeBatchTransfer()', () => {
+    describe('Transferring ' + nTransfers +  ' ERC1155 tokens via batch transfer', () => {
       it('', async () => {
         const tx = await erc1155NoBalancePackingContract.functions.batchTransferFrom(owner.address, receiver.address, IDArray, amountArray)
         const receipt = await tx.wait()
@@ -196,7 +201,7 @@ contract('Efficiency Comparison Tests', (accounts: string[]) => {
         }
       })
   
-      describe('Transferring ' + nTransfers + ' ERC1155 tokens with packed balance via safeBatchTransfer()', () => {
+      describe('Transferring ' + nTransfers + ' ERC1155 tokens with packed balance via safeBatchTra', () => {
         it('', async () => {
           const tx = await erc1155Contract.functions.safeBatchTransferFrom(owner.address, receiver.address, IDArray, amountArray, [])
           const receipt = await tx.wait()

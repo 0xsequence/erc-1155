@@ -44,7 +44,8 @@ export class ERC721Mock extends Contract {
     batchTransferFrom(
       _from: string,
       _to: string,
-      _tokenIDs: (number | string)[]
+      _tokenIDs: (number | string)[],
+      _data: (string)[]
     ): Promise<ContractTransaction>;
   };
   filters: {

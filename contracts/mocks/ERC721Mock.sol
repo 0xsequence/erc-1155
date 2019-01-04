@@ -12,7 +12,7 @@ contract ERC721Mock is ERC721 {
     _mint(_address, _tokenID);
   }
 
-  function batchTransferFrom(address _from, address _to, uint256[] calldata _tokenIDs) external {
+  function batchTransferFrom(address _from, address _to, uint256[] calldata _tokenIDs, bytes calldata _data) external {
     require(_from != address(0));
     require(_to != address(0));
 
@@ -20,7 +20,7 @@ contract ERC721Mock is ERC721 {
 
     for (uint256 i = 0; i < _tokenIDs.length; i++){
       tokenID = _tokenIDs[i];
-      transferFrom(_from, _to, tokenID);
+      safeTransferFrom(_from, _to, tokenID, _data);
     }
   }
 
