@@ -13,6 +13,11 @@ export class ERC1155XMock extends Contract {
 
     getNonce(_signer: string): Promise<BigNumber>;
 
+    balanceOfBatch(
+      _owners: (string)[],
+      _ids: (number | string)[]
+    ): Promise<(BigNumber)[]>;
+
     recoverHashSigner(
       _hash: string,
       _r: string,
@@ -23,7 +28,7 @@ export class ERC1155XMock extends Contract {
     writeValueInBin(
       _binValue: number | string,
       _index: number | string,
-      _amount: number | string
+      _value: number | string
     ): Promise<BigNumber>;
 
     recoverApprovalSigner(
@@ -37,7 +42,7 @@ export class ERC1155XMock extends Contract {
       _from: string,
       _to: string,
       _id: number | string,
-      _amount: number | string,
+      _value: number | string,
       _data: (string)[],
       _nonce: number | string,
       _sig: { v: number | string; r: string; s: string; sigPrefix: string }
@@ -62,20 +67,20 @@ export class ERC1155XMock extends Contract {
     batchMint(
       _to: string,
       _ids: (number | string)[],
-      _amounts: (number | string)[]
+      _values: (number | string)[]
     ): Promise<ContractTransaction>;
 
     mint(
       _to: string,
       _id: number | string,
-      _amount: number | string
+      _value: number | string
     ): Promise<ContractTransaction>;
 
     safeBatchTransferFrom(
       _from: string,
       _to: string,
       _ids: (number | string)[],
-      _amounts: (number | string)[],
+      _values: (number | string)[],
       _data: (string)[]
     ): Promise<ContractTransaction>;
 
@@ -85,8 +90,6 @@ export class ERC1155XMock extends Contract {
       _operator: string,
       _approved: boolean
     ): Promise<ContractTransaction>;
-
-    initialize(sender: string): Promise<ContractTransaction>;
 
     sigSetApprovalForAll(
       _owner: string,
@@ -99,7 +102,7 @@ export class ERC1155XMock extends Contract {
       _from: string,
       _to: string,
       _id: number | string,
-      _amount: number | string,
+      _value: number | string,
       _data: (string)[]
     ): Promise<ContractTransaction>;
 
@@ -109,34 +112,42 @@ export class ERC1155XMock extends Contract {
       _from: string,
       _to: string,
       _id: number | string,
-      _amount: number | string,
+      _value: number | string,
       _data: (string)[],
       _sig: { v: number | string; r: string; s: string; sigPrefix: string }
     ): Promise<ContractTransaction>;
 
     mockMint(
-      _address: string,
-      _type: number | string,
+      _to: string,
+      _id: number | string,
       _value: number | string
     ): Promise<ContractTransaction>;
 
+    ERC1155_BATCH_RECEIVED_VALUE(): Promise<string>;
+    ERC1155_RECEIVED_VALUE(): Promise<string>;
     owner(): Promise<string>;
     isOwner(): Promise<boolean>;
   };
   filters: {
-    OwnershipRenounced(previousOwner: string | null): EventFilter;
-
     OwnershipTransferred(
       previousOwner: string | null,
       newOwner: string | null
     ): EventFilter;
 
-    Transfer(
-      operator: null,
-      from: null,
-      to: null,
-      ids: null,
-      amounts: null
+    TransferSingle(
+      _operator: string | null,
+      _from: string | null,
+      _to: string | null,
+      _id: null,
+      _value: null
+    ): EventFilter;
+
+    TransferBatch(
+      _operator: string | null,
+      _from: string | null,
+      _to: string | null,
+      _ids: null,
+      _values: null
     ): EventFilter;
 
     ApprovalForAll(
@@ -144,8 +155,6 @@ export class ERC1155XMock extends Contract {
       _operator: string | null,
       _approved: null
     ): EventFilter;
-
-    Transfer(from: null, to: null, tokenType: null, amount: null): EventFilter;
 
     URI(_id: number | string | null, _value: null): EventFilter;
 

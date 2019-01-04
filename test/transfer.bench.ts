@@ -65,7 +65,7 @@ contract('Efficiency Comparison Tests', (accounts: string[]) => {
       }
     })
 
-    describe('Transferring 30 ERC721 tokens in different transaction calls', () => {
+    describe('Transferring ' + nTransfers + ' ERC721 tokens in different transaction calls', () => {
       it('', async () => {
         let sumGasCost = 0
 
@@ -80,7 +80,7 @@ contract('Efficiency Comparison Tests', (accounts: string[]) => {
       })
     })
 
-    describe('Transferring 30 ERC721 tokens with wrapper contract', () => {
+    describe('Transferring ' + nTransfers + ' ERC721 tokens with wrapper contract', () => {
       it('', async () => {
         const tx = await erc721Contract.functions.batchTransferFrom(owner.address, receiver.address, IDArray)
         const receipt = await tx.wait()
@@ -124,7 +124,7 @@ contract('Efficiency Comparison Tests', (accounts: string[]) => {
       })
     })
 
-    describe('Transferring 30 ERC20s tokens with wrapper contract', () => {
+    describe('Transferring ' + nTransfers + ' ERC20 tokens with a wrapper contract', () => {
 
       it('', async () => {
         let tokenAddresses: string[] = []
@@ -173,7 +173,7 @@ contract('Efficiency Comparison Tests', (accounts: string[]) => {
       }
     })
 
-    describe('Transferring 100 ERC1155 tokens', () => {
+    describe('Transferring ' + nTransfers +  ' ERC1155 tokens via safeBatchTransfer()', () => {
       it('', async () => {
         const tx = await erc1155NoBalancePackingContract.functions.batchTransferFrom(owner.address, receiver.address, IDArray, amountArray)
         const receipt = await tx.wait()
@@ -183,32 +183,30 @@ contract('Efficiency Comparison Tests', (accounts: string[]) => {
       })
     })
 
-  })
+    context('ERC-1155 Tokens with Packed Balances', () => {
 
-
-  describe('ERC-1155 "packed Balance" Tokens', () => {
-
-    let erc1155Contract: ERC1155Mock
-
-    beforeEach(async () => {
-      let abstract = await AbstractContract.fromArtifactName('ERC1155Mock')
-      erc1155Contract = await abstract.deploy(owner) as ERC1155Mock
-
-      for (let i = 0; i < nTransfers; i++) {
-        await erc1155Contract.functions.mockMint(owner.address, i, toMint)
-      }
-    })
-
-    describe('Transferring 30 ERC1155 tokens with packed balance', () => {
-      it('', async () => {
-        const tx = await erc1155Contract.functions.safeBatchTransferFrom(owner.address, receiver.address, IDArray, amountArray, [])
-        const receipt = await tx.wait()
-
-        console.log('Total gas cost  : ', receipt.gasUsed!.toNumber())
-        console.log('Per Tx Gas cost : ', receipt.gasUsed!.toNumber() / nTransfers)
+      let erc1155Contract: ERC1155Mock
+  
+      beforeEach(async () => {
+        let abstract = await AbstractContract.fromArtifactName('ERC1155Mock')
+        erc1155Contract = await abstract.deploy(owner) as ERC1155Mock
+  
+        for (let i = 0; i < nTransfers; i++) {
+          await erc1155Contract.functions.mockMint(owner.address, i, toMint)
+        }
       })
+  
+      describe('Transferring ' + nTransfers + ' ERC1155 tokens with packed balance via safeBatchTransfer()', () => {
+        it('', async () => {
+          const tx = await erc1155Contract.functions.safeBatchTransferFrom(owner.address, receiver.address, IDArray, amountArray, [])
+          const receipt = await tx.wait()
+  
+          console.log('Total gas cost  : ', receipt.gasUsed!.toNumber())
+          console.log('Per Tx Gas cost : ', receipt.gasUsed!.toNumber() / nTransfers)
+        })
+      })
+  
     })
 
   })
-
 })

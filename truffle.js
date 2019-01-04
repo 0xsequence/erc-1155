@@ -15,7 +15,8 @@ module.exports = {
       enabled: true,
       runs: 200
     },
-    evmVersion: "byzantium"
+    evmVersion: "byzantium",
+    version: "0.5.0"
   },
 
   mocha: {

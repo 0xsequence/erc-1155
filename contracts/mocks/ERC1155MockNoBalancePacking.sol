@@ -1,6 +1,6 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
-import "openzeppelin-eth/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract ERC1155MockNoBalancePacking { 
   using SafeMath for uint256;  
@@ -29,7 +29,7 @@ contract ERC1155MockNoBalancePacking {
     balances[_address][_class] += _value; 
   }
 
-  function batchTransferFrom(address _from, address _to, uint256[] _classes, uint256[] _values) public {
+  function batchTransferFrom(address _from, address _to, uint256[] calldata _classes, uint256[] calldata _values) external {
     require( (msg.sender == _from) || operators[_from][msg.sender], 'msg.sender is neither _from nor operator');
     require(_to != address(0),                                      'Invalid recipient');
 

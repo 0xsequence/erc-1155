@@ -11,6 +11,11 @@ export class ERC1155 extends Contract {
 
     balanceOf(_address: string, _id: number | string): Promise<BigNumber>;
 
+    balanceOfBatch(
+      _owners: (string)[],
+      _ids: (number | string)[]
+    ): Promise<(BigNumber)[]>;
+
     getIDBinIndex(
       _id: number | string
     ): Promise<{
@@ -28,7 +33,7 @@ export class ERC1155 extends Contract {
     writeValueInBin(
       _binValue: number | string,
       _index: number | string,
-      _amount: number | string
+      _value: number | string
     ): Promise<BigNumber>;
 
     supportsInterface(_interfaceID: string): Promise<boolean>;
@@ -37,7 +42,7 @@ export class ERC1155 extends Contract {
       _from: string,
       _to: string,
       _id: number | string,
-      _amount: number | string,
+      _value: number | string,
       _data: (string)[]
     ): Promise<ContractTransaction>;
 
@@ -45,7 +50,7 @@ export class ERC1155 extends Contract {
       _from: string,
       _to: string,
       _ids: (number | string)[],
-      _amounts: (number | string)[],
+      _values: (number | string)[],
       _data: (string)[]
     ): Promise<ContractTransaction>;
 
@@ -53,14 +58,25 @@ export class ERC1155 extends Contract {
       _operator: string,
       _approved: boolean
     ): Promise<ContractTransaction>;
+
+    ERC1155_BATCH_RECEIVED_VALUE(): Promise<string>;
+    ERC1155_RECEIVED_VALUE(): Promise<string>;
   };
   filters: {
-    Transfer(
-      operator: null,
-      from: null,
-      to: null,
-      ids: null,
-      amounts: null
+    TransferSingle(
+      _operator: string | null,
+      _from: string | null,
+      _to: string | null,
+      _id: null,
+      _value: null
+    ): EventFilter;
+
+    TransferBatch(
+      _operator: string | null,
+      _from: string | null,
+      _to: string | null,
+      _ids: null,
+      _values: null
     ): EventFilter;
 
     ApprovalForAll(
@@ -68,8 +84,6 @@ export class ERC1155 extends Contract {
       _operator: string | null,
       _approved: null
     ): EventFilter;
-
-    Transfer(from: null, to: null, tokenType: null, amount: null): EventFilter;
 
     URI(_id: number | string | null, _value: null): EventFilter;
 

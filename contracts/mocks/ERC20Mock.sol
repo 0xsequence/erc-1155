@@ -1,7 +1,7 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
-import "openzeppelin-eth/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-eth/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 contract ERC20Mock is ERC20 {
@@ -12,14 +12,10 @@ contract ERC20Mock is ERC20 {
     _mint(_address, _amount);
   }
 
-  function batchTransfer(address[] _tokens, address to, uint256[] _amounts) public {
-
-    require(_tokens.length == _amounts.length);
-
+  function batchTransfer(address[] calldata _tokens, address _to, uint256[] calldata _amounts) external {
     for (uint256 i = 0; i < _amounts.length; i++){
-      require( ERC20(_tokens[i]).transfer(to, _amounts[i]) );
+      ERC20(_tokens[i]).transfer(_to, _amounts[i]);
     }
-
   }
 
 }

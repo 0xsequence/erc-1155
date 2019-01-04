@@ -93,7 +93,7 @@ contract('ERC1155XMock', (accounts: string[]) => {
         const receipt = await tx.wait(1)
 
         const ev = receipt.events![0]
-        expect(ev.event).to.be.eql('Transfer')
+        expect(ev.event).to.be.eql('TransferSingle')
       })
 
       it('should have 0x0 as `from` argument in Transfer event', async () => {
@@ -105,7 +105,7 @@ contract('ERC1155XMock', (accounts: string[]) => {
         const ev = receipt.events![0]
         const args = ev.args! as any
 
-        expect(args.from).to.be.eql(ZERO_ADDRESS)
+        expect(args._from).to.be.eql(ZERO_ADDRESS)
       })
 
     })
@@ -162,17 +162,17 @@ contract('ERC1155XMock', (accounts: string[]) => {
         const tx = await erc1155XContract.functions.batchMint(receiverAddress, typesArray, amountArray)
         const receipt = await tx.wait()
         const ev = receipt.events![0]
-        expect(ev.event).to.be.eql('Transfer')
+        expect(ev.event).to.be.eql('TransferBatch')
 
         const args = ev.args! as any
-        expect(args.ids.length).to.be.eql(typesArray.length)
+        expect(args._ids.length).to.be.eql(typesArray.length)
       })
 
       it('should have 0x0 as `from` argument in Transfer events', async () => {
         const tx = await erc1155XContract.functions.batchMint(receiverAddress, typesArray, amountArray)
         const receipt = await tx.wait()
         const args = receipt.events![0].args! as any
-        expect(args.from).to.be.eql(ZERO_ADDRESS)
+        expect(args._from).to.be.eql(ZERO_ADDRESS)
       })
 
     })

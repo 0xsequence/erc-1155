@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 /**
  * @dev ERC-1155 interface for accepting safe transfers.
@@ -6,25 +6,32 @@ pragma solidity ^0.4.24;
 interface ERC1155TokenReceiver {
 
   /**
-   * @dev Handle the receipt of multiple fungible tokens from an MFT contract. The ERCXXXX smart contract calls 
-   * this function on the recipient after a `batchTransfer`. This function MAY throw to revert and reject the 
-   * transfer. Return of other than the magic value MUST result in the transaction being reverted.
-   * Returns `bytes4(keccak256("onERCXXXXBatchReceived(address,address,uint256[],uint256[],bytes)"))` unless throwing.
-   * @notice The contract address is always the message sender. A wallet/broker/auction application
-   * MUST implement the wallet interface if it will accept safe transfers.
-   * @param _operator The address which called `safeTransferFrom` function.
-   * @param _from The address from which the token was transfered from.
-   * @param _types Array of types of token being transferred (where each type is represented as an ID)
-   * @param _amounts Array of amount of object per type to be transferred.
-   * @param _data Additional data with no specified format.
-   */
-  function onERC1155Received(
-    address _operator,
-    address _from,
-    uint256[] _types,
-    uint256[] _amounts,
-    bytes _data
-    )
-    external
-    returns(bytes4);
+  * @notice Handle the receipt of a single ERC1155 token type.
+  * @dev An ERC1155-compliant smart contract MUST call this function on the token recipient contract, at the end of a `safeTransferFrom` after the balance has been updated.
+  * This function MAY throw to revert and reject the transfer.
+  * Return of other than the magic value MUST result in the transaction being reverted.
+  * Note: The contract address is always the message sender.
+  * @param _operator  The address which called the `safeTransferFrom` function
+  * @param _from      The address which previously owned the token
+  * @param _id        The id of the token being transferred
+  * @param _value     The amount of tokens being transferred
+  * @param _data      Additional data with no specified format
+  * @return           `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`
+  */
+  function onERC1155Received(address _operator, address _from, uint256 _id, uint256 _value, bytes calldata _data) external returns(bytes4);
+
+  /**
+  * @notice Handle the receipt of multiple ERC1155 token types.
+  * @dev An ERC1155-compliant smart contract MUST call this function on the token recipient contract, at the end of a `safeBatchTransferFrom` after the balances have been updated.
+  * This function MAY throw to revert and reject the transfer.
+  * Return of other than the magic value WILL result in the transaction being reverted.
+  * Note: The contract address is always the message sender.
+  * @param _operator  The address which called the `safeBatchTransferFrom` function
+  * @param _from      The address which previously owned the token
+  * @param _ids       An array containing ids of each token being transferred
+  * @param _values    An array containing amounts of each token being transferred
+  * @param _data      Additional data with no specified format
+  * @return           `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`
+  */
+  function onERC1155BatchReceived(address _operator, address _from, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data) external returns(bytes4);
 }

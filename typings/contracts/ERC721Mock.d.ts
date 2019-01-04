@@ -31,8 +31,6 @@ export class ERC721Mock extends Contract {
       tokenId: number | string
     ): Promise<ContractTransaction>;
 
-    initialize(): Promise<ContractTransaction>;
-
     setApprovalForAll(
       to: string,
       approved: boolean

@@ -1,5 +1,5 @@
 
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 
 contract IERC1155 {
@@ -10,7 +10,9 @@ contract IERC1155 {
    * A `Transfer` event to address `0x0` signifies a burning or melting operation. 
    * This MUST emit a zero value, from `0x0` to the creator's address if a token has no initial balance but is being defined/created.
    */
-  event Transfer(address from, address to, uint256 tokenType, uint256 amount);
+  event TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value);
+  event TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _values);
+  
 
   /**
    * @dev MUST emit on any successful call to setApprovalForAll(address _operator, bool _approved)
@@ -21,7 +23,6 @@ contract IERC1155 {
   event URI(uint256 indexed _id, string _value);
   event Name(uint256 indexed _id, string _value);
   // ---------------------------------------------------- //
-  
 
   /**
    * @notice Transfers value amount of an _id from the _from address to the _to addresses specified. Each parameter array should be the same length, with each index correlating.
@@ -36,7 +37,7 @@ contract IERC1155 {
    * @param _value   transfer amounts
    * @param _data    Additional data with no specified format, sent in call to `_to`
    */
-  function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes _data) external;
+  function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) external;
 
   /**
    * @notice Send multiple types of Tokens from a 3rd party in one transfer (with safety call)
@@ -49,7 +50,7 @@ contract IERC1155 {
    * @param _values  Transfer amounts per token type
    * @param _data    Additional data with no specified format, sent in call to `_to`
    */
-  function safeBatchTransferFrom(address _from, address _to, uint256[] _ids, uint256[] _values, bytes _data) public;
+  function safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _values, bytes memory _data) public;
   
   /**
    * @notice Get the balance of an account's Tokens
@@ -58,6 +59,14 @@ contract IERC1155 {
    * @return        The _owner's balance of the Token type requested
    */   
   function balanceOf(address _owner, uint256 _id) external view returns (uint256);
+
+  /**
+   * @dev Get the balance of multiple account/token pairs
+   * @param _owners The addresses of the token holders
+   * @param _ids    ID of the Tokens
+   * @return        The _owner's balance of the Token types requested
+   */
+  function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids) external view returns (uint256[] memory);
 
   /**
    * @notice Enable or disable approval for a third party ("operator") to manage all of `msg.sender`'s tokens.

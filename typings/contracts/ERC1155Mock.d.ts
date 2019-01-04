@@ -11,10 +11,15 @@ export class ERC1155Mock extends Contract {
 
     supportsInterface(_interfaceID: string): Promise<boolean>;
 
+    balanceOfBatch(
+      _owners: (string)[],
+      _ids: (number | string)[]
+    ): Promise<(BigNumber)[]>;
+
     writeValueInBin(
       _binValue: number | string,
       _index: number | string,
-      _amount: number | string
+      _value: number | string
     ): Promise<BigNumber>;
 
     getIDBinIndex(
@@ -37,7 +42,7 @@ export class ERC1155Mock extends Contract {
       _from: string,
       _to: string,
       _ids: (number | string)[],
-      _amounts: (number | string)[],
+      _values: (number | string)[],
       _data: (string)[]
     ): Promise<ContractTransaction>;
 
@@ -50,7 +55,7 @@ export class ERC1155Mock extends Contract {
       _from: string,
       _to: string,
       _id: number | string,
-      _amount: number | string,
+      _value: number | string,
       _data: (string)[]
     ): Promise<ContractTransaction>;
 
@@ -59,14 +64,25 @@ export class ERC1155Mock extends Contract {
       _type: number | string,
       _value: number | string
     ): Promise<ContractTransaction>;
+
+    ERC1155_BATCH_RECEIVED_VALUE(): Promise<string>;
+    ERC1155_RECEIVED_VALUE(): Promise<string>;
   };
   filters: {
-    Transfer(
-      operator: null,
-      from: null,
-      to: null,
-      ids: null,
-      amounts: null
+    TransferSingle(
+      _operator: string | null,
+      _from: string | null,
+      _to: string | null,
+      _id: null,
+      _value: null
+    ): EventFilter;
+
+    TransferBatch(
+      _operator: string | null,
+      _from: string | null,
+      _to: string | null,
+      _ids: null,
+      _values: null
     ): EventFilter;
 
     ApprovalForAll(
@@ -74,8 +90,6 @@ export class ERC1155Mock extends Contract {
       _operator: string | null,
       _approved: null
     ): EventFilter;
-
-    Transfer(from: null, to: null, tokenType: null, amount: null): EventFilter;
 
     URI(_id: number | string | null, _value: null): EventFilter;
 

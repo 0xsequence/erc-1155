@@ -8,8 +8,6 @@ import { BigNumber } from "ethers/utils";
 export class ERC165 extends Contract {
   functions: {
     supportsInterface(interfaceId: string): Promise<boolean>;
-
-    initialize(): Promise<ContractTransaction>;
   };
   filters: {};
 }

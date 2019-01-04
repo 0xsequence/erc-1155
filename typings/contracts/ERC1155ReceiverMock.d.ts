@@ -12,17 +12,27 @@ export class ERC1155ReceiverMock extends Contract {
     onERC1155Received(
       _operator: string,
       _from: string,
+      _id: number | string,
+      _value: number | string,
+      _data: (string)[]
+    ): Promise<ContractTransaction>;
+
+    onERC1155BatchReceived(
+      _operator: string,
+      _from: string,
       _ids: (number | string)[],
       _values: (number | string)[],
       _data: (string)[]
     ): Promise<ContractTransaction>;
 
     lastData(): Promise<(string)[]>;
+    ERC1155_BATCH_RECEIVED_SIG(): Promise<string>;
     shouldReject(): Promise<boolean>;
     lastValue(): Promise<BigNumber>;
     lastOperator(): Promise<string>;
     ERC1155_RECEIVED_SIG(): Promise<string>;
     lastId(): Promise<BigNumber>;
+    ERC1155_RECEIVED_INVALID(): Promise<string>;
   };
   filters: {};
 }

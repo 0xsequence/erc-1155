@@ -17,8 +17,6 @@ export class ERC721 extends Contract {
 
     isApprovedForAll(owner: string, operator: string): Promise<boolean>;
 
-    initialize(): Promise<ContractTransaction>;
-
     approve(to: string, tokenId: number | string): Promise<ContractTransaction>;
 
     setApprovalForAll(

@@ -7,8 +7,6 @@ import { BigNumber } from "ethers/utils";
 
 export class Ownable extends Contract {
   functions: {
-    initialize(sender: string): Promise<ContractTransaction>;
-
     renounceOwnership(): Promise<ContractTransaction>;
 
     transferOwnership(newOwner: string): Promise<ContractTransaction>;
@@ -17,8 +15,6 @@ export class Ownable extends Contract {
     isOwner(): Promise<boolean>;
   };
   filters: {
-    OwnershipRenounced(previousOwner: string | null): EventFilter;
-
     OwnershipTransferred(
       previousOwner: string | null,
       newOwner: string | null

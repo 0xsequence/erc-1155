@@ -10,8 +10,16 @@ export class ERC1155TokenReceiver extends Contract {
     onERC1155Received(
       _operator: string,
       _from: string,
-      _types: (number | string)[],
-      _amounts: (number | string)[],
+      _id: number | string,
+      _value: number | string,
+      _data: (string)[]
+    ): Promise<ContractTransaction>;
+
+    onERC1155BatchReceived(
+      _operator: string,
+      _from: string,
+      _ids: (number | string)[],
+      _values: (number | string)[],
       _data: (string)[]
     ): Promise<ContractTransaction>;
   };

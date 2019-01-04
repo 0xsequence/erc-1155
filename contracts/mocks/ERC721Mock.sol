@@ -1,7 +1,7 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
-import "openzeppelin-eth/contracts/token/ERC721/ERC721.sol";
-import "openzeppelin-eth/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 contract ERC721Mock is ERC721 {
@@ -12,7 +12,7 @@ contract ERC721Mock is ERC721 {
     _mint(_address, _tokenID);
   }
 
-  function batchTransferFrom(address _from, address _to, uint256[] _tokenIDs) public {
+  function batchTransferFrom(address _from, address _to, uint256[] calldata _tokenIDs) external {
     require(_from != address(0));
     require(_to != address(0));
 

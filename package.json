@@ -58,17 +58,19 @@
     "dotenv": "^6.1.0",
     "eth-gas-reporter": "^0.1.12",
     "ethers": "^4.0.20",
-    "ganache-cli": "6.2.4",
-    "openzeppelin-eth": "^2.0.2",
-    "solc": "^0.4.25",
+    "ganache-cli": "6.2.5",
+    "solc": "^0.5.2",
     "solidity-coverage": "^0.5.11",
-    "solium": "^1.1.8",
-    "truffle": "^5.0.0-beta.2",
+    "solium": "^1.2.1",
+    "truffle": "^5.0.1",
     "truffle-contract": "^3.0.6",
-    "truffle-hdwallet-provider": "1.0.0-web3one.2",
-    "tslint": "^5.11.0",
-    "typechain": "^0.3.9",
+    "truffle-hdwallet-provider": "1.0.2",
+    "tslint": "^5.12.0",
+    "typechain": "^0.3.10",
     "typescript": "3.2.2",
-    "zos-lib": "^2.0.1"
+    "zos-lib": "^2.0.2"
+  },
+  "dependencies": {
+    "openzeppelin-solidity": "^2.1.0-rc.2"
   }
 }

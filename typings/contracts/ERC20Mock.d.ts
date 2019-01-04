@@ -41,7 +41,7 @@ export class ERC20Mock extends Contract {
 
     batchTransfer(
       _tokens: (string)[],
-      to: string,
+      _to: string,
       _amounts: (number | string)[]
     ): Promise<ContractTransaction>;
 

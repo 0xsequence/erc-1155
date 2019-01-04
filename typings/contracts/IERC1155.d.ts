@@ -9,6 +9,11 @@ export class IERC1155 extends Contract {
   functions: {
     balanceOf(_owner: string, _id: number | string): Promise<BigNumber>;
 
+    balanceOfBatch(
+      _owners: (string)[],
+      _ids: (number | string)[]
+    ): Promise<(BigNumber)[]>;
+
     isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
 
     safeTransferFrom(
@@ -33,7 +38,21 @@ export class IERC1155 extends Contract {
     ): Promise<ContractTransaction>;
   };
   filters: {
-    Transfer(from: null, to: null, tokenType: null, amount: null): EventFilter;
+    TransferSingle(
+      _operator: string | null,
+      _from: string | null,
+      _to: string | null,
+      _id: null,
+      _value: null
+    ): EventFilter;
+
+    TransferBatch(
+      _operator: string | null,
+      _from: string | null,
+      _to: string | null,
+      _ids: null,
+      _values: null
+    ): EventFilter;
 
     ApprovalForAll(
       _owner: string | null,
