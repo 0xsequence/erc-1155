@@ -38,24 +38,24 @@ pragma solidity ^0.4.24;
 *   Note: the ERC-165 identifier for this interface is 0xf23a6e61
 */
 contract IERC1155 {
-  // Events
 
   /**
    * @dev MUST emit when tokens are transferred, including zero value transfers as well as minting or burning.
    * A `Transfer` event to address `0x0` signifies a burning or melting operation. 
    * This MUST emit a zero value, from `0x0` to the creator's address if a token has no initial balance but is being defined/created.
    */
-  event Transfer(address operator, address from, address to, uint256 tokenType, uint256 amount);
-
+  event TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value);
+  event TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _values);
+  
   /**
    * @dev MUST emit on any successful call to setApprovalForAll(address _operator, bool _approved)
    */
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
-  
-  /** vvvv Not used in this implementation vvvv
-   * event URI(uint256 indexed _id, string _value);
-   * event Name(uint256 indexed _id, string _value);
-   */ 
+
+  // ----------------- NEVER TRIGGERED  ----------------- //
+  event URI(uint256 indexed _id, string _value);
+  event Name(uint256 indexed _id, string _value);
+  // ---------------------------------------------------- //
 
   /**
    * @notice Transfers value amount of an _id from the _from address to the _to addresses specified. Each parameter array should be the same length, with each index correlating.
@@ -70,7 +70,7 @@ contract IERC1155 {
    * @param _value   transfer amounts
    * @param _data    Additional data with no specified format, sent in call to `_to`
    */
-  function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes _data) external;
+  function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) external;
 
   /**
    * @notice Send multiple types of Tokens from a 3rd party in one transfer (with safety call)
@@ -83,7 +83,7 @@ contract IERC1155 {
    * @param _values  Transfer amounts per token type
    * @param _data    Additional data with no specified format, sent in call to `_to`
    */
-  function safeBatchTransferFrom(address _from, address _to, uint256[] _ids, uint256[] _values, bytes _data) public;
+  function safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _values, bytes memory _data) public;
   
   /**
    * @notice Get the balance of an account's Tokens
@@ -92,6 +92,14 @@ contract IERC1155 {
    * @return        The _owner's balance of the Token type requested
    */   
   function balanceOf(address _owner, uint256 _id) external view returns (uint256);
+
+  /**
+   * @dev Get the balance of multiple account/token pairs
+   * @param _owners The addresses of the token holders
+   * @param _ids    ID of the Tokens
+   * @return        The _owner's balance of the Token types requested
+   */
+  function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids) external view returns (uint256[] memory);
 
   /**
    * @notice Enable or disable approval for a third party ("operator") to manage all of `msg.sender`'s tokens.
@@ -108,7 +116,6 @@ contract IERC1155 {
    * @return           True if the operator is approved, false if not
    */
   function isApprovedForAll(address _owner, address _operator) external view returns (bool isOperator);
-}
 
 interface ERC165 {
     // @notice Query if a contract implements an interface
@@ -137,29 +144,29 @@ Here, some design decisions are explained.
 #### 1. Balance packing efficiency gains
 Every optimization claim should be backed by some tests and you will find these in this section. We transferred 100 token types using each token standard discussed in this post and we show the total gas cost and the gas cost per token type. In the case of ERC-721, each token type is a different NFT. In the case of ERC-20, each token type is a different ERC-20 token, stored in different contracts. For both ERC-721 and ERC-20, we also wrote a wrapper contract that transfer on the behalf of users, saving on the base transaction cost. The cost here does not include the approval call cost that such wrapping contracts would necessitate. 
 
-*Transferring 100 ERC-721 tokens in different transaction calls:*
-- **Total gas cost :** 5,113,036
-- **Gas Cost Per Transfer :** 51,130
+*Transferring 30 ERC-721 tokens in different transaction calls:*
+- **Total gas cost :** 1,341,056
+- **Gas Cost Per Transfer :** 44,701
 
-*Transferring 100 ERC-721 tokens with a wrapper contract:*
-- **Total gas cost :** 2,463,700
-- **Gas Cost Per Transfer :** 24,637
+*Transferring 30 ERC-721 tokens with batchTransfer method:*
+- **Total gas cost :** 671,553
+- **Gas Cost Per Transfer :** 22,385
 
-*Transferring 100 ERC-20 tokens in different transaction calls:*
-- **Total gas cost :** 5,153,300
-- **Gas Cost Per Transfer :** 51,533
+*Transferring 30 ERC-20 tokens in different transaction calls:*
+- **Total gas cost :** 1,543,170
+- **Gas Cost Per Transfer :** 51,439
 
-*Transferring 100 ERC-20 tokens with wrapper contract:*
-- **Total gas cost :** 3,373,822
-- **Gas Cost Per Transfer :** 33,738
+*Transferring 30 ERC-20 tokens with wrapper contract:*
+- **Total gas cost :** 990,777
+- **Gas Cost Per Transfer :** 33,025
 
-*Transferring 100 fungible tokens from MT contract without balance packing:*
-- **Total gas cost :** 2,788,039
-- **Gas Cost Per Transfer :** 27,880
+*Transferring 30 fungible tokens from MT contract without balance packing:*
+- **Total gas cost :** 852,055
+- **Gas Cost Per Transfer :** 28,401
 
-*Transferring 100 fungible tokens from MT contract with balance packing:*
-- **Total gas cost :** 467,173
-- **Gas Cost Per Transfer :** 4,671
+*Transferring 30 fungible tokens from MT contract with balance packing:*
+- **Total gas cost :** 160,168
+- **Gas Cost Per Transfer :** 5,338
 
 Note that the balance packing calculation assumes tokens are IDs are neighbours, hence the result above is a cost lower bound. We can see that the balance packing can offer significant efficiency gain under the right circumstances, up to 10x saving compared to regular transfers and 5x–7x when using wrapper contracts for batch transfers. In addition, we are fairly convinced optimizing further these functions is possible without adding much complexity.
 
