@@ -3,7 +3,7 @@ pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/utils/Address.sol";
-import "./ERC1155TokenReceiver.sol";
+import "./IERC1155TokenReceiver.sol";
 import "./IERC1155.sol";
 import "./ERC165.sol";
 
@@ -77,7 +77,7 @@ contract ERC1155 is IERC1155, ERC165 {
     //Pass data if recipient is contract
     if (_to.isContract()) {
       // Call receiver function on recipient
-      bytes4 retval = ERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _value, _data);
+      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _value, _data);
       require(retval == ERC1155_RECEIVED_VALUE, "INVALID_ON_RECEIVE_MESSAGE");
     }
 
@@ -147,7 +147,7 @@ contract ERC1155 is IERC1155, ERC165 {
 
     // Pass data if recipient is contract
     if (_to.isContract()) {
-      bytes4 retval = ERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender, _from, _ids, _values, _data);
+      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender, _from, _ids, _values, _data);
       require(retval == ERC1155_BATCH_RECEIVED_VALUE, "INVALID_ON_RECEIVE_MESSAGE");
     }
 

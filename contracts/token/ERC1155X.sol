@@ -12,8 +12,8 @@ import "./ERC1155.sol";
  */ 
 contract ERC1155X is ERC1155, Ownable { 
 
-  // Signature structure
   struct Signature {
+  // Signature structure
     uint8   v;        // v variable from ECDSA signature.
     bytes32 r;        // r variable from ECDSA signature.
     bytes32 s;        // s variable from ECDSA signature.
@@ -68,7 +68,7 @@ contract ERC1155X is ERC1155, Ownable {
     _updateIDBalance(_to, _id, _value, Operations.Add);   // Add value
 
     if (_to.isContract()) {
-      bytes4 retval = ERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _value, _data);
+      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _value, _data);
       require(retval == ERC1155_RECEIVED_VALUE, "INVALID_ON_RECEIVE_MESSAGE");
     }
 
