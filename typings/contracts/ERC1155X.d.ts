@@ -149,9 +149,5 @@ export class ERC1155X extends Contract {
       _operator: string | null,
       _approved: null
     ): EventFilter;
-
-    URI(_id: number | string | null, _value: null): EventFilter;
-
-    Name(_id: number | string | null, _value: null): EventFilter;
   };
 }

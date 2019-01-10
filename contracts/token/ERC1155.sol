@@ -16,7 +16,7 @@ import "./ERC165.sol";
  *      efficiency gains. This token contract tries to adhere to ERC-1055 standard, but currently
  *      diverges from it as the standard is currently being constructed.
  */
-contract ERC1155 is IERC1155, ERC165 { 
+contract ERC1155 is ERC165 { 
   using SafeMath for uint256;
   using Address for address;
 
@@ -62,8 +62,8 @@ contract ERC1155 is IERC1155, ERC165 {
    * @param _value The amount of tokens of provided token ID to be transferred
    * @param _data Data to pass to onERC1155Received() function if recipient is contract
    */
-  function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) 
-    external 
+  function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes memory _data) 
+    public 
   {  
     // Requirements
     require((msg.sender == _from) || operators[_from][msg.sender], "INVALID_OPERATOR");

@@ -2,7 +2,7 @@
 pragma solidity ^0.5.0;
 
 
-contract IERC1155 {
+interface IERC1155 {
   // Events
 
   /**
@@ -50,7 +50,7 @@ contract IERC1155 {
    * @param _values  Transfer amounts per token type
    * @param _data    Additional data with no specified format, sent in call to `_to`
    */
-  function safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _values, bytes memory _data) public;
+  function safeBatchTransferFrom(address _from, address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data) external;
   
   /**
    * @notice Get the balance of an account's Tokens

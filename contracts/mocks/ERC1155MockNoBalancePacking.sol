@@ -49,6 +49,4 @@ contract ERC1155MockNoBalancePacking {
     emit BatchTransfer(_from, _to, _classes, _values);
   }
 
- 
-    
 }
