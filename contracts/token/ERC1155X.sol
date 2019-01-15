@@ -17,6 +17,7 @@ contract ERC1155X is ERC1155, Ownable {
     uint8   v;        // v variable from ECDSA signature.
     bytes32 r;        // r variable from ECDSA signature.
     bytes32 s;        // s variable from ECDSA signature.
+    uint256 nonce;    // Signature nonce from signer
     string sigPrefix; // Signature prefix message (e.g. "\x19Ethereum Signed Message:\n32").
   }
 
@@ -27,54 +28,57 @@ contract ERC1155X is ERC1155, Ownable {
   // Signature Based Transfer
   //
 
-  /**
-   * @dev Transfers objects from _from to _to if valid signature from _from is provided.
-   * @param _from Address who signed the message that wants to transfer tokens.
-   * @param _to Address to send tokens to. If 0x1, signer did not specify a _to address.
-   * @param _id Object id to transfer
-   * @param _value Amount of object of given _id to transfer.
-   * @param _sig Signature struct containing signature related variables.
-   * @return Address that signed the hash.
-   */
-  function sigSafeTransferFrom(
-    address _from, 
-    address _to, 
-    uint256 _id, 
-    uint256 _value,
-    bytes memory _data,
-    Signature memory _sig) public 
-  {
-    require(_to != address(0), "INVALID_RECIPIENT");
- // require(_value <= balanceFrom);  Not necessary since checked within writeValueInBin()
+//   /**
+//    * @dev Transfers objects from signer to _to based on signature
+//    * @param _to Address to send tokens to. If 0x1, signer did not specify a _to address.
+//    * @param _id Object id to transfer
+//    * @param _value Amount of object of given _id to transfer.
+//    * @param _data Contains a Signature object (uint8,bytes32,bytes32,uint2r56,string), 
+//    * @return Address that signed the hash.
+//    */
+//   function safeTransferFrom(
+//     address _from,
+//     address _to, 
+//     uint256 _id, 
+//     uint256 _value,
+//     bytes memory _data) 
+//     public 
+//   {
+//     require(_to != address(0), "INVALID_RECIPIENT");
+//  // require(_value <= balanceFrom);  Not necessary since checked within writeValueInBin()
 
-    //Sender nonce
-    uint256 nonce = nonces[_from];
+//     // If no data, then it's a regular safeTransferFrom
+//     if (_data.length <  ) {
+//       super.safeTransferFrom(_from, _to, _id, _value, _data);
+//     } else {
+//       uint8 isMetaTransfer, Signature sig, bytes memory data) = abi.decode(_data, (uint8, Signature, bytes))
+//       if (isMetaTransfer == 0) {
+//         super.safeTransferFrom(_from, _to, _id, _value, _data);
+//       }
+//     }
 
-    // If valid, signer did not specify recipient
-    if (_from != recoverTransferFromSigner(_from, address(0x1), _id, _value, _data, nonce, _sig)) 
-    {
-      // If valid, signer specified recipient
-      if (_from != recoverTransferFromSigner(_from, _to, _id, _value, _data, nonce, _sig)) 
-      {
-        revert("INVALID_SIGNATURE");
-      }
-    }
 
-    //Update signature nonce
-    nonces[_from] += 1; 
+//     // Get signer
+//     address from = recoverTransferSigner(_to, _id, _value, data, sig);
+ 
+//     //Sender nonce
+//     uint256 nonce = nonces[from];
+ 
+//     //Update signature nonce
+//     nonces[_from] += 1; 
 
-    // Update balances
-    _updateIDBalance(_from, _id, _value, Operations.Sub); // Subtract value
-    _updateIDBalance(_to, _id, _value, Operations.Add);   // Add value
+//     // Update balances
+//     _updateIDBalance(_from, _id, _value, Operations.Sub); // Subtract value
+//     _updateIDBalance(_to, _id, _value, Operations.Add);   // Add value
 
-    if (_to.isContract()) {
-      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _value, _data);
-      require(retval == ERC1155_RECEIVED_VALUE, "INVALID_ON_RECEIVE_MESSAGE");
-    }
+//     if (_to.isContract()) {
+//       bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _value, _data);
+//       require(retval == ERC1155_RECEIVED_VALUE, "INVALID_ON_RECEIVE_MESSAGE");
+//     }
 
-    // Emit event
-    emit TransferSingle(msg.sender, _from, _to, _id, _value);
-  } 
+//     // Emit event
+//     emit TransferSingle(msg.sender, _from, _to, _id, _value);
+//   } 
 
   //
   // Operator Functions
@@ -114,7 +118,7 @@ contract ERC1155X is ERC1155, Ownable {
    * @param _value The amount to be minted
    */
   function mint(address _to, uint256 _id, uint256 _value) 
-    onlyOwner external 
+   external onlyOwner
   {
     // require(_id < NUMBER_OF_ids); Not required since out of range will throw
     // require(_value <= 2**16-1);         Not required since checked in writeValueInBin  
@@ -196,7 +200,7 @@ contract ERC1155X is ERC1155, Ownable {
 
   // Replace most these arguments with a encoded argument and function calls?
 
-  function recoverTransferFromSigner( 
+  function recoverTransferSigner(
     address _from,
     address _to,
     uint256 _id,

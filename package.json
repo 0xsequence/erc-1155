@@ -34,7 +34,7 @@
     "lint:sol:fix": "solium -d contracts/ --fix",
     "lint:ts": "tslint -c tslint.json -p .",
     "lint:ts:fix": "tslint -c tslint.json -p . --fix",
-    "ganache": "ganache-cli --networkId ${npm_package_config_ganacheNetworkID} --host 0.0.0.0 --port ${npm_package_config_ganachePort} --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --defaultBalanceEther ${npm_package_config_etherBalance} --deterministic --mnemonic \"${npm_package_config_mnemonic}\" ${npm_package_config_extra}",
+    "ganache": "ganache-cli --hardfork 'constantinople' --networkId ${npm_package_config_ganacheNetworkID} --host 0.0.0.0 --port ${npm_package_config_ganachePort} --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --defaultBalanceEther ${npm_package_config_etherBalance} --deterministic --mnemonic \"${npm_package_config_mnemonic}\" ${npm_package_config_extra}",
     "ganache:verbose": "ganache-cli --networkId ${npm_package_config_ganacheNetworkID} --verbose --host 0.0.0.0 --port ${npm_package_config_ganachePort} --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --defaultBalanceEther ${npm_package_config_etherBalance} --deterministic --mnemonic \"${npm_package_config_mnemonic}\" ${npm_package_config_extra}",
     "ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
     "console": "truffle console"
@@ -59,7 +59,7 @@
     "dotenv": "^6.1.0",
     "eth-gas-reporter": "^0.1.12",
     "ethers": "^4.0.20",
-    "ganache-cli": "6.2.5",
+    "ganache-cli": "6.3.0-beta.0",
     "solc": "^0.5.2",
     "solidity-coverage": "^0.5.11",
     "solium": "^1.2.1",
@@ -72,6 +72,7 @@
     "zos-lib": "^2.0.2"
   },
   "dependencies": {
+    "ganache-core": "2.4.0-beta.0",
     "openzeppelin-solidity": "^2.1.1"
   }
 }

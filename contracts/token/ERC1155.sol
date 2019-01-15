@@ -28,16 +28,12 @@ contract ERC1155 is ERC165 {
   bytes4 constant public ERC1155_RECEIVED_VALUE = 0xf23a6e61;
   bytes4 constant public ERC1155_BATCH_RECEIVED_VALUE = 0xbc197c81;
 
-
   // Constants regarding bin or chunk sizes for balance packing
   uint256 constant IDS_BITS_SIZE   = 16;                  // Max size of each object
   uint256 constant IDS_PER_UINT256 = 256 / IDS_BITS_SIZE; // Number of ids per uint256
 
   // Operations for _updateIDBalance
   enum Operations { Add, Sub, Replace }
-
-  // Objects total supply
-  mapping(uint256 => uint256) totalSupply;
 
   // Objects balances ; balances[address][id] => balance (using array instead of mapping for efficiency)
   mapping (address => mapping(uint256 => uint256)) balances;
