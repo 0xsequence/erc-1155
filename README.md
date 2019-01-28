@@ -2,16 +2,34 @@
 
 An implementation of a Multi-Token contracts where all token types are fungible. 
 
+# Simple Summary
+
+An implementation example of a standard **Multi-Token (MT)** contract, which contains multiple classes of fungible tokens referenced by IDs. Standard interface discussion at [ERC-1155](https://github.com/ethereum/EIPs/issues/1155). 
+
+# Installation
+
+Run `npm install multi-token-standard` or `yarn add multi-token-standard` 
+
+# Usage
+
+To write your custom contracts, import ours and extend them through inheritance.
+
+```solidity
+pragma solidity ^0.5.0;
+
+import 'multi-token-standard/contracts/token/ERC1155.sol';
+
+contract My1155Token is ERC1155 {
+  ...
+}
+```
+
 # Dev / running the tests
 
 1. Install node v11 and yarn (npm install -g yarn)
 2. `yarn install`
 3. `yarn ganache`
 4. in another terminal run, `yarn test` - executes test suite
-
-# Simple Summary
-
-An implementation example of a standard **Multi-Token (MT)** contract, which contains multiple classes of fungible tokens referenced by IDs. Standard interface discussion at [ERC-1155](https://github.com/ethereum/EIPs/issues/1155). 
 
 # Abstract
 
