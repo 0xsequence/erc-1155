@@ -4,6 +4,7 @@
 import { Contract, ContractTransaction, EventFilter } from "ethers";
 import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
+import { TransactionOverrides } from ".";
 
 export class ERC1155OperatorMock extends Contract {
   functions: {
@@ -11,18 +12,20 @@ export class ERC1155OperatorMock extends Contract {
       _tokenAddress: string,
       _from: string,
       _to: string,
-      _id: number | string,
-      _value: number | string,
-      _data: (string)[]
+      _id: number | string | BigNumber,
+      _value: number | string | BigNumber,
+      _data: (string)[],
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     safeBatchTransferFrom(
       _tokenAddress: string,
       _from: string,
       _to: string,
-      _ids: (number | string)[],
-      _values: (number | string)[],
-      _data: (string)[]
+      _ids: (number | string | BigNumber)[],
+      _values: (number | string | BigNumber)[],
+      _data: (string)[],
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
   };
   filters: {};

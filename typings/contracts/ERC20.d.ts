@@ -4,6 +4,7 @@
 import { Contract, ContractTransaction, EventFilter } from "ethers";
 import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
+import { TransactionOverrides } from ".";
 
 export class ERC20 extends Contract {
   functions: {
@@ -11,27 +12,35 @@ export class ERC20 extends Contract {
 
     allowance(owner: string, spender: string): Promise<BigNumber>;
 
-    transfer(to: string, value: number | string): Promise<ContractTransaction>;
+    transfer(
+      to: string,
+      value: number | string | BigNumber,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
 
     approve(
       spender: string,
-      value: number | string
+      value: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     transferFrom(
       from: string,
       to: string,
-      value: number | string
+      value: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     increaseAllowance(
       spender: string,
-      addedValue: number | string
+      addedValue: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     decreaseAllowance(
       spender: string,
-      subtractedValue: number | string
+      subtractedValue: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     totalSupply(): Promise<BigNumber>;

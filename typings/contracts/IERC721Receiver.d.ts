@@ -4,14 +4,16 @@
 import { Contract, ContractTransaction, EventFilter } from "ethers";
 import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
+import { TransactionOverrides } from ".";
 
 export class IERC721Receiver extends Contract {
   functions: {
     onERC721Received(
       operator: string,
       from: string,
-      tokenId: number | string,
-      data: (string)[]
+      tokenId: number | string | BigNumber,
+      data: (string)[],
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
   };
   filters: {};

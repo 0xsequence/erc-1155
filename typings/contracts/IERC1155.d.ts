@@ -4,14 +4,18 @@
 import { Contract, ContractTransaction, EventFilter } from "ethers";
 import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
+import { TransactionOverrides } from ".";
 
 export class IERC1155 extends Contract {
   functions: {
-    balanceOf(_owner: string, _id: number | string): Promise<BigNumber>;
+    balanceOf(
+      _owner: string,
+      _id: number | string | BigNumber
+    ): Promise<BigNumber>;
 
     balanceOfBatch(
       _owners: (string)[],
-      _ids: (number | string)[]
+      _ids: (number | string | BigNumber)[]
     ): Promise<(BigNumber)[]>;
 
     isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
@@ -19,22 +23,25 @@ export class IERC1155 extends Contract {
     safeTransferFrom(
       _from: string,
       _to: string,
-      _id: number | string,
-      _value: number | string,
-      _data: (string)[]
+      _id: number | string | BigNumber,
+      _value: number | string | BigNumber,
+      _data: (string)[],
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     safeBatchTransferFrom(
       _from: string,
       _to: string,
-      _ids: (number | string)[],
-      _values: (number | string)[],
-      _data: (string)[]
+      _ids: (number | string | BigNumber)[],
+      _values: (number | string | BigNumber)[],
+      _data: (string)[],
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     setApprovalForAll(
       _operator: string,
-      _approved: boolean
+      _approved: boolean,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
   };
   filters: {
@@ -60,8 +67,8 @@ export class IERC1155 extends Contract {
       _approved: null
     ): EventFilter;
 
-    URI(_id: number | string | null, _value: null): EventFilter;
+    URI(_id: number | string | BigNumber | null, _value: null): EventFilter;
 
-    Name(_id: number | string | null, _value: null): EventFilter;
+    Name(_id: number | string | BigNumber | null, _value: null): EventFilter;
   };
 }

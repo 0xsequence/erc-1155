@@ -4,6 +4,7 @@
 import { Contract, ContractTransaction, EventFilter } from "ethers";
 import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
+import { TransactionOverrides } from ".";
 
 export class IERC721 extends Contract {
   functions: {
@@ -11,42 +12,49 @@ export class IERC721 extends Contract {
 
     balanceOf(owner: string): Promise<BigNumber>;
 
-    ownerOf(tokenId: number | string): Promise<string>;
+    ownerOf(tokenId: number | string | BigNumber): Promise<string>;
 
-    getApproved(tokenId: number | string): Promise<string>;
+    getApproved(tokenId: number | string | BigNumber): Promise<string>;
 
     isApprovedForAll(owner: string, operator: string): Promise<boolean>;
 
-    approve(to: string, tokenId: number | string): Promise<ContractTransaction>;
+    approve(
+      to: string,
+      tokenId: number | string | BigNumber,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
 
     setApprovalForAll(
       operator: string,
-      _approved: boolean
+      _approved: boolean,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     transferFrom(
       from: string,
       to: string,
-      tokenId: number | string
+      tokenId: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     safeTransferFrom(
       from: string,
       to: string,
-      tokenId: number | string
+      tokenId: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
   };
   filters: {
     Transfer(
       from: string | null,
       to: string | null,
-      tokenId: number | string | null
+      tokenId: number | string | BigNumber | null
     ): EventFilter;
 
     Approval(
       owner: string | null,
       approved: string | null,
-      tokenId: number | string | null
+      tokenId: number | string | BigNumber | null
     ): EventFilter;
 
     ApprovalForAll(

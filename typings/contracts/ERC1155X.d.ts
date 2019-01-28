@@ -4,26 +4,30 @@
 import { Contract, ContractTransaction, EventFilter } from "ethers";
 import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
+import { TransactionOverrides } from ".";
 
 export class ERC1155X extends Contract {
   functions: {
-    balanceOf(_address: string, _id: number | string): Promise<BigNumber>;
+    balanceOf(
+      _address: string,
+      _id: number | string | BigNumber
+    ): Promise<BigNumber>;
 
     supportsInterface(_interfaceID: string): Promise<boolean>;
 
     balanceOfBatch(
       _owners: (string)[],
-      _ids: (number | string)[]
+      _ids: (number | string | BigNumber)[]
     ): Promise<(BigNumber)[]>;
 
     writeValueInBin(
-      _binValue: number | string,
-      _index: number | string,
-      _value: number | string
+      _binValue: number | string | BigNumber,
+      _index: number | string | BigNumber,
+      _value: number | string | BigNumber
     ): Promise<BigNumber>;
 
     getIDBinIndex(
-      _id: number | string
+      _id: number | string | BigNumber
     ): Promise<{
       bin: BigNumber;
       index: BigNumber;
@@ -34,32 +38,44 @@ export class ERC1155X extends Contract {
     isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
 
     getValueInBin(
-      _binValue: number | string,
-      _index: number | string
+      _binValue: number | string | BigNumber,
+      _index: number | string | BigNumber
     ): Promise<BigNumber>;
 
-    recoverTransferFromSigner(
+    recoverTransferSigner(
       _from: string,
       _to: string,
-      _id: number | string,
-      _value: number | string,
+      _id: number | string | BigNumber,
+      _value: number | string | BigNumber,
       _data: (string)[],
-      _nonce: number | string,
-      _sig: { v: number | string; r: string; s: string; sigPrefix: string }
+      _nonce: number | string | BigNumber,
+      _sig: {
+        v: number | string | BigNumber;
+        r: string;
+        s: string;
+        nonce: number | string | BigNumber;
+        sigPrefix: string;
+      }
     ): Promise<string>;
 
     recoverApprovalSigner(
       _operator: string,
       _approved: boolean,
-      _nonce: number | string,
-      _sig: { v: number | string; r: string; s: string; sigPrefix: string }
+      _nonce: number | string | BigNumber,
+      _sig: {
+        v: number | string | BigNumber;
+        r: string;
+        s: string;
+        nonce: number | string | BigNumber;
+        sigPrefix: string;
+      }
     ): Promise<string>;
 
     recoverHashSigner(
       _hash: string,
       _r: string,
       _s: string,
-      _v: number | string
+      _v: number | string | BigNumber
     ): Promise<string>;
 
     getNonce(_signer: string): Promise<BigNumber>;
@@ -67,54 +83,62 @@ export class ERC1155X extends Contract {
     safeBatchTransferFrom(
       _from: string,
       _to: string,
-      _ids: (number | string)[],
-      _values: (number | string)[],
-      _data: (string)[]
+      _ids: (number | string | BigNumber)[],
+      _values: (number | string | BigNumber)[],
+      _data: (string)[],
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
-    renounceOwnership(): Promise<ContractTransaction>;
+    renounceOwnership(
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
 
     setApprovalForAll(
       _operator: string,
-      _approved: boolean
+      _approved: boolean,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     safeTransferFrom(
       _from: string,
       _to: string,
-      _id: number | string,
-      _value: number | string,
-      _data: (string)[]
+      _id: number | string | BigNumber,
+      _value: number | string | BigNumber,
+      _data: (string)[],
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
-    transferOwnership(newOwner: string): Promise<ContractTransaction>;
-
-    sigSafeTransferFrom(
-      _from: string,
-      _to: string,
-      _id: number | string,
-      _value: number | string,
-      _data: (string)[],
-      _sig: { v: number | string; r: string; s: string; sigPrefix: string }
+    transferOwnership(
+      newOwner: string,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     sigSetApprovalForAll(
       _owner: string,
       _operator: string,
       _approved: boolean,
-      _sig: { v: number | string; r: string; s: string; sigPrefix: string }
+      _sig: {
+        v: number | string | BigNumber;
+        r: string;
+        s: string;
+        nonce: number | string | BigNumber;
+        sigPrefix: string;
+      },
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     mint(
       _to: string,
-      _id: number | string,
-      _value: number | string
+      _id: number | string | BigNumber,
+      _value: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     batchMint(
       _to: string,
-      _ids: (number | string)[],
-      _values: (number | string)[]
+      _ids: (number | string | BigNumber)[],
+      _values: (number | string | BigNumber)[],
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     ERC1155_BATCH_RECEIVED_VALUE(): Promise<string>;

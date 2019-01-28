@@ -4,22 +4,28 @@
 import { Contract, ContractTransaction, EventFilter } from "ethers";
 import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
+import { TransactionOverrides } from ".";
 
 export class ERC1155MockNoBalancePacking extends Contract {
   functions: {
-    balanceOf(_address: string, _class: number | string): Promise<BigNumber>;
+    balanceOf(
+      _address: string,
+      _class: number | string | BigNumber
+    ): Promise<BigNumber>;
 
     mockMint(
       _address: string,
-      _class: number | string,
-      _value: number | string
+      _class: number | string | BigNumber,
+      _value: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     batchTransferFrom(
       _from: string,
       _to: string,
-      _classes: (number | string)[],
-      _values: (number | string)[]
+      _classes: (number | string | BigNumber)[],
+      _values: (number | string | BigNumber)[],
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     CLASSES_PER_UINT256(): Promise<BigNumber>;

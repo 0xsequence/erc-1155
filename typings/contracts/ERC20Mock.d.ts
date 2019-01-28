@@ -4,6 +4,7 @@
 import { Contract, ContractTransaction, EventFilter } from "ethers";
 import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
+import { TransactionOverrides } from ".";
 
 export class ERC20Mock extends Contract {
   functions: {
@@ -13,36 +14,46 @@ export class ERC20Mock extends Contract {
 
     approve(
       spender: string,
-      value: number | string
+      value: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     transferFrom(
       from: string,
       to: string,
-      value: number | string
+      value: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     increaseAllowance(
       spender: string,
-      addedValue: number | string
+      addedValue: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     decreaseAllowance(
       spender: string,
-      subtractedValue: number | string
+      subtractedValue: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
-    transfer(to: string, value: number | string): Promise<ContractTransaction>;
+    transfer(
+      to: string,
+      value: number | string | BigNumber,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
 
     mockMint(
       _address: string,
-      _amount: number | string
+      _amount: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     batchTransfer(
       _tokens: (string)[],
       _to: string,
-      _amounts: (number | string)[]
+      _amounts: (number | string | BigNumber)[],
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     totalSupply(): Promise<BigNumber>;

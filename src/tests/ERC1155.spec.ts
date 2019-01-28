@@ -277,7 +277,7 @@ contract('ERC1155', (accounts: string[]) => {
   describe('safeBatchTransferFrom() function', () => {
 
     let types: any[], values: any[]
-    let nTokenTypes    = 100
+    let nTokenTypes    = 32
     let nTokensPerType = 10
 
     let receiverContract: ERC1155ReceiverMock

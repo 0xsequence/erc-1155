@@ -4,61 +4,71 @@
 import { Contract, ContractTransaction, EventFilter } from "ethers";
 import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
+import { TransactionOverrides } from ".";
 
 export class ERC721Mock extends Contract {
   functions: {
     supportsInterface(interfaceId: string): Promise<boolean>;
 
-    getApproved(tokenId: number | string): Promise<string>;
+    getApproved(tokenId: number | string | BigNumber): Promise<string>;
 
-    ownerOf(tokenId: number | string): Promise<string>;
+    ownerOf(tokenId: number | string | BigNumber): Promise<string>;
 
     balanceOf(owner: string): Promise<BigNumber>;
 
     isApprovedForAll(owner: string, operator: string): Promise<boolean>;
 
-    approve(to: string, tokenId: number | string): Promise<ContractTransaction>;
+    approve(
+      to: string,
+      tokenId: number | string | BigNumber,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
 
     transferFrom(
       from: string,
       to: string,
-      tokenId: number | string
+      tokenId: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     safeTransferFrom(
       from: string,
       to: string,
-      tokenId: number | string
+      tokenId: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     setApprovalForAll(
       to: string,
-      approved: boolean
+      approved: boolean,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     mockMint(
       _address: string,
-      _tokenID: number | string
+      _tokenID: number | string | BigNumber,
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     batchTransferFrom(
       _from: string,
       _to: string,
-      _tokenIDs: (number | string)[],
-      _data: (string)[]
+      _tokenIDs: (number | string | BigNumber)[],
+      _data: (string)[],
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
   };
   filters: {
     Transfer(
       from: string | null,
       to: string | null,
-      tokenId: number | string | null
+      tokenId: number | string | BigNumber | null
     ): EventFilter;
 
     Approval(
       owner: string | null,
       approved: string | null,
-      tokenId: number | string | null
+      tokenId: number | string | BigNumber | null
     ): EventFilter;
 
     ApprovalForAll(

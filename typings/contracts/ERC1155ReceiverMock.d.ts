@@ -4,25 +4,31 @@
 import { Contract, ContractTransaction, EventFilter } from "ethers";
 import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
+import { TransactionOverrides } from ".";
 
 export class ERC1155ReceiverMock extends Contract {
   functions: {
-    setShouldReject(_value: boolean): Promise<ContractTransaction>;
+    setShouldReject(
+      _value: boolean,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
 
     onERC1155Received(
       _operator: string,
       _from: string,
-      _id: number | string,
-      _value: number | string,
-      _data: (string)[]
+      _id: number | string | BigNumber,
+      _value: number | string | BigNumber,
+      _data: (string)[],
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     onERC1155BatchReceived(
       _operator: string,
       _from: string,
-      _ids: (number | string)[],
-      _values: (number | string)[],
-      _data: (string)[]
+      _ids: (number | string | BigNumber)[],
+      _values: (number | string | BigNumber)[],
+      _data: (string)[],
+      overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     lastData(): Promise<(string)[]>;
