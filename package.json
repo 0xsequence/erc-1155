@@ -59,24 +59,23 @@
     "chai-string": "^1.5.0",
     "dotenv": "^6.1.0",
     "eth-gas-reporter": "^0.1.12",
-    "ethers": "^4.0.20",
+    "ethers": "^4.0.23",
     "ganache-cli": "6.3.0-beta.0",
     "ganache-core": "2.4.0-beta.0",
-    "openzeppelin-solidity": "^2.1.1",
-    "solc": "^0.5.2",
+    "openzeppelin-solidity": "^2.1.2",
+    "solc": "^0.5.3",
     "solidity-coverage": "^0.5.11",
-    "solium": "^1.2.1",
-    "truffle": "^5.0.1",
-    "truffle-contract": "^4.0.1",
+    "solium": "^1.2.2",
+    "truffle": "^5.0.2",
+    "truffle-contract": "^4.0.2",
     "truffle-hdwallet-provider": "1.0.2",
-    "tslint": "^5.12.0",
-    "typechain": "^0.3.10",
-    "typescript": "3.2.2",
-    "zos-lib": "^2.0.2"
+    "tslint": "^5.12.1",
+    "typechain": "^0.3.11",
+    "typescript": "3.2.4",
+    "zos-lib": "^2.1.0"
   },
   "peerDependencies": {
     "openzeppelin-solidity": "^2.1.1"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
