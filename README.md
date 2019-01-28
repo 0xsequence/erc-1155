@@ -48,7 +48,7 @@ Various applications would benefit from having a single contract keeping track o
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in RFC 2119.
 
 ```solidity
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 /**
 * @title ERC-1155 Multi-Token Standard
