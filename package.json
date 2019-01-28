@@ -17,7 +17,8 @@
   "files": [
     "LICENSE",
     "build",
-    "contracts"
+    "contracts",
+    "typings"
   ],
   "scripts": {
     "build": "truffle compile --all && yarn gen:contract-typings && tsc -b",
@@ -61,6 +62,7 @@
     "ethers": "^4.0.20",
     "ganache-cli": "6.3.0-beta.0",
     "ganache-core": "2.4.0-beta.0",
+    "openzeppelin-solidity": "^2.1.1",
     "solc": "^0.5.2",
     "solidity-coverage": "^0.5.11",
     "solium": "^1.2.1",
@@ -72,7 +74,9 @@
     "typescript": "3.2.2",
     "zos-lib": "^2.0.2"
   },
-  "dependencies": {
+  "peerDependencies": {
     "openzeppelin-solidity": "^2.1.1"
+  },
+  "dependencies": {
   }
 }
