@@ -1,4 +1,4 @@
-# Multi-Token Standard (ERC1155) Implementation
+# Multi-Token Standard (ERC1155) implementation
 
 An implementation of a Multi-Token contracts where all token types are fungible. 
 

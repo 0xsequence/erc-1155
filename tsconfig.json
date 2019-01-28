@@ -25,7 +25,7 @@
     "checkJs": false,
 
     "baseUrl": ".",
-    "outDir": "test",
+    "outDir": "build",
     "lib": ["es2017", "dom"],
 
     "typeRoots": [

@@ -1,7 +1,7 @@
 {
   "name": "multi-token-standard",
-  "version": "0.2.0",
-  "description": "ERC1155 Multi-Token Standard Implementation for Ethereum",
+  "version": "0.3.0",
+  "description": "ERC1155 Multi-Token Standard implementation for Ethereum",
   "repository": "https://github.com/horizon-games/multi-token-standard",
   "license": "MIT",
   "keywords": [
@@ -16,16 +16,15 @@
   ],
   "files": [
     "build",
-    "contracts",
-    "test"
+    "contracts"
   ],
   "scripts": {
     "build": "truffle compile --all && yarn gen:contract-typings && tsc -b",
     "clean": "rm -rf build",
     "migrate": "truffle migrate --network ganache --reset",
     "migrate:rinkeby": "truffle migrate --network rinkeby",
-    "test": "tsc -b && truffle test --network ganache test/*.spec.js",
-    "test:benchmark": "tsc -b && truffle test --network ganache test/*.bench.js",
+    "test": "tsc -b && truffle test --network ganache build/*.spec.js",
+    "test:benchmark": "tsc -b && truffle test --network ganache build/*.bench.js",
     "test:coverage": "solidity-coverage",
     "gen:contract-typings": "typechain --target ethers --outDir typings/contracts './build/contracts/*.json'",
     "lint": "yarn lint:ts && yarn lint:sol",
