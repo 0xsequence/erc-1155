@@ -1,6 +1,6 @@
 {
   "name": "multi-token-standard",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "ERC1155 Multi-Token Standard implementation for Ethereum",
   "repository": "https://github.com/horizon-games/multi-token-standard",
   "license": "MIT",
@@ -15,6 +15,7 @@
     "horizongames"
   ],
   "files": [
+    "LICENSE",
     "build",
     "contracts"
   ],
@@ -59,6 +60,7 @@
     "eth-gas-reporter": "^0.1.12",
     "ethers": "^4.0.20",
     "ganache-cli": "6.3.0-beta.0",
+    "ganache-core": "2.4.0-beta.0",
     "solc": "^0.5.2",
     "solidity-coverage": "^0.5.11",
     "solium": "^1.2.1",
@@ -71,7 +73,6 @@
     "zos-lib": "^2.0.2"
   },
   "dependencies": {
-    "ganache-core": "2.4.0-beta.0",
     "openzeppelin-solidity": "^2.1.1"
   }
 }
