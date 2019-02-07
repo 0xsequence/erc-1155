@@ -1,11 +1,11 @@
 pragma solidity ^0.5.0;
-//pragma experimental ABIEncoderV2;
+pragma experimental ABIEncoderV2;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "../../utils/SafeMath.sol";
+import "../../interfaces/IERC1155TokenReceiver.sol";
+import "../../interfaces/IERC165.sol";
 import "openzeppelin-solidity/contracts/utils/Address.sol";
-import "./IERC1155TokenReceiver.sol";
-import "./IERC1155.sol";
-import "./ERC165.sol";
+
 
 /**
  * @dev Implementation of Multi-Token Standard contract. This implementation of the MT standard exploit the fact that
@@ -16,13 +16,15 @@ import "./ERC165.sol";
  *      efficiency gains. This token contract tries to adhere to ERC-1055 standard, but currently
  *      diverges from it as the standard is currently being constructed.
  */
-contract ERC1155 is ERC165 { 
+contract ERC1155PackedBalance is IERC165 { 
   using SafeMath for uint256;
   using Address for address;
 
-  //
-  // Storage
-  //
+
+
+  /***********************************|
+  |        Variables and Events       |
+  |__________________________________*/
 
   // onReceive function signatures                              
   bytes4 constant public ERC1155_RECEIVED_VALUE = 0xf23a6e61;
@@ -46,9 +48,11 @@ contract ERC1155 is ERC165 {
   event TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _values);
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
 
-  //
-  // Transfer Functions
-  //
+
+
+  /***********************************|
+  |     Public Transfer Functions     |
+  |__________________________________*/
 
   /**
    * @dev Allow _from or an operator to transfer tokens from one address to another
@@ -66,20 +70,9 @@ contract ERC1155 is ERC165 {
     require(_to != address(0),"INVALID_RECIPIENT");
     // require(_value <= balances);  Not necessary since checked with writeValueInBin() checks
     
-    //Update balances
-    _updateIDBalance(_from, _id, _value, Operations.Sub); // Subtract value from sender
-    _updateIDBalance(_to,   _id, _value, Operations.Add); // Add value to recipient
-      
-    //Pass data if recipient is contract
-    if (_to.isContract()) {
-      // Call receiver function on recipient
-      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _value, _data);
-      require(retval == ERC1155_RECEIVED_VALUE, "INVALID_ON_RECEIVE_MESSAGE");
-    }
-
-    // Emit transfer Event
-    emit TransferSingle(msg.sender, _from, _to, _id, _value);
+    _safeTransferFrom(_from, _to, _id, _value, _data);
   }
+
 
   /**
    * @dev transfer objects from different ids to specified address
@@ -98,6 +91,55 @@ contract ERC1155 is ERC165 {
     require((msg.sender == _from) || operators[_from][msg.sender], "INVALID_OPERATOR");
     require(_ids.length == _values.length, "INVALID_ARRAYS_LENGTH");
     require(_to != address(0), "INVALID_RECIPIENT");
+
+    _safeBatchTransferFrom(_from, _to, _ids, _values, _data);
+  }
+
+
+
+  /***********************************|
+  |    Internal Transfer Functions    |
+  |__________________________________*/
+
+   /**
+   * @dev Allow _from or an operator to transfer tokens from one address to another
+   * @param _from The address which you want to send tokens from
+   * @param _to The address which you want to transfer to
+   * @param _id Token id to update balance of - For this implementation, via `uint256(tokenAddress)`.
+   * @param _value The amount of tokens of provided token ID to be transferred
+   * @param _data Data to pass to onERC1155Received() function if recipient is contract
+   */
+  function _safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes memory _data)
+    internal
+  {
+    //Update balances
+    _updateIDBalance(_from, _id, _value, Operations.Sub); // Subtract value from sender
+    _updateIDBalance(_to,   _id, _value, Operations.Add); // Add value to recipient
+      
+    //Pass data if recipient is contract
+    if (_to.isContract()) {
+      // Call receiver function on recipient
+      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _value, _data);
+      require(retval == ERC1155_RECEIVED_VALUE, "INVALID_ON_RECEIVE_MESSAGE");
+    }
+
+    // Emit event
+    emit TransferSingle(msg.sender, _from, _to, _id, _value);
+  }
+
+
+    /**
+   * @dev transfer objects from different ids to specified address
+   * @param _from The address to batchTransfer objects from.
+   * @param _to The address to batchTransfer objects to.
+   * @param _ids Array of ids to update balance of - For this implementation, via `uint256(tokenAddress)`
+   * @param _values Array of amount of object per id to be transferred.
+   * @param _data Data to pass to onERC1155Received() function if recipient is contract
+   */
+  function _safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _values, bytes memory _data) 
+    internal
+  {
+    require(_ids.length == _values.length, "INVALID_ARRAYS_LENGTH");
 
     // Load first bin and index where the object balance exists
     (uint256 bin, uint256 index) = getIDBinIndex(_ids[0]);
@@ -150,9 +192,11 @@ contract ERC1155 is ERC165 {
     emit TransferBatch(msg.sender, _from, _to, _ids, _values);
   }
 
-  //
-  // Operator Functions
-  //
+
+
+  /***********************************|
+  |         Operator Functions        |
+  |__________________________________*/
 
   /**
    * @dev Will set _operator operator status to true or false
@@ -179,9 +223,60 @@ contract ERC1155 is ERC165 {
     return operators[_owner][_operator];
   }
 
-  //
-  // Objects and ids Functions
-  //
+
+
+  /***********************************|
+  |     Public Balance Functions      |
+  |__________________________________*/
+
+  /**
+   * @dev return the _id id" balance of _address
+   * @param _address Address to query balance of
+   * @param _id id to query balance of
+   * @return Amount of objects of a given id ID
+   */
+  function balanceOf(address _address, uint256 _id) 
+    external view returns (uint256) 
+  {
+    uint256 bin;
+    uint256 index;
+
+    //Get bin and index of _IF
+    (bin, index) = getIDBinIndex(_id);
+    return getValueInBin(balances[_address][bin], index);
+  }
+
+
+  /**
+    * @dev Get the balance of multiple account/token pairs
+    * @param _owners The addresses of the token holders
+    * @param _ids    ID of the Tokens
+    * @return        The _owner's balance of the Token types requested
+    */
+  function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids) 
+    external view returns (uint256[] memory)
+  {
+    require(_owners.length == _ids.length, "INVALID_ARRAY_LENGTH");
+
+    // Variables
+    uint256[] memory batchBalances = new uint256[](_owners.length);
+    uint256 bin;
+    uint256 index;
+
+    // Iterate over each owner and token ID
+    for (uint256 i = 0; i < _owners.length; i++) {
+      (bin, index) = getIDBinIndex(_ids[i]);
+      batchBalances[i] = getValueInBin(balances[_owners[i]][bin], index);
+    }
+
+    return batchBalances;
+  }
+
+
+
+  /***********************************|
+  |      Packed Balance Functions     |
+  |__________________________________*/
 
   /**
    * @dev update the balance of a id for a given address
@@ -205,6 +300,7 @@ contract ERC1155 is ERC165 {
     // Update balance
     balances[_address][bin] = _viewUpdateIDBalance(balances[_address][bin], index, _value, _operation);
   }
+
 
   /**
    * @dev update the balance of a id provided in _binBalances
@@ -240,48 +336,6 @@ contract ERC1155 is ERC165 {
     }
 
     return newBinBalance;
-  }
-
-  /**
-   * @dev return the _id id" balance of _address
-   * @param _address Address to query balance of
-   * @param _id id to query balance of
-   * @return Amount of objects of a given id ID
-   */
-  function balanceOf(address _address, uint256 _id) 
-    external view returns (uint256) 
-  {
-    uint256 bin;
-    uint256 index;
-
-    //Get bin and index of _IF
-    (bin, index) = getIDBinIndex(_id);
-    return getValueInBin(balances[_address][bin], index);
-  }
-
-  /**
-    * @dev Get the balance of multiple account/token pairs
-    * @param _owners The addresses of the token holders
-    * @param _ids    ID of the Tokens
-    * @return        The _owner's balance of the Token types requested
-    */
-  function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids) 
-    external view returns (uint256[] memory)
-  {
-    require(_owners.length == _ids.length, "INVALID_ARRAY_LENGTH");
-
-    // Variables
-    uint256[] memory batchBalances = new uint256[](_owners.length);
-    uint256 bin;
-    uint256 index;
-
-    // Iterate over each owner and token ID
-    for (uint256 i = 0; i < _owners.length; i++) {
-      (bin, index) = getIDBinIndex(_ids[i]);
-      batchBalances[i] = getValueInBin(balances[_owners[i]][bin], index);
-    }
-
-    return batchBalances;
   }
 
   /**
@@ -335,7 +389,11 @@ contract ERC1155 is ERC165 {
     return (_binValue & ~(mask << leftShift) ) | (_value << leftShift);
   }
 
-  /* ----------------------------------- ERC165 ----------------------------------- */
+
+
+  /***********************************|
+  |          ERC165 Functions         |
+  |__________________________________*/
 
   /**
    * INTERFACE_SIGNATURE_ERC165 = bytes4(keccak256("supportsInterface(bytes4)"));

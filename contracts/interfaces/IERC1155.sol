@@ -12,7 +12,6 @@ interface IERC1155 {
    */
   event TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value);
   event TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _values);
-  
 
   /**
    * @dev MUST emit on any successful call to setApprovalForAll(address _operator, bool _approved)

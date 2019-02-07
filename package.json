@@ -66,13 +66,13 @@
     "solc": "^0.5.3",
     "solidity-coverage": "^0.5.11",
     "solium": "^1.2.2",
-    "truffle": "^5.0.2",
-    "truffle-contract": "^4.0.2",
-    "truffle-hdwallet-provider": "1.0.2",
+    "truffle": "^5.0.3",
+    "truffle-contract": "^4.0.4",
+    "truffle-hdwallet-provider": "1.0.3",
     "tslint": "^5.12.1",
     "typechain": "^0.3.11",
-    "typescript": "3.2.4",
-    "zos-lib": "^2.1.0"
+    "typescript": "3.3.3",
+    "zos-lib": "^2.1.2"
   },
   "peerDependencies": {
     "openzeppelin-solidity": "^2.1.1"
