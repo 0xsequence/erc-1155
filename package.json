@@ -1,6 +1,6 @@
 {
   "name": "multi-token-standard",
-  "version": "0.3.1",
+  "version": "0.4.1",
   "description": "ERC1155 Multi-Token Standard implementation for Ethereum",
   "repository": "https://github.com/horizon-games/multi-token-standard",
   "license": "MIT",
@@ -35,7 +35,7 @@
     "lint:sol:fix": "solium -d contracts/ --fix",
     "lint:ts": "tslint -c tslint.json -p .",
     "lint:ts:fix": "tslint -c tslint.json -p . --fix",
-    "ganache": "ganache-cli --hardfork 'constantinople' --networkId ${npm_package_config_ganacheNetworkID} --host 0.0.0.0 --port ${npm_package_config_ganachePort} --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --defaultBalanceEther ${npm_package_config_etherBalance} --deterministic --mnemonic \"${npm_package_config_mnemonic}\" ${npm_package_config_extra}",
+    "ganache": "ganache-cli --hardfork 'byzantium' --networkId ${npm_package_config_ganacheNetworkID} --host 0.0.0.0 --port ${npm_package_config_ganachePort} --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --defaultBalanceEther ${npm_package_config_etherBalance} --deterministic --mnemonic \"${npm_package_config_mnemonic}\" ${npm_package_config_extra}",
     "ganache:verbose": "ganache-cli --networkId ${npm_package_config_ganacheNetworkID} --verbose --host 0.0.0.0 --port ${npm_package_config_ganachePort} --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --defaultBalanceEther ${npm_package_config_etherBalance} --deterministic --mnemonic \"${npm_package_config_mnemonic}\" ${npm_package_config_extra}",
     "ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
     "console": "truffle console"
@@ -66,13 +66,13 @@
     "solc": "^0.5.3",
     "solidity-coverage": "^0.5.11",
     "solium": "^1.2.2",
-    "truffle": "^5.0.2",
-    "truffle-contract": "^4.0.2",
-    "truffle-hdwallet-provider": "1.0.2",
+    "truffle": "^5.0.3",
+    "truffle-contract": "^4.0.4",
+    "truffle-hdwallet-provider": "1.0.3",
     "tslint": "^5.12.1",
     "typechain": "^0.3.11",
-    "typescript": "3.2.4",
-    "zos-lib": "^2.1.0"
+    "typescript": "3.3.3",
+    "zos-lib": "^2.1.2"
   },
   "peerDependencies": {
     "openzeppelin-solidity": "^2.1.1"

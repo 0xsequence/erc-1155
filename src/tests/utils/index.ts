@@ -1,6 +1,6 @@
 import * as chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import chaiBignumber from 'chai-bignumber'
+const ChaiBigNumber = require('chai-bignumber')
 import chaiString from 'chai-string'
 import * as ethers from 'ethers'
 
@@ -13,4 +13,9 @@ export { BigNumber }
 export const { assert, expect } = chai
   .use(chaiString)
   .use(chaiAsPromised)
-  .use(chaiBignumber(ethers.utils.BigNumber))
+  .use(ChaiBigNumber());
+
+describe.if = function (condition: boolean, message: string, func: (this: Mocha.Suite) => void): void {
+  const run: Mocha.PendingSuiteFunction = condition ? this : this.skip;
+  run(message, func);
+}

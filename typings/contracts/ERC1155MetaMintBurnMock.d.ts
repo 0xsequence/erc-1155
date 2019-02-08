@@ -6,30 +6,29 @@ import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { TransactionOverrides } from ".";
 
-export class ERC1155 extends Contract {
+export class ERC1155MetaMintBurnMock extends Contract {
   functions: {
-    isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
-
     balanceOf(
       _address: string,
       _id: number | string | BigNumber
     ): Promise<BigNumber>;
+
+    supportsInterface(_interfaceID: string): Promise<boolean>;
+
+    getNonce(_signer: string): Promise<BigNumber>;
 
     balanceOfBatch(
       _owners: (string)[],
       _ids: (number | string | BigNumber)[]
     ): Promise<(BigNumber)[]>;
 
-    supportsInterface(_interfaceID: string): Promise<boolean>;
-
-    safeTransferFrom(
-      _from: string,
-      _to: string,
-      _id: number | string | BigNumber,
-      _value: number | string | BigNumber,
+    isValidSignature(
+      _signerAddress: string,
       _data: (string)[],
-      overrides?: TransactionOverrides
-    ): Promise<ContractTransaction>;
+      _sig: (string)[]
+    ): Promise<boolean>;
+
+    isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
 
     safeBatchTransferFrom(
       _from: string,
@@ -43,6 +42,52 @@ export class ERC1155 extends Contract {
     setApprovalForAll(
       _operator: string,
       _approved: boolean,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
+    safeTransferFrom(
+      _from: string,
+      _to: string,
+      _id: number | string | BigNumber,
+      _value: number | string | BigNumber,
+      _data: (string)[],
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
+    metaSetApprovalForAll(
+      _owner: string,
+      _operator: string,
+      _approved: boolean,
+      _isGasReimbursed: boolean,
+      _data: (string)[],
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
+    mintMock(
+      _to: string,
+      _id: number | string | BigNumber,
+      _value: number | string | BigNumber,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
+    batchMintMock(
+      _to: string,
+      _ids: (number | string | BigNumber)[],
+      _values: (number | string | BigNumber)[],
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
+    burnMock(
+      _from: string,
+      _id: number | string | BigNumber,
+      _value: number | string | BigNumber,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
+    batchBurnMock(
+      _from: string,
+      _ids: (number | string | BigNumber)[],
+      _values: (number | string | BigNumber)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 

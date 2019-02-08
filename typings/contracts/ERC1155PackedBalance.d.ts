@@ -6,7 +6,7 @@ import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { TransactionOverrides } from ".";
 
-export class ERC1155 extends Contract {
+export class ERC1155PackedBalance extends Contract {
   functions: {
     isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
 
@@ -19,6 +19,26 @@ export class ERC1155 extends Contract {
       _owners: (string)[],
       _ids: (number | string | BigNumber)[]
     ): Promise<(BigNumber)[]>;
+
+    getIDBinIndex(
+      _id: number | string | BigNumber
+    ): Promise<{
+      bin: BigNumber;
+      index: BigNumber;
+      0: BigNumber;
+      1: BigNumber;
+    }>;
+
+    getValueInBin(
+      _binValue: number | string | BigNumber,
+      _index: number | string | BigNumber
+    ): Promise<BigNumber>;
+
+    writeValueInBin(
+      _binValue: number | string | BigNumber,
+      _index: number | string | BigNumber,
+      _value: number | string | BigNumber
+    ): Promise<BigNumber>;
 
     supportsInterface(_interfaceID: string): Promise<boolean>;
 

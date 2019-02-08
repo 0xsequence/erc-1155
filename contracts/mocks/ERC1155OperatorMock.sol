@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "../token/ERC1155.sol";
+import "../interfaces/IERC1155.sol";
 
 
 /** 
@@ -26,7 +26,7 @@ contract ERC1155OperatorMock {
     bytes calldata _data) 
     external 
   {  
-    ERC1155(_tokenAddress).safeTransferFrom(_from, _to, _id, _value, _data);
+    IERC1155(_tokenAddress).safeTransferFrom(_from, _to, _id, _value, _data);
   }
 
   /**
@@ -48,7 +48,7 @@ contract ERC1155OperatorMock {
     bytes calldata _data) 
     external 
   {
-    ERC1155(_tokenAddress).safeBatchTransferFrom(_from, _to, _ids, _values, _data);
+    IERC1155(_tokenAddress).safeBatchTransferFrom(_from, _to, _ids, _values, _data);
   }
 
 }

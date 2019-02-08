@@ -3,7 +3,7 @@ import * as ethers from 'ethers'
 import { AbstractContract, expect, BigNumber } from './utils'
 import * as utils from './utils'
 
-import { ERC1155MetaMintBurnMock } from 'typings/contracts/ERC1155MetaMintBurnMock'
+import { ERC1155MetaMintBurnPackedBalanceMock } from 'typings/contracts/ERC1155MetaMintBurnPackedBalanceMock'
 import { ERC1155ReceiverMock } from 'typings/contracts/ERC1155ReceiverMock'
 import { ERC1155OperatorMock } from 'typings/contracts/ERC1155OperatorMock'
 
@@ -29,9 +29,9 @@ const {
 } = utils.createTestWallet(web3, 4)
 
 
-contract('ERC1155', (accounts: string[]) => {
+contract('ERC1155PackedBalance', (accounts: string[]) => {
 
-  const MAXVAL = new BigNumber(2).pow(256).sub(1) // 2**256 - 1
+  const LARGEVAL = new BigNumber(2).pow(256).sub(2) // 2**256 - 2
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
   let ownerAddress: string
@@ -40,8 +40,8 @@ contract('ERC1155', (accounts: string[]) => {
   let erc1155Abstract: AbstractContract
   let operatorAbstract: AbstractContract
 
-  let erc1155Contract: ERC1155MetaMintBurnMock
-  let operatorERC1155Contract: ERC1155MetaMintBurnMock
+  let erc1155Contract: ERC1155MetaMintBurnPackedBalanceMock
+  let operatorERC1155Contract: ERC1155MetaMintBurnPackedBalanceMock
 
 
   // load contract abi and deploy to test server
@@ -50,15 +50,57 @@ contract('ERC1155', (accounts: string[]) => {
     receiverAddress = await receiverWallet.getAddress()
     operatorAddress = await operatorWallet.getAddress()
 
-    erc1155Abstract = await AbstractContract.fromArtifactName('ERC1155MetaMintBurnMock')
+    erc1155Abstract = await AbstractContract.fromArtifactName('ERC1155MetaMintBurnPackedBalanceMock')
     operatorAbstract = await AbstractContract.fromArtifactName('ERC1155OperatorMock')
   })
 
   // deploy before each test, to reset state of contract
   beforeEach(async () => {
-    erc1155Contract = await erc1155Abstract.deploy(ownerWallet) as ERC1155MetaMintBurnMock 
-    operatorERC1155Contract = await erc1155Contract.connect(operatorSigner) as ERC1155MetaMintBurnMock
+    erc1155Contract = await erc1155Abstract.deploy(ownerWallet) as ERC1155MetaMintBurnPackedBalanceMock 
+    operatorERC1155Contract = await erc1155Contract.connect(operatorSigner) as ERC1155MetaMintBurnPackedBalanceMock
   })
+
+  describe('Bitwise functions', () => {
+
+    it('getValueInBin should return expected balance for given types', async () => {
+      let expected = new BigNumber(2).pow(16).sub(2) // 2**16-2
+      let balance = await erc1155Contract.functions.getValueInBin(LARGEVAL.toString(), 15)
+      expect(balance).to.be.eql(expected)
+    })
+
+    it('writeValueInBin should write expected value at given types', async () => {
+      let targetVal  = 666
+      let writtenBin = await erc1155Contract.functions.writeValueInBin(LARGEVAL.toString(), 0, targetVal)
+      let balance = await erc1155Contract.functions.getValueInBin(writtenBin.toString(), 0)
+      expect(balance).to.be.eql(new BigNumber(targetVal))
+    })
+
+    it('writeValueInBin should throw if value is above 2**16-1', async () => {
+      let targetVal  = new BigNumber(2).pow(16)
+      let writtenBin = erc1155Contract.functions.writeValueInBin(LARGEVAL.toString(), 0, targetVal.toString())
+      await expect(writtenBin).to.be.rejected
+    })
+
+    it('getIDBinIndex should return the correct bin and respective index', async () => {
+      const { bin: bin0, index: index0 } = await erc1155Contract.functions.getIDBinIndex(0)
+      expect(bin0).to.be.eql(new BigNumber(0))
+      expect(index0).to.be.eql(new BigNumber(0))
+
+      const { bin: bin6, index: index6 } = await erc1155Contract.functions.getIDBinIndex(6)
+      expect(bin6).to.be.eql(new BigNumber(0))
+      expect(index6).to.be.eql(new BigNumber(6))
+
+      const { bin: bin16, index: index16 } = await erc1155Contract.functions.getIDBinIndex(16)
+      expect(bin16).to.be.eql(new BigNumber(1))
+      expect(index16).to.be.eql(new BigNumber(0))
+
+      const { bin: bin31, index: index31 } = await erc1155Contract.functions.getIDBinIndex(31)
+      expect(bin31).to.be.eql(new BigNumber(1))
+      expect(index31).to.be.eql(new BigNumber(15))
+    })
+
+  })
+
 
   describe('Getter functions', () => {
 
@@ -86,6 +128,7 @@ contract('ERC1155', (accounts: string[]) => {
     })
 
   })
+
 
   describe('safeTransferFrom() function', () => {
 
@@ -130,7 +173,7 @@ contract('ERC1155', (accounts: string[]) => {
     })
 
     it('should REVERT if transfer leads to overflow', async () => {
-      await erc1155Contract.functions.mintMock(receiverAddress, 0, MAXVAL)
+      await erc1155Contract.functions.mintMock(receiverAddress, 0, 2**16-1)
       const tx2 = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, 0, 1, [])
       await expect(tx2).to.be.rejected
     })
@@ -293,7 +336,7 @@ contract('ERC1155', (accounts: string[]) => {
     })
 
     it('should REVERT if transfer leads to overflow', async () => {
-      await erc1155Contract.functions.mintMock(receiverAddress, 5, MAXVAL)
+      await erc1155Contract.functions.mintMock(receiverAddress, 5, 2**16-1)
 
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [5], [1], [])
       await expect(tx).to.be.rejected
@@ -381,7 +424,7 @@ contract('ERC1155', (accounts: string[]) => {
         // Execute transfer from operator contract
         // @ts-ignore (https://github.com/ethereum-ts/TypeChain/issues/118)
         await operatorContract.functions.safeBatchTransferFrom(erc1155Contract.address, ownerAddress, receiverAddress, types, values, [], 
-          {gasLimit: 2000000} // INCORRECT GAS ESTIMATION
+          {gasLimit: 1000000} // INCORRECT GAS ESTIMATION
         )
 
         // Get logs from internal transaction event

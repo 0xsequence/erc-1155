@@ -6,21 +6,55 @@ import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { TransactionOverrides } from ".";
 
-export class ERC1155 extends Contract {
+export class ERC1155MetaPackedBalance extends Contract {
   functions: {
-    isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
-
     balanceOf(
       _address: string,
       _id: number | string | BigNumber
     ): Promise<BigNumber>;
+
+    supportsInterface(_interfaceID: string): Promise<boolean>;
 
     balanceOfBatch(
       _owners: (string)[],
       _ids: (number | string | BigNumber)[]
     ): Promise<(BigNumber)[]>;
 
-    supportsInterface(_interfaceID: string): Promise<boolean>;
+    writeValueInBin(
+      _binValue: number | string | BigNumber,
+      _index: number | string | BigNumber,
+      _value: number | string | BigNumber
+    ): Promise<BigNumber>;
+
+    isValidSignature(
+      _signerAddress: string,
+      _data: (string)[],
+      _sig: (string)[]
+    ): Promise<boolean>;
+
+    getIDBinIndex(
+      _id: number | string | BigNumber
+    ): Promise<{
+      bin: BigNumber;
+      index: BigNumber;
+      0: BigNumber;
+      1: BigNumber;
+    }>;
+
+    isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
+
+    getValueInBin(
+      _binValue: number | string | BigNumber,
+      _index: number | string | BigNumber
+    ): Promise<BigNumber>;
+
+    getNonce(_signer: string): Promise<BigNumber>;
+
+    setApprovalForAll(
+      _operator: string,
+      _approved: boolean,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
 
     safeTransferFrom(
       _from: string,
@@ -40,9 +74,12 @@ export class ERC1155 extends Contract {
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
-    setApprovalForAll(
+    metaSetApprovalForAll(
+      _owner: string,
       _operator: string,
       _approved: boolean,
+      _isGasReimbursed: boolean,
+      _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
