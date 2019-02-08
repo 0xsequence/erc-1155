@@ -53,8 +53,8 @@ contract ERC1155 is IERC165 {
   function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes memory _data)
     public
   {
-    require((msg.sender == _from) || operators[_from][msg.sender], "INVALID_OPERATOR");
-    require(_to != address(0),"INVALID_RECIPIENT");
+    require((msg.sender == _from) || operators[_from][msg.sender], "ERC1155#safeTransferFrom: INVALID_OPERATOR");
+    require(_to != address(0),"ERC1155#safeTransferFrom: INVALID_RECIPIENT");
     // require(_value >= balances[_from][_id]) is not necessary since checked with safemath operations
 
     _safeTransferFrom(_from, _to, _id, _value, _data);
@@ -73,8 +73,8 @@ contract ERC1155 is IERC165 {
     public
   {
     // Requirements
-    require((msg.sender == _from) || operators[_from][msg.sender], "INVALID_OPERATOR");
-    require(_to != address(0), "INVALID_RECIPIENT");
+    require((msg.sender == _from) || operators[_from][msg.sender], "ERC1155#safeBatchTransferFrom: INVALID_OPERATOR");
+    require(_to != address(0), "ERC1155#safeBatchTransferFrom: INVALID_RECIPIENT");
 
     _safeBatchTransferFrom(_from, _to, _ids, _values, _data);
   }
@@ -121,7 +121,7 @@ contract ERC1155 is IERC165 {
   function _safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _values, bytes memory _data)
     internal
   {
-    require(_ids.length == _values.length, "INVALID_ARRAYS_LENGTH");
+    require(_ids.length == _values.length, "ERC1155#_safeBatchTransferFrom: INVALID_ARRAYS_LENGTH");
 
     // Number of transfer to execute
     uint256 nTransfer = _ids.length;
@@ -202,7 +202,7 @@ contract ERC1155 is IERC165 {
   function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids)
     external view returns (uint256[] memory)
   {
-    require(_owners.length == _ids.length, "INVALID_ARRAY_LENGTH");
+    require(_owners.length == _ids.length, "ERC1155#balanceOfBatch: INVALID_ARRAY_LENGTH");
 
     // Variables
     uint256[] memory batchBalances = new uint256[](_owners.length);

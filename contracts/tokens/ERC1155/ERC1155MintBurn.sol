@@ -40,7 +40,7 @@ contract ERC1155MintBurn is ERC1155 {
   function batchMint(address _to, uint256[] memory _ids, uint256[] memory _values) 
     internal 
   {
-    require(_ids.length == _values.length, "INVALID_ARRAYS_LENGTH");
+    require(_ids.length == _values.length, "ERC1155MintBurn#batchMint: INVALID_ARRAYS_LENGTH");
 
     // Number of mints to execute
     uint256 nMint = _ids.length;
@@ -86,7 +86,7 @@ contract ERC1155MintBurn is ERC1155 {
   function batchBurn(address _from, uint256[] memory _ids, uint256[] memory _values) 
     internal 
   {
-    require(_ids.length == _values.length, "INVALID_ARRAYS_LENGTH");
+    require(_ids.length == _values.length, "ERC1155MintBurn#batchBurn: INVALID_ARRAYS_LENGTH");
 
     // Number of mints to execute
     uint256 nBurn = _ids.length;

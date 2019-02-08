@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "../utils/SafeMath.sol";
 
 contract ERC1155MockNoBalancePacking { 
   using SafeMath for uint256;  

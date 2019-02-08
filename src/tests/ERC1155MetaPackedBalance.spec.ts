@@ -14,7 +14,7 @@ import * as utils from './utils'
 
 import { toUtf8Bytes, bigNumberify, BigNumber } from 'ethers/utils'
 
-import { ERC1155MetaMintBurnMock } from 'typings/contracts/ERC1155MetaMintBurnMock'
+import { ERC1155MetaMintBurnPackedBalanceMock } from 'typings/contracts/ERC1155MetaMintBurnPackedBalanceMock'
 import { ERC1155ReceiverMock } from 'typings/contracts/ERC1155ReceiverMock'
 import { ERC1155OperatorMock } from 'typings/contracts/ERC1155OperatorMock'
 import { 
@@ -50,9 +50,9 @@ ownerProvider.pollingInterval = 1000;
 operatorProvider.pollingInterval = 1000;
 receiverProvider.pollingInterval = 1000;
 
-contract('ERC1155Meta', (accounts: string[]) => {
+contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
-  const MAXVAL = new BigNumber(2).pow(256).sub(1) // 2**256 - 1
+  const MAXVAL = new BigNumber(2).pow(16).sub(1) // 2**16 - 1
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
   let ownerAddress: string
@@ -61,9 +61,9 @@ contract('ERC1155Meta', (accounts: string[]) => {
   let erc1155Abstract: AbstractContract
   let operatorAbstract: AbstractContract
 
-  let erc1155Contract: ERC1155MetaMintBurnMock
-  let operatorERC1155Contract: ERC1155MetaMintBurnMock
-  let receiverERC1155Contract: ERC1155MetaMintBurnMock
+  let erc1155Contract: ERC1155MetaMintBurnPackedBalanceMock
+  let operatorERC1155Contract: ERC1155MetaMintBurnPackedBalanceMock
+  let receiverERC1155Contract: ERC1155MetaMintBurnPackedBalanceMock
 
 
   // load contract abi and deploy to test server
@@ -72,15 +72,15 @@ contract('ERC1155Meta', (accounts: string[]) => {
     receiverAddress = await receiverWallet.getAddress()
     operatorAddress = await operatorWallet.getAddress()
 
-    erc1155Abstract = await AbstractContract.fromArtifactName('ERC1155MetaMintBurnMock')
+    erc1155Abstract = await AbstractContract.fromArtifactName('ERC1155MetaMintBurnPackedBalanceMock')
     operatorAbstract = await AbstractContract.fromArtifactName('ERC1155OperatorMock')
   })
 
   // deploy before each test, to reset state of contract
   beforeEach(async () => {
-    erc1155Contract = await erc1155Abstract.deploy(ownerWallet) as ERC1155MetaMintBurnMock 
-    operatorERC1155Contract = await erc1155Contract.connect(operatorSigner) as ERC1155MetaMintBurnMock
-    receiverERC1155Contract = await erc1155Contract.connect(receiverSigner) as ERC1155MetaMintBurnMock
+    erc1155Contract = await erc1155Abstract.deploy(ownerWallet) as ERC1155MetaMintBurnPackedBalanceMock 
+    operatorERC1155Contract = await erc1155Contract.connect(operatorSigner) as ERC1155MetaMintBurnPackedBalanceMock
+    receiverERC1155Contract = await erc1155Contract.connect(receiverSigner) as ERC1155MetaMintBurnPackedBalanceMock
   })
   
 
@@ -93,7 +93,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
     
     let transferData: string | null = 'Hello from the other side'
     let isGasReceipt: boolean = true;
-    let feeTokenInitBalance = new BigNumber(100000000);
+    let feeTokenInitBalance = new BigNumber(30000);
     let initBalance = 100;
     let amount = 10;
     let nonce = 0;
@@ -103,7 +103,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
     let gasReceipt : GasReceipt | null;
     let feeToken : BigNumber;
     let data : string;
-
 
     let conditions = [
       [transferData, true, 'Gas receipt & transfer data'],  
@@ -128,8 +127,8 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
           // Gas Receipt
           gasReceipt = {
-            gasLimit: 200000,
-            baseGas: 21000,
+            gasLimit: 10000,
+            baseGas: 1000,
             gasPrice: 1,
             feeToken: new BigNumber('0xca35b7d915458ef540ade6068dfe2f44e8fa733c'),
             feeRecipient: operatorAddress
@@ -164,14 +163,15 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
         it('should call parent function if empty data', async () => {
           let dataUint8 = toUtf8Bytes("")
+          data = '0xebc71fa4' + bigNumberify(dataUint8).toHexString().slice(2)
 
-          // Check if data lelngth is less than 4
-          expect(ethers.utils.arrayify(dataUint8).length).to.be.at.most(3)
+          // Check if data lelngth is less than 70
+          expect(ethers.utils.arrayify(data).length).to.be.at.most(69)
 
           // NOTE: typechain generates the wrong type for `bytes` type at this time
           // see https://github.com/ethereum-ts/TypeChain/issues/123
           // @ts-ignore
-          const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverContract.address, id, amount, dataUint8)
+          const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverContract.address, id, amount, data)
           await expect(tx).to.be.fulfilled
         })
 
@@ -332,7 +332,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             await erc1155Contract.functions.mintMock(receiverAddress, id, MAXVAL)
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
-            await expect(tx).to.be.rejectedWith( RevertError("SafeMath#add: OVERFLOW") ) 
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#writeValueInBin: OVERFLOW") ) 
           })
 
           it('should REVERT when sending to non-receiver contract', async () => {
@@ -353,7 +353,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverContract.address, id, amount, data)
-            await expect(tx).to.be.rejectedWith( RevertError("ERC1155#_safeTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_safeTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
           })
 
           it('should PASS if valid response from receiver contract', async () => {
@@ -548,14 +548,14 @@ contract('ERC1155Meta', (accounts: string[]) => {
     
     let transferData: string | null = 'Hello from the other side'
     let isGasReceipt: boolean = true;
-    let feeTokenInitBalance = new BigNumber(100000000);
+    let feeTokenInitBalance = new BigNumber(30000);
     let initBalance = 100;
     let amount = 10;
     let nonce = 0;
 
     // Parameters for balances
     let ids: any[], amounts: any[]
-    let nTokenTypes    = 18
+    let nTokenTypes = 33
 
     let transferObj: BatchTransferSignature;
     let gasReceipt : GasReceipt | null;
@@ -595,8 +595,8 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
           // Gas Receipt
           gasReceipt = {
-            gasLimit: 200000,
-            baseGas: 21000,
+            gasLimit: 10000,
+            baseGas: 2000,
             gasPrice: 1,
             feeToken: new BigNumber('0xca35b7d915458ef540ade6068dfe2f44e8fa733c'),
             feeRecipient: operatorAddress
@@ -628,15 +628,14 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
         it('should call parent function if empty data', async () => {
           let dataUint8 = toUtf8Bytes("")
-          data = '0xebc71fa4' + bigNumberify(dataUint8).toHexString().slice(2)
 
-          // Check if data lelngth is less than 70
-          expect(ethers.utils.arrayify(data).length).to.be.at.most(69)
+          // Check if data lelngth is less than 4
+          expect(ethers.utils.arrayify(dataUint8).length).to.be.at.most(3)
 
           // NOTE: typechain generates the wrong type for `bytes` type at this time
           // see https://github.com/ethereum-ts/TypeChain/issues/123
           // @ts-ignore
-          const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+          const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, dataUint8)
           await expect(tx).to.be.fulfilled
         })
 
@@ -710,7 +709,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
         })
 
         it("should REVERT if transfer data is incorrect", async () => {
-          const sigArgTypes = ['address', 'address', 'address', 'uint256', 'uint256', 'uint256'];
+          const sigArgTypes = ['address', 'address', 'address', 'uint256[]', 'uint256[]', 'uint256'];
           const txDataTypes = ['bytes4', 'bytes', 'bytes'];
         
           let signer = await transferObj.signerWallet.getAddress()
@@ -798,7 +797,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             await operatorERC1155Contract.functions.mintMock(receiverAddress, ids[0], MAXVAL)
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
-            await expect(tx).to.be.rejectedWith( RevertError("SafeMath#add: OVERFLOW") ) 
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#writeValueInBin: OVERFLOW") ) 
           })
 
           it('should REVERT when sending to non-receiver contract', async () => {
@@ -819,7 +818,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, data)
-            await expect(tx).to.be.rejectedWith( RevertError("ERC1155#_safeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_safeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
           })
 
           it('should PASS if valid response from receiver contract', async () => {
@@ -880,7 +879,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             })
 
             it("should REVERT if gasReceipt is incorrect", async () => {
-              const sigArgTypes = ['address', 'address', 'address', 'uint256', 'uint256', 'uint256'];
+              const sigArgTypes = ['address', 'address', 'address', 'uint256[]', 'uint256[]', 'uint256'];
               const txDataTypes = ['bytes4', 'bytes', 'bytes'];
             
               let signer = await transferObj.signerWallet.getAddress()
@@ -990,7 +989,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 //Increment nonce because it's the second transfer
                 transferObj.nonce = nonce + 1;
                 data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
-  
         
                 // Execute transfer from operator contract
                 // @ts-ignore (https://github.com/ethereum-ts/TypeChain/issues/118)
@@ -1023,7 +1021,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
   describe('metaSetApprovalForAll() function', () => {
 
-    let feeTokenInitBalance = new BigNumber(100000000);
+    let feeTokenInitBalance = new BigNumber(30000);
     let initBalance = 100;
     let isGasReimbursed = true;
     let approved = true;
@@ -1048,8 +1046,8 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
           // Gas Receipt
           gasReceipt = {
-            gasLimit: 200000,
-            baseGas: 21000,
+            gasLimit: 2000,
+            baseGas: 210,
             gasPrice: 1,
             feeToken: new BigNumber('0xca35b7d915458ef540ade6068dfe2f44e8fa733c'),
             feeRecipient: operatorAddress

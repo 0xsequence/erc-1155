@@ -40,7 +40,7 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
   function batchMint(address _to, uint256[] memory _ids, uint256[] memory _amounts) 
     internal 
   {
-    require(_ids.length == _amounts.length, "INVALID_ARRAYS_LENGTH");
+    require(_ids.length == _amounts.length, "ERC1155MintBurnPackedBalance#batchMint: INVALID_ARRAYS_LENGTH");
 
     // Number of mints to execute
     uint256 nMint = _ids.length;
@@ -87,7 +87,7 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
   function batchBurn(address _from, uint256[] memory _ids, uint256[] memory _amounts) 
     internal 
   {
-    require(_ids.length == _amounts.length, "INVALID_ARRAYS_LENGTH");
+    require(_ids.length == _amounts.length, "ERC1155MintBurnPackedBalance#batchBurn: INVALID_ARRAYS_LENGTH");
 
     // Number of mints to execute
     uint256 nBurn = _ids.length;

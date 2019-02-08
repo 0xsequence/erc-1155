@@ -1,7 +1,6 @@
 pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 contract ERC721Mock is ERC721 {
