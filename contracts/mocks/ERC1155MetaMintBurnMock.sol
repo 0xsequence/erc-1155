@@ -20,7 +20,7 @@ contract ERC1155MetaMintBurnMock is ERC1155Meta, ERC1155MintBurn {
   function mintMock(address _to, uint256 _id, uint256 _value) 
     public 
   {
-    super.mint(_to, _id, _value);
+    super._mint(_to, _id, _value);
   }
 
   /**
@@ -32,7 +32,7 @@ contract ERC1155MetaMintBurnMock is ERC1155Meta, ERC1155MintBurn {
   function batchMintMock(address _to, uint256[] memory _ids, uint256[] memory _values) 
     public 
   {
-    super.batchMint(_to, _ids, _values);
+    super._batchMint(_to, _ids, _values);
   }
 
   // ---- Burning functions 
@@ -46,7 +46,7 @@ contract ERC1155MetaMintBurnMock is ERC1155Meta, ERC1155MintBurn {
   function burnMock(address _from, uint256 _id, uint256 _value) 
     public
   { 
-    super.burn(_from, _id, _value);
+    super._burn(_from, _id, _value);
   }
 
   /**
@@ -58,7 +58,7 @@ contract ERC1155MetaMintBurnMock is ERC1155Meta, ERC1155MintBurn {
   function batchBurnMock(address _from, uint256[] memory _ids, uint256[] memory _values) 
     public 
   {
-    super.batchBurn(_from, _ids, _values);
+    super._batchBurn(_from, _ids, _values);
   }
 
 }

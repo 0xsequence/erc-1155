@@ -20,7 +20,7 @@ contract ERC1155MintBurn is ERC1155 {
    * @param _id token id to mint
    * @param _value The amount to be minted
    */
-  function mint(address _to, uint256 _id, uint256 _value) 
+  function _mint(address _to, uint256 _id, uint256 _value) 
     internal
   {    
     //Add _value
@@ -37,7 +37,7 @@ contract ERC1155MintBurn is ERC1155 {
    * @param _ids Array of ids to mint
    * @param _values Array of amount of tokens to mint per id
    */
-  function batchMint(address _to, uint256[] memory _ids, uint256[] memory _values) 
+  function _batchMint(address _to, uint256[] memory _ids, uint256[] memory _values) 
     internal 
   {
     require(_ids.length == _values.length, "ERC1155MintBurn#batchMint: INVALID_ARRAYS_LENGTH");
@@ -67,7 +67,7 @@ contract ERC1155MintBurn is ERC1155 {
    * @param _id token id to burn
    * @param _value The amount to be burned
    */
-  function burn(address _from, uint256 _id, uint256 _value) 
+  function _burn(address _from, uint256 _id, uint256 _value) 
     internal
   {    
     //Substract _value
@@ -83,7 +83,7 @@ contract ERC1155MintBurn is ERC1155 {
    * @param _ids Array of token ids to burn
    * @param _values Array of the amount to be burned
    */
-  function batchBurn(address _from, uint256[] memory _ids, uint256[] memory _values) 
+  function _batchBurn(address _from, uint256[] memory _ids, uint256[] memory _values) 
     internal 
   {
     require(_ids.length == _values.length, "ERC1155MintBurn#batchBurn: INVALID_ARRAYS_LENGTH");

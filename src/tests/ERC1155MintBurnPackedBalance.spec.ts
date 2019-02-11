@@ -70,7 +70,7 @@ contract('ERC1155MintBurnPackedBalance', (accounts: string[]) => {
 
       it('[TypeError: EXPECTED] should NOT allow anyone to call mint()', async () => {
          //@ts-ignore
-        const tx = anyoneERC1155MintBurnContract.functions.mint(receiverAddress, tokenID, amount)
+        const tx = anyoneERC1155MintBurnContract.functions._mint(receiverAddress, tokenID, amount)
         await expect(tx).to.be.rejected
       })
 
@@ -126,7 +126,7 @@ contract('ERC1155MintBurnPackedBalance', (accounts: string[]) => {
 
       it('[TypeError: EXPECTED] should NOT allow anyone to call batchMint()', async () => {
         //@ts-ignore
-        const tx = anyoneERC1155MintBurnContract.functions.batchMint(receiverAddress, typesArray, amountArray)
+        const tx = anyoneERC1155MintBurnContract.functions._batchMint(receiverAddress, typesArray, amountArray)
         await expect(tx).to.be.rejected
       })
 
@@ -174,7 +174,7 @@ contract('ERC1155MintBurnPackedBalance', (accounts: string[]) => {
 
       it('[TypeError: EXPECTED] should NOT allow anyone to call burn()', async () => {
          //@ts-ignore
-        const tx = anyoneERC1155MintBurnContract.functions.burn(receiverAddress, tokenID, amountToBurn)
+        const tx = anyoneERC1155MintBurnContract.functions._burn(receiverAddress, tokenID, amountToBurn)
         await expect(tx).to.be.rejected
       })
 
@@ -236,7 +236,7 @@ contract('ERC1155MintBurnPackedBalance', (accounts: string[]) => {
       })
       it('[TypeError: EXPECTED] should NOT allow anyone to call batchMint()', async () => {
         //@ts-ignore
-        const tx = anyoneERC1155MintBurnContract.functions.batchBurn(receiverAddress, typesArray, burnAmountArray)
+        const tx = anyoneERC1155MintBurnContract.functions._batchBurn(receiverAddress, typesArray, burnAmountArray)
         await expect(tx).to.be.rejected
       })
 
