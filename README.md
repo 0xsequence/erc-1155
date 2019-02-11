@@ -17,7 +17,7 @@ To write your custom contracts, import ours and extend them through inheritance.
 ```solidity
 pragma solidity ^0.5.0;
 
-import 'multi-token-standard/contracts/token/ERC1155.sol';
+import 'multi-token-standard/contracts/tokens/ERC1155/ERC1155.sol';
 
 contract My1155Token is ERC1155 {
   ...
