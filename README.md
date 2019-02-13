@@ -14,7 +14,7 @@ Run `npm install multi-token-standard` or `yarn add multi-token-standard`
 
 To write your custom contracts, import ours and extend them through inheritance.
 
-```solidity
+```javascript
 pragma solidity ^0.5.0;
 
 import 'multi-token-standard/contracts/tokens/ERC1155/ERC1155.sol';
@@ -47,7 +47,7 @@ Various applications would benefit from having a single contract keeping track o
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in RFC 2119.
 
-```solidity
+```javascript
 pragma solidity ^0.5.0;
 
 /**
