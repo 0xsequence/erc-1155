@@ -148,7 +148,7 @@ interface ERC165 {
 
 ```
 
-```solidity
+```javascript
 /**
  * @dev ERC-1155 interface for accepting safe transfers.
  */
