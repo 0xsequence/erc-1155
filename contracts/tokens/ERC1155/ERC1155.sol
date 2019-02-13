@@ -16,7 +16,6 @@ contract ERC1155 is IERC165 {
   using Address for address;
 
 
-
   /***********************************|
   |        Variables and Events       |
   |__________________________________*/
@@ -35,7 +34,6 @@ contract ERC1155 is IERC165 {
   event TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value);
   event TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _values);
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
-
 
 
   /***********************************|
@@ -59,7 +57,6 @@ contract ERC1155 is IERC165 {
 
     _safeTransferFrom(_from, _to, _id, _value, _data);
   }
-
 
   /**
    * @dev transfer objects from different ids to specified address
@@ -109,7 +106,6 @@ contract ERC1155 is IERC165 {
     emit TransferSingle(msg.sender, _from, _to, _id, _value);
   }
 
-
   /**
    * @dev transfer objects from different ids to specified address
    * @param _from The address to batchTransfer objects from.
@@ -143,7 +139,6 @@ contract ERC1155 is IERC165 {
   }
 
 
-
   /***********************************|
   |         Operator Functions        |
   |__________________________________*/
@@ -161,7 +156,6 @@ contract ERC1155 is IERC165 {
     emit ApprovalForAll(msg.sender, _operator, _approved);
   }
 
-
   /**
    * @dev Function that verifies whether _operator is an authorized operator of _tokenHolder.
    * @param _operator The address of the operator to query status of
@@ -173,7 +167,6 @@ contract ERC1155 is IERC165 {
   {
     return operators[_owner][_operator];
   }
-
 
 
   /***********************************|
@@ -191,7 +184,6 @@ contract ERC1155 is IERC165 {
   {
     return balances[_address][_id];
   }
-
 
   /**
    * @dev Get the balance of multiple account/token pairs
@@ -214,7 +206,6 @@ contract ERC1155 is IERC165 {
 
     return batchBalances;
   }
-
 
 
   /***********************************|
