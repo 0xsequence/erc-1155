@@ -15,10 +15,10 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
   |_______________________________________*/
 
   /**
-   * @dev Mint _amount of tokens of a given id 
-   * @param _to The address to mint tokens to.
-   * @param _id token id to mint
-   * @param _amount The amount to be minted
+   * @notice Mint _amount of tokens of a given id 
+   * @param _to      The address to mint tokens to
+   * @param _id      Token id to mint
+   * @param _amount  The amount to be minted
    */
   function _mint(address _to, uint256 _id, uint256 _amount) 
     internal
@@ -30,12 +30,11 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
     emit TransferSingle(msg.sender, address(0x0), _to, _id, _amount);
   }
 
-
   /**
-   * @dev Mint tokens for each ids in _ids
-   * @param _to The address to mint tokens to.
-   * @param _ids Array of ids to mint
-   * @param _amounts Array of amount of tokens to mint per id
+   * @notice Mint tokens for each (_ids[i], _amounts[i]) pair 
+   * @param _to       The address to mint tokens to
+   * @param _ids      Array of ids to mint
+   * @param _amounts  Array of amount of tokens to mint per id
    */
   function _batchMint(address _to, uint256[] memory _ids, uint256[] memory _amounts) 
     internal 
@@ -56,16 +55,15 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
   }
 
 
-
   /****************************************|
   |            Burning Functions           |
   |_______________________________________*/
 
   /**
-   * @dev burn _amount of tokens of a given token id 
-   * @param _from The address to burn tokens from.
-   * @param _id token id to burn
-   * @param _amount The amount to be burned
+   * @notice Burn _amount of tokens of a given token id 
+   * @param _from    The address to burn tokens from
+   * @param _id      Token id to burn
+   * @param _amount  The amount to be burned
    */
   function _burn(address _from, uint256 _id, uint256 _amount) 
     internal
@@ -79,10 +77,10 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
 
 
   /**
-   * @dev burn _amount of tokens of a given token id 
-   * @param _from The address to burn tokens from.
-   * @param _ids Array of token ids to burn
-   * @param _amounts Array of the amount to be burned
+   * @notice Burn tokens of given token id for each (_ids[i], _amounts[i]) pair 
+   * @param _from     The address to burn tokens from
+   * @param _ids      Array of token ids to burn
+   * @param _amounts  Array of the amount to be burned
    */
   function _batchBurn(address _from, uint256[] memory _ids, uint256[] memory _amounts) 
     internal 

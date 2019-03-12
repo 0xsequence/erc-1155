@@ -12,7 +12,7 @@ export class IERC1155TokenReceiver extends Contract {
       _operator: string,
       _from: string,
       _id: number | string | BigNumber,
-      _value: number | string | BigNumber,
+      _amount: number | string | BigNumber,
       _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
@@ -21,7 +21,7 @@ export class IERC1155TokenReceiver extends Contract {
       _operator: string,
       _from: string,
       _ids: (number | string | BigNumber)[],
-      _values: (number | string | BigNumber)[],
+      _amounts: (number | string | BigNumber)[],
       _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;

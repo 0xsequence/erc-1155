@@ -24,7 +24,7 @@ export class IERC1155 extends Contract {
       _from: string,
       _to: string,
       _id: number | string | BigNumber,
-      _value: number | string | BigNumber,
+      _amount: number | string | BigNumber,
       _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
@@ -33,7 +33,7 @@ export class IERC1155 extends Contract {
       _from: string,
       _to: string,
       _ids: (number | string | BigNumber)[],
-      _values: (number | string | BigNumber)[],
+      _amounts: (number | string | BigNumber)[],
       _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
@@ -50,7 +50,7 @@ export class IERC1155 extends Contract {
       _from: string | null,
       _to: string | null,
       _id: null,
-      _value: null
+      _amount: null
     ): EventFilter;
 
     TransferBatch(
@@ -58,7 +58,7 @@ export class IERC1155 extends Contract {
       _from: string | null,
       _to: string | null,
       _ids: null,
-      _values: null
+      _amounts: null
     ): EventFilter;
 
     ApprovalForAll(
@@ -67,8 +67,6 @@ export class IERC1155 extends Contract {
       _approved: null
     ): EventFilter;
 
-    URI(_id: number | string | BigNumber | null, _value: null): EventFilter;
-
-    Name(_id: number | string | BigNumber | null, _value: null): EventFilter;
+    URI(_amount: null, _id: number | string | BigNumber | null): EventFilter;
   };
 }

@@ -13,6 +13,10 @@ import "./LibBytes.sol";
  */
 contract SignatureValidator {
 
+  /***********************************|
+  |             Variables             |
+  |__________________________________*/
+
   using LibBytes for bytes;
 
   // bytes4(keccak256("isValidSignature(bytes,bytes)")
@@ -28,11 +32,16 @@ contract SignatureValidator {
       NSignatureTypes  // 0x05, number of signature types. Always leave at end.
   }
 
+
+  /***********************************|
+  |        Signature Functions        |
+  |__________________________________*/
+
   /**
    * @dev Verifies that a hash has been signed by the given signer.
-   * @param _signerAddress Address that should have signed the given hash.        
-   * @param _data Data structure that was hashed and signed
-   * @param _sig Proof that the hash has been signed by signer.
+   * @param _signerAddress  Address that should have signed the given hash.        
+   * @param _data           Data structure that was hashed and signed
+   * @param _sig            Proof that the hash has been signed by signer.
    * @return True if the address recovered from the provided signature matches the input signer address.
    */
   function isValidSignature(
@@ -83,6 +92,7 @@ contract SignatureValidator {
     if (signatureType == SignatureType.Illegal) {
       revert("SignatureValidator#isValidSignature: ILLEGAL_SIGNATURE");
 
+
     // Signature using EIP712
     } else if (signatureType == SignatureType.EIP712) {
       require(
@@ -94,8 +104,8 @@ contract SignatureValidator {
       v = uint8(_sig[64]);
       recovered = ecrecover(hash, v, r, s);
       isValid = _signerAddress == recovered;
-
       return isValid;
+
 
     // Signed using web3.eth_sign
     } else if (signatureType == SignatureType.EthSign) {
@@ -112,14 +122,15 @@ contract SignatureValidator {
         r,
         s
       );
-
       isValid = _signerAddress == recovered;
       return isValid;
+
 
     // Signature verified by wallet contract with data validation.
     } else if (signatureType == SignatureType.WalletBytes) {
       isValid = ERC1271_MAGICVALUE == IERC1271Wallet(_signerAddress).isValidSignature(_data, _sig);
       return isValid;
+
 
     // Signature verified by wallet contract without data validation.
     } else if (signatureType == SignatureType.WalletBytes32) {

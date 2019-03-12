@@ -9,7 +9,7 @@ import { TransactionOverrides } from ".";
 export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
   functions: {
     balanceOf(
-      _address: string,
+      _owner: string,
       _id: number | string | BigNumber
     ): Promise<BigNumber>;
 
@@ -23,9 +23,9 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
     ): Promise<(BigNumber)[]>;
 
     writeValueInBin(
-      _binValue: number | string | BigNumber,
+      _binAmount: number | string | BigNumber,
       _index: number | string | BigNumber,
-      _value: number | string | BigNumber
+      _amount: number | string | BigNumber
     ): Promise<BigNumber>;
 
     isValidSignature(
@@ -46,7 +46,7 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
     isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
 
     getValueInBin(
-      _binValue: number | string | BigNumber,
+      _binAmount: number | string | BigNumber,
       _index: number | string | BigNumber
     ): Promise<BigNumber>;
 
@@ -54,7 +54,7 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
       _from: string,
       _to: string,
       _ids: (number | string | BigNumber)[],
-      _values: (number | string | BigNumber)[],
+      _amounts: (number | string | BigNumber)[],
       _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
@@ -69,7 +69,7 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
       _from: string,
       _to: string,
       _id: number | string | BigNumber,
-      _value: number | string | BigNumber,
+      _amount: number | string | BigNumber,
       _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
@@ -120,7 +120,7 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
       _from: string | null,
       _to: string | null,
       _id: null,
-      _value: null
+      _amount: null
     ): EventFilter;
 
     TransferBatch(
@@ -128,7 +128,7 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
       _from: string | null,
       _to: string | null,
       _ids: null,
-      _values: null
+      _amounts: null
     ): EventFilter;
 
     ApprovalForAll(
