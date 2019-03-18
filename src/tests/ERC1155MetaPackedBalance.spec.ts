@@ -92,16 +92,21 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
     let METATRANSFER_IDENTIFIER = '0xebc71fa5';
     
     let transferData: string | null = 'Hello from the other side'
-    let isGasReceipt: boolean = true;
-    let feeTokenInitBalance = new BigNumber(30000);
     let initBalance = 100;
     let amount = 10;
     let nonce = 0;
     let id = 66;
 
+    let isGasReceipt: boolean = true;
+    let feeTokenInitBalance = new BigNumber(30000);
+    let feeIsERC1155 = true
+    let feeTokenID = 666   
+    let feeToken : BigNumber;
+    let feeTokenAddress : string
+    let feeTokenDataERC1155: string | Uint8Array
+
     let transferObj: TransferSignature;
     let gasReceipt : GasReceipt | null;
-    let feeToken : BigNumber;
     let data : string;
 
     let conditions = [
@@ -125,17 +130,21 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
           receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
           operatorContract = await operatorAbstract.deploy(operatorWallet) as ERC1155OperatorMock
 
+          feeTokenAddress = erc1155Contract.address
+
+          feeTokenDataERC1155 = ethers.utils.defaultAbiCoder.encode(
+            ['bool', 'address', 'uint256'], 
+            [feeIsERC1155,  feeTokenAddress,  feeTokenID]
+          )
+
           // Gas Receipt
           gasReceipt = {
             gasLimit: 10000,
             baseGas: 1000,
             gasPrice: 1,
-            feeToken: new BigNumber('0xca35b7d915458ef540ade6068dfe2f44e8fa733c'),
-            feeRecipient: operatorAddress
+            feeRecipient: operatorAddress,
+            feeTokenData: feeTokenDataERC1155,
           }
-
-          // fee token in uint
-          feeToken = new BigNumber(gasReceipt.feeToken)
 
           // Check if gas receipt is included
           gasReceipt = isGasReceipt ? gasReceipt : null
@@ -547,8 +556,6 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
     let METATRANSFER_IDENTIFIER = '0xebc71fa5';
     
     let transferData: string | null = 'Hello from the other side'
-    let isGasReceipt: boolean = true;
-    let feeTokenInitBalance = new BigNumber(30000);
     let initBalance = 100;
     let amount = 10;
     let nonce = 0;
@@ -557,9 +564,16 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
     let ids: any[], amounts: any[]
     let nTokenTypes = 33
 
+    let isGasReceipt: boolean = true;
+    let feeTokenInitBalance = new BigNumber(30000);
+    let feeIsERC1155 = true
+    let feeTokenID= 666   
+    let feeToken : BigNumber;
+    let feeTokenAddress : string
+    let feeTokenDataERC1155: string | Uint8Array
+
     let transferObj: BatchTransferSignature;
     let gasReceipt : GasReceipt | null;
-    let feeToken : BigNumber;
     let data : string;
 
     let conditions = [
@@ -593,17 +607,24 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
             amounts.push(amount)
           }
 
+          feeTokenAddress = erc1155Contract.address
+
+          feeTokenDataERC1155 = ethers.utils.defaultAbiCoder.encode(
+            ['bool', 'address', 'uint256'], 
+            [feeIsERC1155,  feeTokenAddress,  feeTokenID]
+          )
+
           // Gas Receipt
           gasReceipt = {
             gasLimit: 10000,
             baseGas: 2000,
             gasPrice: 1,
-            feeToken: new BigNumber('0xca35b7d915458ef540ade6068dfe2f44e8fa733c'),
-            feeRecipient: operatorAddress
+            feeRecipient: operatorAddress,
+            feeTokenData: feeTokenDataERC1155,
           }
 
           // fee token in uint
-          feeToken = new BigNumber(gasReceipt.feeToken)
+          feeToken = new BigNumber(feeTokenID)
 
           // Check if gas receipt is included
           gasReceipt = isGasReceipt ? gasReceipt : null
@@ -1021,18 +1042,23 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
   describe('metaSetApprovalForAll() function', () => {
 
-    let feeTokenInitBalance = new BigNumber(30000);
     let initBalance = 100;
     let isGasReimbursed = true;
     let approved = true;
     let nonce = 0;
     let id = 66;
 
-    let isGasReceipt: boolean;
     let approvalObj: ApprovalSignature;
     let gasReceipt : GasReceipt | null;
-    let feeToken: BigNumber;
     let data: string;
+
+    let isGasReceipt: boolean = true;
+    let feeTokenInitBalance = new BigNumber(30000);
+    let feeIsERC1155 = true
+    let feeTokenID = 666   
+    let feeToken : BigNumber;
+    let feeTokenAddress : string
+    let feeTokenDataERC1155: string | Uint8Array
 
     let conditions = [
       [true, 'Gas receipt'],  
@@ -1044,17 +1070,24 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
         beforeEach(async () => {
           isGasReceipt = condition[0] as boolean
 
+          feeTokenAddress = erc1155Contract.address
+
+          feeTokenDataERC1155 = ethers.utils.defaultAbiCoder.encode(
+            ['bool', 'address', 'uint256'], 
+            [feeIsERC1155,  feeTokenAddress,  feeTokenID]
+          )
+
           // Gas Receipt
           gasReceipt = {
-            gasLimit: 2000,
-            baseGas: 210,
+            gasLimit: 10000,
+            baseGas: 1100,
             gasPrice: 1,
-            feeToken: new BigNumber('0xca35b7d915458ef540ade6068dfe2f44e8fa733c'),
-            feeRecipient: operatorAddress
+            feeRecipient: operatorAddress,
+            feeTokenData: feeTokenDataERC1155,
           }
 
-          // Convert to uint representation
-          feeToken = new BigNumber(gasReceipt.feeToken)
+          // fee token in uint
+          feeToken = new BigNumber(feeTokenID)
 
           // Check if gas receipt is included
           gasReceipt = isGasReceipt ? gasReceipt : null
