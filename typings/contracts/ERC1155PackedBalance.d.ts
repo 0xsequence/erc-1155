@@ -40,6 +40,8 @@ export class ERC1155PackedBalance extends Contract {
       _amount: number | string | BigNumber
     ): Promise<BigNumber>;
 
+    uri(_id: number | string | BigNumber): Promise<string>;
+
     supportsInterface(_interfaceID: string): Promise<boolean>;
 
     safeTransferFrom(
@@ -91,5 +93,7 @@ export class ERC1155PackedBalance extends Contract {
       _operator: string | null,
       _approved: null
     ): EventFilter;
+
+    URI(_uri: null, _id: number | string | BigNumber | null): EventFilter;
   };
 }

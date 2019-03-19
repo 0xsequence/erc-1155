@@ -46,7 +46,7 @@ contract ERC1155PackedBalance is IERC165 {
   event TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _amount);
   event TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _amounts);
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
-  event URI(string _amount, uint256 indexed _id);
+  event URI(string _uri, uint256 indexed _id);
 
 
   /***********************************|
@@ -373,6 +373,21 @@ contract ERC1155PackedBalance is IERC165 {
     // Shift amount
     uint256 leftShift = 256 - IDS_BITS_SIZE*(_index + 1);
     return (_binAmount & ~(mask << leftShift) ) | (_amount << leftShift);
+  }
+
+
+  /***********************************|
+  |         Metadata Functions        |
+  |__________________________________*/
+
+  /**
+  * @notice A distinct Uniform Resource Identifier (URI) for a given token.
+  *    @dev URIs are defined in RFC 3986.
+  *    The URI may point to a JSON file that conforms to the "ERC-1155 Metadata JSON Schema".
+  *    @return URI string
+  */
+  function uri(uint256 _id) external view returns (string memory) {
+    return "https://example.com/token/+tokenID";
   }
 
 

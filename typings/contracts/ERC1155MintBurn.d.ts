@@ -15,6 +15,8 @@ export class ERC1155MintBurn extends Contract {
 
     supportsInterface(_interfaceID: string): Promise<boolean>;
 
+    uri(_id: number | string | BigNumber): Promise<string>;
+
     balanceOfBatch(
       _owners: (string)[],
       _ids: (number | string | BigNumber)[]
@@ -71,5 +73,7 @@ export class ERC1155MintBurn extends Contract {
       _operator: string | null,
       _approved: null
     ): EventFilter;
+
+    URI(_uri: null, _id: number | string | BigNumber | null): EventFilter;
   };
 }

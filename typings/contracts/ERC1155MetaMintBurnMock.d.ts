@@ -15,6 +15,8 @@ export class ERC1155MetaMintBurnMock extends Contract {
 
     supportsInterface(_interfaceID: string): Promise<boolean>;
 
+    uri(_id: number | string | BigNumber): Promise<string>;
+
     getNonce(_signer: string): Promise<BigNumber>;
 
     balanceOfBatch(
@@ -116,5 +118,7 @@ export class ERC1155MetaMintBurnMock extends Contract {
       _operator: string | null,
       _approved: null
     ): EventFilter;
+
+    URI(_uri: null, _id: number | string | BigNumber | null): EventFilter;
   };
 }
