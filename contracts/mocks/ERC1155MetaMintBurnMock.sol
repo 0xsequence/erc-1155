@@ -3,9 +3,10 @@ pragma experimental ABIEncoderV2;
 
 import "../tokens/ERC1155/ERC1155Meta.sol";
 import "../tokens/ERC1155/ERC1155MintBurn.sol";
+import "../tokens/ERC1155/ERC1155Metadata.sol";
 
 
-contract ERC1155MetaMintBurnMock is ERC1155Meta, ERC1155MintBurn {
+contract ERC1155MetaMintBurnMock is ERC1155Meta, ERC1155MintBurn, ERC1155Metadata {
 
   constructor() public { }
 
@@ -61,4 +62,11 @@ contract ERC1155MetaMintBurnMock is ERC1155Meta, ERC1155MintBurn {
     super._batchBurn(_from, _ids, _values);
   }
 
+  /***********************************|
+  |       Unsupported Functions       |
+  |__________________________________*/
+
+  function () external {
+    revert('ERC1155MetaMintBurnMock: INVALID_METHOD');
+  }
 }

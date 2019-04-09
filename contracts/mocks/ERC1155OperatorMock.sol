@@ -23,8 +23,8 @@ contract ERC1155OperatorMock {
     address _to, 
     uint256 _id, 
     uint256 _value, 
-    bytes calldata _data) 
-    external 
+    bytes memory _data) 
+    public 
   {  
     IERC1155(_tokenAddress).safeTransferFrom(_from, _to, _id, _value, _data);
   }
@@ -43,10 +43,10 @@ contract ERC1155OperatorMock {
     address _tokenAddress, 
     address _from, 
     address _to, 
-    uint256[] calldata _ids, 
-    uint256[] calldata _values, 
-    bytes calldata _data) 
-    external 
+    uint256[] memory _ids, 
+    uint256[] memory _values, 
+    bytes memory _data) 
+    public 
   {
     IERC1155(_tokenAddress).safeBatchTransferFrom(_from, _to, _ids, _values, _data);
   }

@@ -6,9 +6,11 @@ import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { TransactionOverrides } from ".";
 
-export class ERC165 extends Contract {
+export class ERC1155Metadata extends Contract {
   functions: {
-    supportsInterface(interfaceId: string): Promise<boolean>;
+    uri(_id: number | string | BigNumber): Promise<string>;
   };
-  filters: {};
+  filters: {
+    URI(_uri: null, _id: number | string | BigNumber | null): EventFilter;
+  };
 }

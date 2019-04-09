@@ -8,7 +8,7 @@ import { TransactionOverrides } from ".";
 
 export class IERC165 extends Contract {
   functions: {
-    supportsInterface(interfaceId: string): Promise<boolean>;
+    supportsInterface(_interfaceId: string): Promise<boolean>;
   };
   filters: {};
 }

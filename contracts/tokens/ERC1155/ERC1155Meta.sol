@@ -14,13 +14,12 @@ import "../../utils/SignatureValidator.sol";
  *  
  * TO DO:
  *  - Signature 0x19 pre-fix?
+ *  - Update to solc to second latest
  *  - EIP-712 encoding
- *  - Add URI module
- *  - Arbitrary gasRefund
+ *  - Use enum for last byte instead of bytes4 for gasReceipt
  *
  * COULD DO:
- *  - Cancellable nonces ? Can use the metaSetApprovalForAll method
- *  - Support contract validator signature type
+ *  - Support contract validator signature type?
  *
  */
 contract ERC1155Meta is ERC1155, SignatureValidator {
@@ -31,13 +30,12 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
   |       Variables and Structs       |
   |__________________________________*/
 
-
   /* 
    * Gas Receipt  
    *   feeTokenData : (bool, address, ?unit256)
-   *    1st element should be a 0x0 if ERC-20 and 0x1 for ERC-1155
-   *    2nd element should be the address of the token
-   *    3rd argument (if ERC-1155) should be the ID of the token 
+   *     1st element should be the address of the token
+   *     2nd argument (if ERC-1155) should be the ID of the token 
+   *     Last element should be a 0x0 if ERC-20 and 0x1 for ERC-1155
    */
   struct GasReceipt {
     uint256 gasLimit;             // Max amount of gas that can be reimbursed
@@ -47,14 +45,21 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     bytes feeTokenData;           // Data for token to pay for gas as `uint256(tokenAddress)`
   }
 
+  // Which token standard is used to pay gas fee
+  enum FeeTokenType {
+    ERC1155,    // 0x00, ERC-1155 token - DEFAULT
+    ERC20,      // 0x01, ERC-20 token
+    NTypes      // 0x02, number of signature types. Always leave at end.
+  }
+
   // Signature nonce per address
   mapping (address => uint256) internal nonces;
 
-  // Meta transfer identifier (no gas reimbursement):
+  // Meta transfer identifier (with gas reimbursement):
   //    bytes4(keccak256("metaSafeTransferFrom(address,address,uint256,uint256,bytes)"));
   bytes4 internal constant METATRANSFER_FLAG = 0xebc71fa5;
 
-  // Meta transfer identifier (with gas reimbursement):
+  // Meta transfer identifier (no gas reimbursement):
   //    bytes4(keccak256("metaSafeTransferFromWithGasReceipt(address,address,uint256,uint256,bytes)"));
   bytes4 internal constant METATRANSFER_WITHOUT_GAS_RECEIPT_FLAG = 0x3fed7708;
 
@@ -362,12 +367,24 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
   function _transferGasFee(address _from, uint256 _startGas, GasReceipt memory _g)
       internal
   {
-    address payable feeRecipient;
-    address tokenAddress;
-    uint256 gasUsed;
-    uint256 fee;
+    // Pop last byte to get token fee type
+    uint8 feeTokenTypeRaw = uint8(_g.feeTokenData.popLastByte());
 
-    (bool isGasERC1155, bytes memory feeTokenData) = abi.decode(_g.feeTokenData, (bool, bytes));
+    // Ensure valid fee token type
+    require(
+      feeTokenTypeRaw < uint8(FeeTokenType.NTypes), 
+      "ERC1155Meta#_transferGasFee: UNSUPPORTED_TOKEN"
+    );
+
+    // Convert to FeeTokenType corresponding value
+    FeeTokenType feeTokenType = FeeTokenType(feeTokenTypeRaw);
+
+    // Declarations
+    address tokenAddress;
+    address payable feeRecipient;
+    uint256 gasUsed;
+    uint256 tokenID;
+    uint256 fee;
 
     // Amount of gas consumed
     gasUsed = _startGas.sub(gasleft()).add(_g.baseGas); 
@@ -378,28 +395,28 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     // If receiver is 0x0, then anyone can claim, otherwise, refund addresse provided
     feeRecipient = _g.feeRecipient == address(0) ? tx.origin : _g.feeRecipient;
 
-    // Gas token is ERC1155 or ERC20
-    if (isGasERC1155) {
-      uint256 tokenID;
-      (tokenAddress, tokenID) = abi.decode(feeTokenData, (address, uint256));
+    // Fee token is ERC1155
+    if (feeTokenType == FeeTokenType.ERC1155 ) {
+      (tokenAddress, tokenID) = abi.decode(_g.feeTokenData, (address, uint256));
 
-      // If this contract or another ERC-1155 contract
+      // Fee is paid from this ERC1155 contract
       if (tokenAddress == address(this)){
         _safeTransferFrom(_from, feeRecipient, tokenID, fee, ''); 
       
+      // Fee is paid from another ERC-1155 contract
       } else {
         IERC1155(tokenAddress).safeTransferFrom(_from, feeRecipient, tokenID, fee, '');
       }
-
+    
+    // Fee token is ERC20
     } else {
-      // Paying back in ERC-20
-      tokenAddress = feeTokenData.readAddress(0);
+      tokenAddress = abi.decode(_g.feeTokenData, (address));
       require(
         IERC20(tokenAddress).transferFrom(_from, feeRecipient, fee), 
         "ERC1155Meta#_transferGasFee: ERC20_TRANSFER_FAILED"
       );
     } 
-  }
 
+  }
 }
 

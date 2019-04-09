@@ -17,13 +17,16 @@ module.exports = {
     },
   },
 
+  compilers: {
+    solc: {
+      version: "0.5.0"
+    }
+  },
   solc: {
     optimizer: {
-      enabled: true,
+      enabled: false, // TO TURN ON for launch
       runs: 200
-    },
-    evmVersion: "byzantium",
-    version: "0.5.0"
+    }
   },
 
   mocha: {
