@@ -5,7 +5,7 @@ import "../../interfaces/IERC165.sol";
 import "../../utils/SafeMath.sol";
 import "../../interfaces/IERC1155TokenReceiver.sol";
 import "../../interfaces/IERC1155.sol";
-import "openzeppelin-solidity/contracts/utils/Address.sol";
+import "../../utils/Address.sol";
 
 
 /**
@@ -21,8 +21,8 @@ contract ERC1155 is IERC165 {
   |__________________________________*/
 
   // onReceive function signatures
-  bytes4 constant public ERC1155_RECEIVED_VALUE = 0xf23a6e61;
-  bytes4 constant public ERC1155_BATCH_RECEIVED_VALUE = 0xbc197c81;
+  bytes4 constant internal ERC1155_RECEIVED_VALUE = 0xf23a6e61;
+  bytes4 constant internal ERC1155_BATCH_RECEIVED_VALUE = 0xbc197c81;
 
   // Objects balances
   mapping (address => mapping(uint256 => uint256)) internal balances;
@@ -34,8 +34,8 @@ contract ERC1155 is IERC165 {
   event TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _amount);
   event TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _amounts);
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
-  event URI(string _value, uint256 indexed _id);
-
+  event URI(string _uri, uint256 indexed _id);
+  
 
   /***********************************|
   |     Public Transfer Functions     |

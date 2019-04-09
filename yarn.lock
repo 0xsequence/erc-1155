@@ -1529,11 +1529,6 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-command-exists@^1.2.8:
-  version "1.2.8"
-  resolved "https://registry.yarnpkg.com/command-exists/-/command-exists-1.2.8.tgz#715acefdd1223b9c9b37110a149c6392c2852291"
-  integrity sha512-PM54PkseWbiiD/mMsbvW351/u+dafwTJ0ye2qB60G1aGQP9j3xK2gmMDc+R34L3nDtx4qMCitXT75mkbkGJDLw==
-
 command-line-args@^4.0.7:
   version "4.0.7"
   resolved "https://registry.yarnpkg.com/command-line-args/-/command-line-args-4.0.7.tgz#f8d1916ecb90e9e121eda6428e41300bfb64cc46"
@@ -4772,11 +4767,6 @@ once@1.x, once@^1.3.0, once@^1.3.1, once@^1.4.0:
   dependencies:
     wrappy "1"
 
-openzeppelin-solidity@^2.1.3:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-2.1.3.tgz#34aea40c2d05665f0dd6bc021e48516cf25b1ef6"
-  integrity sha512-Zz595xw6w4ZrNU3JJJTlPd8bHFbHv5OkJlkqsM2i+NBs6CzImoHI3dZ+nmhkfR+p52cGXKmayAGbnfdCum1SMg==
-
 optimist@^0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/optimist/-/optimist-0.6.1.tgz#da3ea74686fa21a19a111c326e90eb15a0196686"
@@ -5904,20 +5894,6 @@ solc@^0.4.2:
     semver "^5.3.0"
     yargs "^4.7.1"
 
-solc@^0.5.5:
-  version "0.5.5"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.5.tgz#bdedd988e1a958f48bb8d84df5414f0ae9f62764"
-  integrity sha512-eh24ieiUC/M0tQPvK/YtORXzW4QNinFzDmF9Nj7/zXlxD06pLz4cnWExz7mzAmiI7f5xFfXlitLbLn2w3U6niw==
-  dependencies:
-    command-exists "^1.2.8"
-    fs-extra "^0.30.0"
-    keccak "^1.0.2"
-    memorystream "^0.3.1"
-    require-from-string "^2.0.0"
-    semver "^5.5.0"
-    tmp "0.0.33"
-    yargs "^11.0.0"
-
 solidity-coverage@^0.5.11:
   version "0.5.11"
   resolved "https://registry.yarnpkg.com/solidity-coverage/-/solidity-coverage-0.5.11.tgz#1ee45f6d98b75a615aadb8f9aa7db4a2b32258e7"
@@ -6477,25 +6453,26 @@ truffle-blockchain-utils@^0.0.8:
   resolved "https://registry.yarnpkg.com/truffle-blockchain-utils/-/truffle-blockchain-utils-0.0.8.tgz#09995c36016a54092b337f237c3dc1a3dca12341"
   integrity sha512-4dbgqd4GrloKNLiaXACiymE3R2PsNFOlbgOh/CGkQVLArtcbgBAl7Fg2l5yVfDV8dtOFWHddj/2UkY25KY1+Dw==
 
-truffle-contract-schema@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/truffle-contract-schema/-/truffle-contract-schema-3.0.2.tgz#13bb3578f40f39cf3ca829978dfca8a4b731edfc"
-  integrity sha512-xCeiJ5ZW/oYn93j9UN+tN5jX1vJXFykd/1cna+GmqZtBkQYZqLysM+FNS66hWeLitKUqT2f4XNCDenEflJW9Dg==
+truffle-contract-schema@^3.0.6:
+  version "3.0.6"
+  resolved "https://registry.yarnpkg.com/truffle-contract-schema/-/truffle-contract-schema-3.0.6.tgz#d28c43ccbc15524a2be81326ccb8c036332f7371"
+  integrity sha512-oAMPr/ecr06ViJMSatfp1VpbDNul0Q1dSrFkWSF4/6WWK4orhNL90A8uhtEt61doLz5n0Yjf59KWE0p7qToPXw==
   dependencies:
     ajv "^5.1.1"
     crypto-js "^3.1.9-1"
     debug "^4.1.0"
 
 truffle-contract@^4.0.8:
-  version "4.0.8"
-  resolved "https://registry.yarnpkg.com/truffle-contract/-/truffle-contract-4.0.8.tgz#ac1c2eaeb4f017e59adc486e4a3ea29bea13575f"
-  integrity sha512-Kfk4kVVk3CgNvYg+tfvtxQ3M2xO6GGAgvwvgy6ffXSeD2cmyPPLmsENXeQ5rUPfA+uqC9YZ6Uf+bTAa2H3IcOA==
+  version "4.0.11"
+  resolved "https://registry.yarnpkg.com/truffle-contract/-/truffle-contract-4.0.11.tgz#587d0e032c33ad320b7e12f1093eb789c62a8275"
+  integrity sha512-lzKFdLngTSt7MQMOvsUhOEPUjagSbGVkhQm7rSant4Y/VSWIppL3GXqpTOzdcOJMHgL9iYlMEm42+pHXq6DZxg==
   dependencies:
     bignumber.js "^7.2.1"
     ethers "^4.0.0-beta.1"
     truffle-blockchain-utils "^0.0.8"
-    truffle-contract-schema "^3.0.2"
+    truffle-contract-schema "^3.0.6"
     truffle-error "^0.0.4"
+    truffle-interface-adapter "^0.1.2"
     web3 "1.0.0-beta.37"
     web3-core-promievent "1.0.0-beta.37"
     web3-eth-abi "1.0.0-beta.37"
@@ -6517,19 +6494,27 @@ truffle-flattener@^1.3.0:
     solidity-parser-antlr "^0.4.0"
     tsort "0.0.1"
 
-truffle-hdwallet-provider@1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/truffle-hdwallet-provider/-/truffle-hdwallet-provider-1.0.5.tgz#76059fb37d13df70bf37a9c296cf27d5a944e112"
-  integrity sha512-T9qNm7b6MD0UPWVmmJEhgzW1DdR6mkMDijGBSbdJqYaaBLufoycE+qH3dsV+m1mLTE+ebM5RcJ4gF4oXgDW67w==
+truffle-hdwallet-provider@1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/truffle-hdwallet-provider/-/truffle-hdwallet-provider-1.0.6.tgz#7cda437c9a25bda6bbc5f4ed018e932254ecc867"
+  integrity sha512-cYTG0t9XouLLEBLMjkfHe3s2JO9wrFFVeXEgpW5Ay+8S56isf3LkrAUh0ws9bcYCJ0l7jho9xkaNnakeDqq//Q==
   dependencies:
     any-promise "^1.3.0"
     bindings "^1.3.1"
     websocket "^1.0.28"
 
+truffle-interface-adapter@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/truffle-interface-adapter/-/truffle-interface-adapter-0.1.2.tgz#b544e726a3a0833911ce6dadb1197cef53ad801b"
+  integrity sha512-1+pZprFU94mN8ydy4wVI2reW4iELDmsUADpa2ti++HwsX/T02yHK5+GxK3wQ9lXglRiI/B694fKFbHcv3t+Vxg==
+  dependencies:
+    bn.js "^4.11.8"
+    web3 "1.0.0-beta.37"
+
 truffle@^5.0.7:
-  version "5.0.7"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.7.tgz#b5025b568b987b154c6357b4d6d88d9c23f94484"
-  integrity sha512-RofK+kS9l4x6jdhtjLTMDIAF+P34I0/0gzCZeSjixqS5Sp+7gq2WI8ALAW0VgyahuwQl4TIyrGT0lsKjNscvFw==
+  version "5.0.10"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.10.tgz#f773522becbed0f66b372c6a9a1f36d233337e1e"
+  integrity sha512-wVp7ruznIm1iX7fTHZwjKZCaOkkQcTR1eWOCi2yTQ85wg1iQITpV7NLDpVandaNcz5Z0e8EdOrH9lFKLgxiAxQ==
   dependencies:
     app-module-path "^2.2.0"
     mocha "^4.1.0"
@@ -6562,9 +6547,9 @@ tslib@^1.8.0, tslib@^1.8.1:
   integrity sha512-4krF8scpejhaOgqzBEcGM7yDIEfi0/8+8zDRZhNZZ2kjmHJ4hv3zCbQWxoJGz1iw5U0Jl0nma13xzHXcncMavQ==
 
 tslint@^5.13.1:
-  version "5.13.1"
-  resolved "https://registry.yarnpkg.com/tslint/-/tslint-5.13.1.tgz#fbc0541c425647a33cd9108ce4fd4cd18d7904ed"
-  integrity sha512-fplQqb2miLbcPhyHoMV4FU9PtNRbgmm/zI5d3SZwwmJQM6V0eodju+hplpyfhLWpmwrDNfNYU57uYRb8s0zZoQ==
+  version "5.14.0"
+  resolved "https://registry.yarnpkg.com/tslint/-/tslint-5.14.0.tgz#be62637135ac244fc9b37ed6ea5252c9eba1616e"
+  integrity sha512-IUla/ieHVnB8Le7LdQFRGlVJid2T/gaJe5VkjzRVSRR6pA2ODYrnfR1hmxi+5+au9l50jBwpbBL34txgv4NnTQ==
   dependencies:
     babel-code-frame "^6.22.0"
     builtin-modules "^1.1.1"
@@ -6578,14 +6563,14 @@ tslint@^5.13.1:
     resolve "^1.3.2"
     semver "^5.3.0"
     tslib "^1.8.0"
-    tsutils "^2.27.2"
+    tsutils "^2.29.0"
 
 tsort@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/tsort/-/tsort-0.0.1.tgz#e2280f5e817f8bf4275657fd0f9aebd44f5a2786"
   integrity sha1-4igPXoF/i/QnVlf9D5rr1E9aJ4Y=
 
-tsutils@^2.27.2:
+tsutils@^2.29.0:
   version "2.29.0"
   resolved "https://registry.yarnpkg.com/tsutils/-/tsutils-2.29.0.tgz#32b488501467acbedd4b85498673a0812aca0b99"
   integrity sha512-g5JVHCIJwzfISaXpXE1qvNalca5Jwob6FjI4AoPlqMusJ6ftFE7IkkFoMhVLRgK+4Kx3gkzb8UZK5t5yTTvEmA==
@@ -6625,9 +6610,9 @@ type-is@~1.6.16:
     mime-types "~2.1.18"
 
 typechain@^0.3.11:
-  version "0.3.11"
-  resolved "https://registry.yarnpkg.com/typechain/-/typechain-0.3.11.tgz#654d9f5cd01310e0baece8969c364c7041450b73"
-  integrity sha512-Hz2EAc168F3z2uYS9KlDU7aPEi0pRWbuykAvIf9Ke7dRDtqETpdg4G7q5TKTkIdhBRQv4jk48HmSEMc21gB7iA==
+  version "0.3.14"
+  resolved "https://registry.yarnpkg.com/typechain/-/typechain-0.3.14.tgz#c58df17b20494ad08dff311cf6984bf7a2accb78"
+  integrity sha512-nOg7n7LngcA4Sx53q+4jjSpIEulEayZYnCMfyItnyxCX3nTCWVg8QXZppMDYNfITkJHex0v5dTgklOQzSbfUkw==
   dependencies:
     command-line-args "^4.0.7"
     debug "^3.0.1"
@@ -6646,10 +6631,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@3.3.3333:
-  version "3.3.3333"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.3.3333.tgz#171b2c5af66c59e9431199117a3bcadc66fdcfd6"
-  integrity sha512-JjSKsAfuHBE/fB2oZ8NxtRTk5iGcg6hkYXMnZ3Wc+b2RSqejEqTaem11mHASMnFilHrax3sLK0GDzcJrekZYLw==
+typescript@3.3.4000:
+  version "3.3.4000"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.3.4000.tgz#76b0f89cfdbf97827e1112d64f283f1151d6adf0"
+  integrity sha512-jjOcCZvpkl2+z7JFn0yBOoLQyLoIkNZAs/fYJkUG6VKy6zLPHJGfQJYFHzibB6GJaF/8QrcECtlQ5cpvRHSMEA==
 
 typewise-core@^1.2, typewise-core@^1.2.0:
   version "1.2.0"
@@ -7587,9 +7572,9 @@ yauzl@^2.4.2:
     fd-slicer "~1.1.0"
 
 zos-lib@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/zos-lib/-/zos-lib-2.2.1.tgz#40d8e68fc57be35403571ac08d58d87c06623b28"
-  integrity sha512-whdBpt1YneDzFzjw+uUzYVzyboDMJuNG7WOFdxkeC/+XrEbbSmPEyBU4OGc47Rt/jg+ruhbOfxsOImc+Sfnnfg==
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/zos-lib/-/zos-lib-2.2.2.tgz#cdb1f1013590f3b3255d984c9e0c86bfb6d90ca0"
+  integrity sha512-x0gsRec9MVgSveMD5hInH77C+X/RSyFRPmhy4bWxsC41OWZr1lCRJ5c+zuKK7x8W2ZyZSvgzLRmJ+dxnVIwyCg==
   dependencies:
     "@types/web3" "^1.0.14"
     axios "^0.18.0"

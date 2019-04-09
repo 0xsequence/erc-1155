@@ -47,9 +47,6 @@ export class ERC1155 extends Contract {
       _approved: boolean,
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
-
-    ERC1155_BATCH_RECEIVED_VALUE(): Promise<string>;
-    ERC1155_RECEIVED_VALUE(): Promise<string>;
   };
   filters: {
     TransferSingle(

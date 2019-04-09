@@ -1,6 +1,6 @@
 import * as ethers from 'ethers'
 
-import { AbstractContract, assert, expect, BigNumber } from './utils'
+import { AbstractContract, expect, RevertError, BigNumber } from './utils'
 import * as utils from './utils'
 
 import { ERC1155MetaMintBurnMock } from 'typings/contracts/ERC1155MetaMintBurnMock'
@@ -59,19 +59,24 @@ contract('ERC1155MintBurn', (accounts: string[]) => {
       anyoneERC1155MintBurnContract = await erc1155MintBurnContract.connect(anyoneSigner) as ERC1155MetaMintBurnMock
     })
 
-    describe('mint() function', () => {
+    describe('_mint() function', () => {
       const tokenID = 666
       const amount = 11
 
-      it('should ALLOW inheriting contract to call mint()', async () => {
+      it('should ALLOW inheriting contract to call _mint()', async () => {
         const tx = erc1155MintBurnContract.functions.mintMock(receiverAddress, tokenID, amount)
         await expect(tx).to.be.fulfilled
       })
 
-      it('[TypeError: EXPECTED] should NOT allow anyone to call mint()', async () => {
-         //@ts-ignore
-        const tx = anyoneERC1155MintBurnContract.functions._mint(receiverAddress, tokenID, amount)
-        await expect(tx).to.be.rejected
+      it('should NOT allow anyone to call _mint()', async () => {
+        const transaction = {
+          to: erc1155MintBurnContract.address,
+          data: '0x7776afa0000000000000000000000000b87213121fb89cbd8b877cb1bb3ff84dd2869cfa' +
+          '000000000000000000000000000000000000000000000000000000000000029a0000000000000000' + 
+          '00000000000000000000000000000000000000000000000b'
+        } 
+        const tx = anyoneWallet.sendTransaction(transaction)
+        await expect(tx).to.be.rejectedWith(RevertError('ERC1155MetaMintBurnMock: INVALID_METHOD'))
       })
 
       it('should increase the balance of receiver by the right amount', async () => {
@@ -111,23 +116,32 @@ contract('ERC1155MintBurn', (accounts: string[]) => {
 
     })
 
-    describe('batchMint() function', () => {
+    describe('_batchMint() function', () => {
       const Ntypes = 32
       const amountToMint = 10
       const typesArray  = Array.apply(null, {length: Ntypes}).map(Number.call, Number)
       const amountArray = Array.apply(null, Array(Ntypes)).map(Number.prototype.valueOf, amountToMint)
 
-      it('should ALLOW inheriting contract to call batchMint()', async () => {        
+      it('should ALLOW inheriting contract to call _batchMint()', async () => {        
         let req = erc1155MintBurnContract.functions.batchMintMock(receiverAddress, typesArray, amountArray)
-        let tx = await expect(req).to.be.fulfilled as ethers.ContractTransaction
-        // const receipt = await tx.wait()
-        // console.log('Batch mint :' + receipt.gasUsed)
+        await expect(req).to.be.fulfilled
       })
 
-      it('[TypeError: EXPECTED] should NOT allow anyone to call batchMint()', async () => {
-        //@ts-ignore
-        const tx = anyoneERC1155MintBurnContract.functions._batchMint(receiverAddress, typesArray, amountArray)
-        await expect(tx).to.be.rejected
+      it('should NOT allow anyone to call _batchMint()', async () => {
+        const transaction = {
+          to: erc1155MintBurnContract.address,
+          data: '0x2589aeae00000000000000000000000035ef07393b57464e93deb59175ff72e6499450cf'  +
+          '00000000000000000000000000000000000000000000000000000000000000600000000000000000' +
+          '0000000000000000000000000000000000000000000000c000000000000000000000000000000000' + 
+          '00000000000000000000000000000002000000000000000000000000000000000000000000000000' +
+          '00000000000000010000000000000000000000000000000000000000000000000000000000000002' +
+          '00000000000000000000000000000000000000000000000000000000000000020000000000000000' +
+          '00000000000000000000000000000000000000000000000a00000000000000000000000000000000' +
+          '0000000000000000000000000000000a'
+        } 
+
+        const tx = anyoneWallet.sendTransaction(transaction)
+        await expect(tx).to.be.rejectedWith(RevertError('ERC1155MetaMintBurnMock: INVALID_METHOD'))
       })
 
       it('should increase the balances of receiver by the right amounts', async () => {
@@ -158,7 +172,7 @@ contract('ERC1155MintBurn', (accounts: string[]) => {
 
     })
 
-    describe('burn() function', () => {
+    describe('_burn() function', () => {
       const tokenID = 666
       const initBalance = 100
       const amountToBurn = 10
@@ -167,15 +181,20 @@ contract('ERC1155MintBurn', (accounts: string[]) => {
         await erc1155MintBurnContract.functions.mintMock(receiverAddress, tokenID, initBalance);
       })
 
-      it('should ALLOW inheriting contract to call burn()', async () => {
+      it('should ALLOW inheriting contract to call _burn()', async () => {
         const tx = erc1155MintBurnContract.functions.burnMock(receiverAddress, tokenID, amountToBurn)
         await expect(tx).to.be.fulfilled
       })
 
-      it('[TypeError: EXPECTED] should NOT allow anyone to call burn()', async () => {
-         //@ts-ignore
-        const tx = anyoneERC1155MintBurnContract.functions._burn(receiverAddress, tokenID, amountToBurn)
-        await expect(tx).to.be.rejected
+      it('should NOT allow anyone to call _burn()', async () => {
+        const transaction = {
+          to: erc1155MintBurnContract.address,
+          data: '0x464a5ffb00000000000000000000000008970fed061e7747cd9a38d680a601510cb659fb' + 
+          '000000000000000000000000000000000000000000000000000000000000029a0000000000000000' + 
+          '00000000000000000000000000000000000000000000000a'
+        } 
+        const tx = anyoneWallet.sendTransaction(transaction)
+        await expect(tx).to.be.rejectedWith(RevertError('ERC1155MetaMintBurnMock: INVALID_METHOD'))
       })
 
       it('should decrease the balance of receiver by the right amount', async () => {
@@ -227,17 +246,29 @@ contract('ERC1155MintBurn', (accounts: string[]) => {
         await erc1155MintBurnContract.functions.batchMintMock(receiverAddress, typesArray, initBalanceArray)
       })
 
-      it('should ALLOW inheriting contract to call batchBurn()', async () => {        
+      it('should ALLOW inheriting contract to call _batchBurn()', async () => {        
         let req = erc1155MintBurnContract.functions.batchBurnMock(receiverAddress, typesArray, burnAmountArray)
         let tx = await expect(req).to.be.fulfilled as ethers.ContractTransaction
         // const receipt = await tx.wait()
         // console.log('Batch mint :' + receipt.gasUsed)
         
       })
-      it('[TypeError: EXPECTED] should NOT allow anyone to call batchMint()', async () => {
-        //@ts-ignore
-        const tx = anyoneERC1155MintBurnContract.functions._batchBurn(receiverAddress, typesArray, burnAmountArray)
-        await expect(tx).to.be.rejected
+
+      // Should call mock's fallback function
+      it('should NOT allow anyone to call _batchBurn()', async () => {
+        const transaction = {
+          to: erc1155MintBurnContract.address,
+          data: '0xb389c3bb000000000000000000000000dc04977a2078c8ffdf086d618d1f961b6c546222' + 
+          '00000000000000000000000000000000000000000000000000000000000000600000000000000000' + 
+          '0000000000000000000000000000000000000000000000c000000000000000000000000000000000' + 
+          '00000000000000000000000000000002000000000000000000000000000000000000000000000000' + 
+          '00000000000000010000000000000000000000000000000000000000000000000000000000000003' + 
+          '00000000000000000000000000000000000000000000000000000000000000020000000000000000' + 
+          '00000000000000000000000000000000000000000000001e00000000000000000000000000000000' + 
+          '0000000000000000000000000000001e'
+        } 
+        const tx = anyoneWallet.sendTransaction(transaction)
+        await expect(tx).to.be.rejectedWith(RevertError('ERC1155MetaMintBurnMock: INVALID_METHOD'))
       })
 
       it('should decrease the balances of receiver by the right amounts', async () => {

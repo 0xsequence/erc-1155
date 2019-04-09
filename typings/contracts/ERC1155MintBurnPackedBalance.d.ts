@@ -67,9 +67,6 @@ export class ERC1155MintBurnPackedBalance extends Contract {
       _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
-
-    ERC1155_BATCH_RECEIVED_VALUE(): Promise<string>;
-    ERC1155_RECEIVED_VALUE(): Promise<string>;
   };
   filters: {
     TransferSingle(

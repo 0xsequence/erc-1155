@@ -2,6 +2,8 @@ pragma solidity ^0.5.0;
 pragma experimental ABIEncoderV2;
 
 import "./ERC1155PackedBalance.sol";
+import "../../interfaces/IERC1155.sol";
+import "../../interfaces/IERC20.sol";
 import "../../utils/LibBytes.sol";
 import "../../utils/SignatureValidator.sol";
 
@@ -13,13 +15,31 @@ import "../../utils/SignatureValidator.sol";
 contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
   using LibBytes for bytes;
 
-  // Gas Receipt
+
+  /***********************************|
+  |       Variables and Structs       |
+  |__________________________________*/
+
+  /* 
+   * Gas Receipt  
+   *   feeTokenData : (bool, address, ?unit256)
+   *     1st element should be the address of the token
+   *     2nd argument (if ERC-1155) should be the ID of the token 
+   *     Last element should be a 0x0 if ERC-20 and 0x1 for ERC-1155
+   */
   struct GasReceipt {
     uint256 gasLimit;             // Max amount of gas that can be reimbursed
-    uint256 baseGas;              // Base gas cost (includes things like 21k, data encoding, etc.)
+    uint256 baseGas;              // Base gas cost (includes things like 21k, CALLDATA size, etc.)
     uint256 gasPrice;             // Price denominated in token X per gas unit
-    uint256 feeToken;             // Token to pay for gas as `uint256(tokenAddress)`, where 0x0 is MetaETH
     address payable feeRecipient; // Address to send payment to
+    bytes feeTokenData;           // Data for token to pay for gas as `uint256(tokenAddress)`
+  }
+
+  // Which token standard is used to pay gas fee
+  enum FeeTokenType {
+    ERC1155,    // 0x00, ERC-1155 token - DEFAULT
+    ERC20,      // 0x01, ERC-20 token
+    NTypes      // 0x02, number of signature types. Always leave at end.
   }
 
   // Signature nonce per address
@@ -105,7 +125,6 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
   function safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts, bytes memory _data) 
     public 
   {
-    // Requirements
     require(_to != address(0), "ERC1155Meta#safeBatchTransferFrom: INVALID_RECIPIENT");
 
     // Starting gas amount
@@ -314,7 +333,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
   }
 
   /**
-   * @dev Returns the current nonce associated with a given address
+   * @notice Returns the current nonce associated with a given address
    * @param _signer Address to query signature nonce for
    */
   function getNonce(address _signer)
@@ -330,6 +349,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
 
   /**
    * @notice Will reimburse tx.origin or fee recipient for the gas spent execution a transaction
+   *         Can reimbuse in any ERC-20 or ERC-1155 token   
    * @param _from      Address from which the payment will be made from
    * @param _startGas  The gas amount left when gas counter started
    * @param _g         GasReceipt object that contains gas reimbursement information
@@ -337,18 +357,55 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
   function _transferGasFee(address _from, uint256 _startGas, GasReceipt memory _g)
       internal
   {
+    // Pop last byte to get token fee type
+    uint8 feeTokenTypeRaw = uint8(_g.feeTokenData.popLastByte());
+
+    // Ensure valid fee token type
+    require(
+      feeTokenTypeRaw < uint8(FeeTokenType.NTypes), 
+      "ERC1155Meta#_transferGasFee: UNSUPPORTED_TOKEN"
+    );
+
+    // Convert to FeeTokenType corresponding value
+    FeeTokenType feeTokenType = FeeTokenType(feeTokenTypeRaw);
+
+    // Declarations
+    address tokenAddress;
+    address payable feeRecipient;
+    uint256 gasUsed;
+    uint256 tokenID;
+    uint256 fee;
+
     // Amount of gas consumed
-    uint256 gasUsed = _startGas.sub(gasleft()).add(_g.baseGas); 
+    gasUsed = _startGas.sub(gasleft()).add(_g.baseGas); 
 
     // Reimburse up to gasLimit (instead of throwing) 
-    uint256 fee = gasUsed > _g.gasLimit ? _g.gasLimit.mul(_g.gasPrice): gasUsed.mul(_g.gasPrice);
+    fee = gasUsed > _g.gasLimit ? _g.gasLimit.mul(_g.gasPrice): gasUsed.mul(_g.gasPrice);
      
     // If receiver is 0x0, then anyone can claim, otherwise, refund addresse provided
-    address payable feeRecipient = _g.feeRecipient == address(0) ? tx.origin : _g.feeRecipient;
+    feeRecipient = _g.feeRecipient == address(0) ? tx.origin : _g.feeRecipient;
 
-    // Paying back in MetaERC20
-    _safeTransferFrom(_from, feeRecipient, _g.feeToken, fee, ''); 
+    // Fee token is ERC1155
+    if (feeTokenType == FeeTokenType.ERC1155 ) {
+      (tokenAddress, tokenID) = abi.decode(_g.feeTokenData, (address, uint256));
+
+      // Fee is paid from this ERC1155 contract
+      if (tokenAddress == address(this)){
+        _safeTransferFrom(_from, feeRecipient, tokenID, fee, ""); 
+      
+      // Fee is paid from another ERC-1155 contract
+      } else {
+        IERC1155(tokenAddress).safeTransferFrom(_from, feeRecipient, tokenID, fee, "");
+      }
+    
+    // Fee token is ERC20
+    } else {
+      tokenAddress = abi.decode(_g.feeTokenData, (address));
+      require(
+        IERC20(tokenAddress).transferFrom(_from, feeRecipient, fee), 
+        "ERC1155Meta#_transferGasFee: ERC20_TRANSFER_FAILED"
+      );
+    } 
+
   }
-
 }
-

@@ -1,6 +1,7 @@
 pragma solidity ^0.5.0;
 
-import '../interfaces/IERC1271Wallet.sol';
+import "../interfaces/IERC1271Wallet.sol";
+
 
 // Contract to test safe transfer behavior.
 contract ERC1271WalletMock is IERC1271Wallet {

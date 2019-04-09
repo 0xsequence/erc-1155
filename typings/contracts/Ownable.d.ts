@@ -8,15 +8,6 @@ import { TransactionOverrides } from ".";
 
 export class Ownable extends Contract {
   functions: {
-    renounceOwnership(
-      overrides?: TransactionOverrides
-    ): Promise<ContractTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: TransactionOverrides
-    ): Promise<ContractTransaction>;
-
     owner(): Promise<string>;
     isOwner(): Promise<boolean>;
   };

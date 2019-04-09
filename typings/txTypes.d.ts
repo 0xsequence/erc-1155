@@ -5,8 +5,8 @@ export type GasReceipt = {
   gasLimit: number | string | BigNumber;
   baseGas: number | string | BigNumber;
   gasPrice: number | string | BigNumber;
-  feeToken: number | string | BigNumber;
   feeRecipient: string;
+  feeTokenData: string | Uint8Array;
 };
 
 export type TransferSignature = {

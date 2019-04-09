@@ -56,7 +56,7 @@ contract('ERC1155', (accounts: string[]) => {
 
   // deploy before each test, to reset state of contract
   beforeEach(async () => {
-    erc1155Contract = await erc1155Abstract.deploy(ownerWallet) as ERC1155MetaMintBurnMock 
+    erc1155Contract = await erc1155Abstract.deploy(ownerWallet) as ERC1155MetaMintBurnMock
     operatorERC1155Contract = await erc1155Contract.connect(operatorSigner) as ERC1155MetaMintBurnMock
   })
 
@@ -96,7 +96,6 @@ contract('ERC1155', (accounts: string[]) => {
       let abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
       receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
       operatorContract = await operatorAbstract.deploy(operatorWallet) as ERC1155OperatorMock
-
       await erc1155Contract.functions.mintMock(ownerAddress, 0, 256)
     })
 

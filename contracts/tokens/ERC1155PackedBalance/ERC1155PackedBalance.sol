@@ -4,7 +4,7 @@ pragma experimental ABIEncoderV2;
 import "../../utils/SafeMath.sol";
 import "../../interfaces/IERC1155TokenReceiver.sol";
 import "../../interfaces/IERC165.sol";
-import "openzeppelin-solidity/contracts/utils/Address.sol";
+import "../../utils/Address.sol";
 
 
 /**
@@ -26,12 +26,12 @@ contract ERC1155PackedBalance is IERC165 {
   |__________________________________*/
 
   // onReceive function signatures                              
-  bytes4 constant public ERC1155_RECEIVED_VALUE = 0xf23a6e61;
-  bytes4 constant public ERC1155_BATCH_RECEIVED_VALUE = 0xbc197c81;
+  bytes4 constant internal ERC1155_RECEIVED_VALUE = 0xf23a6e61;
+  bytes4 constant internal ERC1155_BATCH_RECEIVED_VALUE = 0xbc197c81;
 
   // Constants regarding bin or chunk sizes for balance packing
-  uint256 constant IDS_BITS_SIZE   = 16;                  // Max size of each token ID
-  uint256 constant IDS_PER_UINT256 = 256 / IDS_BITS_SIZE; // Number of ids per uint256
+  uint256 internal constant IDS_BITS_SIZE   = 16;                  // Max size of each token ID
+  uint256 internal constant IDS_PER_UINT256 = 256 / IDS_BITS_SIZE; // Number of ids per uint256
 
   // Operations for _updateIDBalance
   enum Operations { Add, Sub }
@@ -46,8 +46,7 @@ contract ERC1155PackedBalance is IERC165 {
   event TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _amount);
   event TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _amounts);
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
-  event URI(string _value, uint256 indexed _id);
-
+  event URI(string _uri, uint256 indexed _id);
 
   /***********************************|
   |     Public Transfer Functions     |
