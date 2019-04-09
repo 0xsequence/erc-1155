@@ -15,6 +15,8 @@ export class ERC1155MetaMintBurnMock extends Contract {
 
     supportsInterface(_interfaceID: string): Promise<boolean>;
 
+    uri(_id: number | string | BigNumber): Promise<string>;
+
     getNonce(_signer: string): Promise<BigNumber>;
 
     balanceOfBatch(
@@ -90,11 +92,10 @@ export class ERC1155MetaMintBurnMock extends Contract {
       _values: (number | string | BigNumber)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
-
-    ERC1155_BATCH_RECEIVED_VALUE(): Promise<string>;
-    ERC1155_RECEIVED_VALUE(): Promise<string>;
   };
   filters: {
+    URI(_uri: null, _id: number | string | BigNumber | null): EventFilter;
+
     TransferSingle(
       _operator: string | null,
       _from: string | null,

@@ -61,4 +61,12 @@ contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MetaPackedBalance, ERC11
     super._batchBurn(_from, _ids, _values);
   }
 
+  /***********************************|
+  |       Unsupported Functions       |
+  |__________________________________*/
+
+  function () external {
+    revert('ERC1155MetaMintBurnPackedBalanceMock: INVALID_METHOD');
+  }
+
 }

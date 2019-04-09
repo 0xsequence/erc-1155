@@ -10,6 +10,7 @@ import "./ERC1155PackedBalance.sol";
  */ 
 contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance { 
 
+
   /****************************************|
   |            Minting Functions           |
   |_______________________________________*/

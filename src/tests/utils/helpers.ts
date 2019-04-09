@@ -42,8 +42,8 @@ export const GasReceiptType = `tuple(
     uint256 gasLimit,
     uint256 baseGas,
     uint256 gasPrice,
-    uint256 feeToken,
-    address feeRecipient
+    address feeRecipient,
+    bytes feeTokenData
   )`
 
 // Will encode a gasReceipt
@@ -66,9 +66,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, gasReceip
    * 
    *  4. No gasReceipt without transferData
    *   txData: ('0x3fed7708', signature)
-   */  
-
-
+   */ 
 
   let sigData;     // Data to sign
   let metaTag;     // meta transaction tag
@@ -84,6 +82,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, gasReceip
     'uint256', 
     'uint256',
     ];
+  
 
   let signer = await s.signerWallet.getAddress()
 
@@ -105,7 +104,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, gasReceip
 
     // 1. 
     if (s.transferData !== null) {
-      let gasAndTransferData = defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, s.transferData])      
+      let gasAndTransferData = defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, s.transferData])   
       sigData = ethers.utils.solidityPack(['bytes', 'bytes'], [sigData, gasAndTransferData])
       sig = await ethSign(s.signerWallet, sigData)
       return  defaultAbiCoder.encode(txDataTypes, [metaTag, sig, gasAndTransferData])
@@ -122,7 +121,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, gasReceip
     metaTag = '0x3fed7708'
 
     // 3.
-    if (s.transferData !== null) { 
+    if (s.transferData !== null) {
       sigData = ethers.utils.solidityPack(['bytes', 'bytes'], [sigData, s.transferData])
       sig = await ethSign(s.signerWallet, sigData)
       return  defaultAbiCoder.encode(txDataTypes, [metaTag, sig, s.transferData])

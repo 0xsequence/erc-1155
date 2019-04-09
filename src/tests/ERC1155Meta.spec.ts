@@ -17,6 +17,7 @@ import { toUtf8Bytes, bigNumberify, BigNumber } from 'ethers/utils'
 import { ERC1155MetaMintBurnMock } from 'typings/contracts/ERC1155MetaMintBurnMock'
 import { ERC1155ReceiverMock } from 'typings/contracts/ERC1155ReceiverMock'
 import { ERC1155OperatorMock } from 'typings/contracts/ERC1155OperatorMock'
+import { ERC20Mock } from 'typings/contracts/ERC20Mock'
 import { 
   GasReceipt, 
   TransferSignature, 
@@ -101,7 +102,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
     let isGasReceipt: boolean = true;
     let feeTokenInitBalance = new BigNumber(100000000);
     
-    let feeIsERC1155 = true
+    let feeType = 0 // ERC-1155
     let feeToken : BigNumber;
     let feeTokenAddress : string
     let feeTokenDataERC1155: string | Uint8Array
@@ -110,10 +111,9 @@ contract('ERC1155Meta', (accounts: string[]) => {
     let gasReceipt : GasReceipt | null;
     let data : string;
 
-
     let conditions = [
       [transferData, true, 'Gas receipt & transfer data'],  
-      [null, true, 'Gas receipt w/o transfer data'], 
+      [null, true, 'Gas receipt w/o transfer data'],
       [transferData, false, 'Transfer data w/o gas receipt '],  
       [null, false, 'No Gas receipt & No transfer data']  
     ]
@@ -135,8 +135,8 @@ contract('ERC1155Meta', (accounts: string[]) => {
           feeTokenAddress = erc1155Contract.address
 
           feeTokenDataERC1155 = ethers.utils.defaultAbiCoder.encode(
-            ['bool', 'address', 'uint256'], 
-            [feeIsERC1155,  feeTokenAddress,  feeTokenID]
+            ['address', 'uint256', 'uint8'], 
+            [feeTokenAddress, feeTokenID, feeType]
           )
 
           // Gas Receipt
@@ -147,7 +147,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             feeRecipient: operatorAddress,
             feeTokenData: feeTokenDataERC1155,
           }
-
+            
           // fee token in uint
           feeToken = new BigNumber(feeTokenID)
 
@@ -305,13 +305,13 @@ contract('ERC1155Meta', (accounts: string[]) => {
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateTransferSignature: INVALID_SIGNATURE") )  
         })
 
-        it.only("should PASS if signature is valid", async () => {
+        it("should PASS if signature is valid", async () => {
           // @ts-ignore
           const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
           await expect(tx).to.be.fulfilled
         })
 
-        it.only('should pass if no gas receipt and no transfer data is included, with 0x3fed7708 as a flag', async () => {
+        it('should pass if no gas receipt and no transfer data is included, with 0x3fed7708 as a flag', async () => {
           transferObj.transferData = toUtf8Bytes('');
           data = await encodeMetaTransferFromData(transferObj)
 
@@ -461,6 +461,168 @@ contract('ERC1155Meta', (accounts: string[]) => {
               const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
               await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateTransferSignature: INVALID_SIGNATURE") )
             })
+
+            it("should PASS if another approved ERC-1155 is used for fee", async () => {
+              let erc1155Contract2 = await erc1155Abstract.deploy(ownerWallet) as ERC1155MetaMintBurnMock
+              await erc1155Contract2.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance)
+              await erc1155Contract2.functions.setApprovalForAll(operatorERC1155Contract.address, true)
+    
+              feeTokenDataERC1155 = ethers.utils.defaultAbiCoder.encode(
+                ['address', 'uint256', 'uint8'], 
+                [erc1155Contract2.address, feeTokenID, 0]
+              )
+    
+              gasReceipt = {gasLimit: 10000, baseGas: 1000, gasPrice: 1, 
+                feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC1155
+              }
+    
+              // Check if gas receipt is included
+              gasReceipt = isGasReceipt ? gasReceipt : null
+    
+              // Data to pass in transfer method
+              data = await encodeMetaTransferFromData(transferObj, gasReceipt)
+    
+              // @ts-ignore
+              const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data, 
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.fulfilled
+            })
+
+            it("should REVERT if NOT approved ERC-1155 is used for fee", async () => {
+              let erc1155Contract2 = await erc1155Abstract.deploy(ownerWallet) as ERC1155MetaMintBurnMock
+              await erc1155Contract2.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance)
+    
+              feeTokenDataERC1155 = ethers.utils.defaultAbiCoder.encode(
+                ['address', 'uint256', 'uint8'], 
+                [erc1155Contract2.address, feeTokenID, 0]
+              )
+    
+              gasReceipt = {gasLimit: 10000, baseGas: 1000, gasPrice: 1, 
+                feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC1155
+              }
+    
+              // Check if gas receipt is included
+              gasReceipt = isGasReceipt ? gasReceipt : null
+    
+              // Data to pass in transfer method
+              data = await encodeMetaTransferFromData(transferObj, gasReceipt)
+    
+              // @ts-ignore
+              const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data, 
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.rejectedWith(RevertError('ERC1155#safeTransferFrom: INVALID_OPERATOR'))
+            })
+
+            it("should REVERT if another ERC-1155 is used for fee without sufficient balance", async () => {
+              let erc1155Contract2 = await erc1155Abstract.deploy(ownerWallet) as ERC1155MetaMintBurnMock
+              await erc1155Contract2.functions.mintMock(ownerAddress, feeTokenID, 100)
+              await erc1155Contract2.functions.setApprovalForAll(operatorERC1155Contract.address, true)
+    
+              feeTokenDataERC1155 = ethers.utils.defaultAbiCoder.encode(
+                ['address', 'uint256', 'uint8'], 
+                [erc1155Contract2.address, feeTokenID, 0]
+              )
+    
+              gasReceipt = {gasLimit: 10000, baseGas: 1000, gasPrice: 1, 
+                feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC1155
+              }
+    
+              // Check if gas receipt is included
+              gasReceipt = isGasReceipt ? gasReceipt : null
+    
+              // Data to pass in transfer method
+              data = await encodeMetaTransferFromData(transferObj, gasReceipt)
+    
+              // @ts-ignore
+              const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data, 
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
+            })
+
+            it("should PASS if approved ERC20 is used for fee", async () => {
+              let erc20Abstract = await AbstractContract.fromArtifactName('ERC20Mock')
+              let erc20Contract = await erc20Abstract.deploy(ownerWallet) as ERC20Mock
+              await erc20Contract.functions.mockMint(ownerAddress, feeTokenInitBalance)
+              await erc20Contract.functions.approve(operatorERC1155Contract.address, feeTokenInitBalance)
+    
+              let feeTokenDataERC20 = ethers.utils.defaultAbiCoder.encode(
+                ['address', 'uint8'], [erc20Contract.address, 1]
+              )
+    
+              gasReceipt = {gasLimit: 10000, baseGas: 1000, gasPrice: 1, 
+                feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
+              }
+    
+              // Check if gas receipt is included
+              gasReceipt = isGasReceipt ? gasReceipt : null
+    
+              // Data to pass in transfer method
+              data = await encodeMetaTransferFromData(transferObj, gasReceipt)
+    
+              // @ts-ignore
+              const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data, 
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.fulfilled
+            })
+
+            it("should REVERT if NOT approved ERC20 is used for fee", async () => {
+              let erc20Abstract = await AbstractContract.fromArtifactName('ERC20Mock')
+              let erc20Contract = await erc20Abstract.deploy(ownerWallet) as ERC20Mock
+              await erc20Contract.functions.mockMint(ownerAddress, feeTokenInitBalance)
+    
+              let feeTokenDataERC20 = ethers.utils.defaultAbiCoder.encode(
+                ['address', 'uint8'], [erc20Contract.address, 1]
+              )
+    
+              gasReceipt = {gasLimit: 10000, baseGas: 1000, gasPrice: 1, 
+                feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
+              }
+    
+              // Check if gas receipt is included
+              gasReceipt = isGasReceipt ? gasReceipt : null
+    
+              // Data to pass in transfer method
+              data = await encodeMetaTransferFromData(transferObj, gasReceipt)
+    
+              // @ts-ignore
+              const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data, 
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.rejected
+            })
+
+            it("should REVERT if approved ERC20 balance is insufficient", async () => {
+              let erc20Abstract = await AbstractContract.fromArtifactName('ERC20Mock')
+              let erc20Contract = await erc20Abstract.deploy(ownerWallet) as ERC20Mock
+              await erc20Contract.functions.mockMint(ownerAddress, 100)
+              await erc20Contract.functions.approve(operatorERC1155Contract.address, feeTokenInitBalance)
+
+    
+              let feeTokenDataERC20 = ethers.utils.defaultAbiCoder.encode(
+                ['address', 'uint8'], [erc20Contract.address, 1]
+              )
+    
+              gasReceipt = {gasLimit: 10000, baseGas: 1000, gasPrice: 1, 
+                feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
+              }
+    
+              // Check if gas receipt is included
+              gasReceipt = isGasReceipt ? gasReceipt : null
+    
+              // Data to pass in transfer method
+              data = await encodeMetaTransferFromData(transferObj, gasReceipt)
+    
+              // @ts-ignore
+              const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data, 
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.rejected
+            })
+
           })
 
           context('When successful transfer', () => {
@@ -560,15 +722,16 @@ contract('ERC1155Meta', (accounts: string[]) => {
     let METATRANSFER_IDENTIFIER = '0xebc71fa5';
     
     let transferData: string | null = 'Hello from the other side'
-    let isGasReceipt: boolean = true;
-    let feeTokenInitBalance = new BigNumber(100000000);
     let initBalance = 100;
     let amount = 10;
     let nonce = 0;
+    
+    let isGasReceipt: boolean = true;
+    let feeTokenInitBalance = new BigNumber(100000000);
 
-    let feeIsERC1155: true
+    let feeType = 0
+    let feeToken: BigNumber;
     let feeTokenID = 666
-
     let feeTokenAddress: string;
     let feeTokenDataERC1155: string | Uint8Array
 
@@ -578,7 +741,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
     let transferObj: BatchTransferSignature;
     let gasReceipt : GasReceipt | null;
-    let feeToken : BigNumber;
     let data : string;
 
     let conditions = [
@@ -615,9 +777,12 @@ contract('ERC1155Meta', (accounts: string[]) => {
           feeTokenAddress = erc1155Contract.address
 
           feeTokenDataERC1155 = ethers.utils.defaultAbiCoder.encode(
-            ['bool', 'address', 'uint256'], 
-            [feeIsERC1155,  feeTokenAddress,  feeTokenID]
+            ['address', 'uint256', 'uint8'], 
+            [feeTokenAddress,  feeTokenID, feeType]
           )
+
+          // fee token in uint
+          feeToken = new BigNumber(feeTokenID)
 
           // Gas Receipt
           gasReceipt = {
@@ -627,9 +792,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
             feeRecipient: operatorAddress,
             feeTokenData: feeTokenDataERC1155,
           }
-
-          // Convert to uint representation
-          feeToken = new BigNumber(feeTokenID)
 
           // Check if gas receipt is included
           gasReceipt = isGasReceipt ? gasReceipt : null
@@ -646,7 +808,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           }
 
           // Mint tokens used to pay for gas
-          await erc1155Contract.functions.mintMock(ownerAddress, feeToken, feeTokenInitBalance)
+          await erc1155Contract.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance)
 
           // Data to pass in transfer method
           data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
@@ -1049,17 +1211,17 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
   describe('metaSetApprovalForAll() function', () => {
 
-    let feeTokenInitBalance = new BigNumber(100000000);
     let initBalance = 100;
-    let isGasReimbursed = true;
     let approved = true;
     let nonce = 0;
     let id = 66;
-
-    let feeIsERC1155: true
+    
+    let isGasReceipt = true;
+    let isGasReimbursed = true;
+    let feeTokenInitBalance = new BigNumber(100000000);
+    let feeType = 0
     let feeTokenID = 666
 
-    let isGasReceipt: boolean;
     let feeTokenAddress: string;
     let feeTokenDataERC1155: string | Uint8Array
     let approvalObj: ApprovalSignature;
@@ -1080,8 +1242,8 @@ contract('ERC1155Meta', (accounts: string[]) => {
           feeTokenAddress = erc1155Contract.address
 
           feeTokenDataERC1155 = ethers.utils.defaultAbiCoder.encode(
-            ['bool', 'address', 'uint256'], 
-            [feeIsERC1155,  feeTokenAddress,  feeTokenID]
+            ['address', 'uint256', 'uint8'], 
+            [feeTokenAddress,  feeTokenID, feeType]
           )
 
           // Gas Receipt
