@@ -210,21 +210,6 @@ contract ERC1155 is IERC165 {
 
 
   /***********************************|
-  |         Metadata Functions        |
-  |__________________________________*/
-
-  /**
-  * @notice A distinct Uniform Resource Identifier (URI) for a given token.
-  *    @dev URIs are defined in RFC 3986.
-  *    The URI may point to a JSON file that conforms to the "ERC-1155 Metadata JSON Schema".
-  *    @return URI string
-  */
-  function uri(uint256 _id) external view returns (string memory) {
-    return "https://example.com/token/+tokenID";
-  }
-
-
-  /***********************************|
   |          ERC165 Functions         |
   |__________________________________*/
 

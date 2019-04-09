@@ -20,8 +20,6 @@ export class ERC1155 extends Contract {
       _ids: (number | string | BigNumber)[]
     ): Promise<(BigNumber)[]>;
 
-    uri(_id: number | string | BigNumber): Promise<string>;
-
     supportsInterface(_interfaceID: string): Promise<boolean>;
 
     safeTransferFrom(

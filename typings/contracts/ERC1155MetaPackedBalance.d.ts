@@ -15,8 +15,6 @@ export class ERC1155MetaPackedBalance extends Contract {
 
     supportsInterface(_interfaceID: string): Promise<boolean>;
 
-    uri(_id: number | string | BigNumber): Promise<string>;
-
     balanceOfBatch(
       _owners: (string)[],
       _ids: (number | string | BigNumber)[]

@@ -117,7 +117,5 @@ export class ERC1155MetaMintBurnMock extends Contract {
       _operator: string | null,
       _approved: null
     ): EventFilter;
-
-    URI(_uri: null, _id: number | string | BigNumber | null): EventFilter;
   };
 }
