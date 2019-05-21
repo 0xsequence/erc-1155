@@ -6,30 +6,9 @@ import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { TransactionOverrides } from ".";
 
-export class ERC1155OperatorMock extends Contract {
+export class IERC1155Meta extends Contract {
   functions: {
-    safeTransferFrom(
-      _tokenAddress: string,
-      _from: string,
-      _to: string,
-      _id: number | string | BigNumber,
-      _amount: number | string | BigNumber,
-      _data: (string)[],
-      overrides?: TransactionOverrides
-    ): Promise<ContractTransaction>;
-
-    safeBatchTransferFrom(
-      _tokenAddress: string,
-      _from: string,
-      _to: string,
-      _ids: (number | string | BigNumber)[],
-      _amounts: (number | string | BigNumber)[],
-      _data: (string)[],
-      overrides?: TransactionOverrides
-    ): Promise<ContractTransaction>;
-
     metaSafeTransferFrom(
-      _tokenAddress: string,
       _from: string,
       _to: string,
       _id: number | string | BigNumber,
@@ -40,7 +19,6 @@ export class ERC1155OperatorMock extends Contract {
     ): Promise<ContractTransaction>;
 
     metaSafeBatchTransferFrom(
-      _tokenAddress: string,
       _from: string,
       _to: string,
       _ids: (number | string | BigNumber)[],
@@ -51,7 +29,6 @@ export class ERC1155OperatorMock extends Contract {
     ): Promise<ContractTransaction>;
 
     metaSetApprovalForAll(
-      _tokenAddress: string,
       _owner: string,
       _operator: string,
       _approved: boolean,

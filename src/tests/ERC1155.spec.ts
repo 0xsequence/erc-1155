@@ -238,7 +238,7 @@ contract('ERC1155', (accounts: string[]) => {
     let receiverContract: ERC1155ReceiverMock
 
     beforeEach(async () => {
-      types  = [], values = []
+      types = [], values = []
 
       // Minting enough values for transfer for each types
       for (let i = 0; i < nTokenTypes; i++) {
@@ -252,7 +252,7 @@ contract('ERC1155', (accounts: string[]) => {
     })
 
     it('should be able to transfer if sufficient balances', async () => {
-      const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [0, 15, 30], [1, 9, 10], [])
+      const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, types, values, [])
       await expect(tx).to.be.fulfilled
     })
 

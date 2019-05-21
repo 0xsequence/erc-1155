@@ -87,10 +87,9 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
 
 
-  describe('safeTransferFrom() (Meta) Function', () => {
+  describe('metaSafeTransferFrom() (Meta) Function', () => {
     let receiverContract: ERC1155ReceiverMock
     let operatorContract: ERC1155OperatorMock
-    let METATRANSFER_IDENTIFIER = '0xebc71fa5';
     
     let transferData: string | null = 'Hello from the other side'
     let initBalance = 100;
@@ -175,40 +174,16 @@ contract('ERC1155Meta', (accounts: string[]) => {
           data = await encodeMetaTransferFromData(transferObj, gasReceipt)
         })
 
-        it('should call parent function if empty data', async () => {
-          let dataUint8 = toUtf8Bytes("")
 
-          // Check if data lelngth is less than 4
-          expect(ethers.utils.arrayify(dataUint8).length).to.be.at.most(3)
-
-          // NOTE: typechain generates the wrong type for `bytes` type at this time
-          // see https://github.com/ethereum-ts/TypeChain/issues/123
-          // @ts-ignore
-          const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverContract.address, id, amount, dataUint8)
-          await expect(tx).to.be.fulfilled
-        })
-
-        it('should call parent function if data without metaTransfer identifier', async () => {
+        it("should REVERT if data is 'random", async () => {
           let dataUint8 = toUtf8Bytes("Breakthroughs! over the river! flips and crucifixions! gone down the flood!")
-          let data = '0xebc71fa4' + bigNumberify(dataUint8).toHexString().slice(2)
-
-          // Check if data lelngth is more than 696
-          expect(ethers.utils.arrayify(data).length).to.be.at.least(70)
-    
-          // @ts-ignore
-          const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverContract.address, id, amount, data)
-          await expect(tx).to.be.fulfilled
-        })
-
-        it("should REVERT if data first 4 bytes are '0xebc71fa5' and random encoded data the rest", async () => {
-          let dataUint8 = toUtf8Bytes("Breakthroughs! over the river! flips and crucifixions! gone down the flood!")
-          let data = METATRANSFER_IDENTIFIER + bigNumberify(dataUint8).toHexString().slice(2)
+          let data = bigNumberify(dataUint8).toHexString()
 
           // Check if data lelngth is more than 69
           expect(ethers.utils.arrayify(data).length).to.be.at.least(70)
 
           // @ts-ignore
-          const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverContract.address, id, amount, data)
+          const tx = erc1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejected;  
         })
 
@@ -217,7 +192,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           data = await encodeMetaTransferFromData(transferObj, gasReceipt)
 
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
+          const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateTransferSignature: INVALID_SIGNATURE") )    
         })
 
@@ -226,7 +201,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           data = await encodeMetaTransferFromData(transferObj, gasReceipt)
 
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
+          const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateTransferSignature: INVALID_SIGNATURE") )  
         })
 
@@ -235,7 +210,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           data = await encodeMetaTransferFromData(transferObj, gasReceipt)
 
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
+          const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateTransferSignature: INVALID_SIGNATURE") )  
         })
 
@@ -244,7 +219,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           data = await encodeMetaTransferFromData(transferObj, gasReceipt)
 
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
+          const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateTransferSignature: INVALID_SIGNATURE") )  
         })
 
@@ -253,13 +228,13 @@ contract('ERC1155Meta', (accounts: string[]) => {
           data = await encodeMetaTransferFromData(transferObj, gasReceipt)
 
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
+          const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateTransferSignature: INVALID_SIGNATURE") )  
         })
 
         it("should REVERT if transfer data is incorrect", async () => {
           const sigArgTypes = ['address', 'address', 'address', 'uint256', 'uint256', 'uint256'];
-          const txDataTypes = ['bytes4', 'bytes', 'bytes'];
+          const txDataTypes = ['bytes', 'bytes'];
         
           let signer = await transferObj.signerWallet.getAddress()
           
@@ -289,10 +264,10 @@ contract('ERC1155Meta', (accounts: string[]) => {
           let sig = await ethSign(transferObj.signerWallet, sigData)
         
           // PASS BAD DATA
-          data = ethers.utils.defaultAbiCoder.encode(txDataTypes, ['0xebc71fa5', sig, badGasAndTransferData])
+          data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [sig, badGasAndTransferData])
 
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
+          const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateTransferSignature: INVALID_SIGNATURE") )
         })
 
@@ -301,24 +276,14 @@ contract('ERC1155Meta', (accounts: string[]) => {
           data = await encodeMetaTransferFromData(transferObj, gasReceipt)
 
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
+          const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateTransferSignature: INVALID_SIGNATURE") )  
         })
 
         it("should PASS if signature is valid", async () => {
-          // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
+          //@ts-ignore
+          const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.fulfilled
-        })
-
-        it('should pass if no gas receipt and no transfer data is included, with 0x3fed7708 as a flag', async () => {
-          transferObj.transferData = toUtf8Bytes('');
-          data = await encodeMetaTransferFromData(transferObj)
-
-          // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
-          await expect(tx).to.be.fulfilled
-
         })
 
         describe('When signature is valid', () => {
@@ -328,7 +293,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             data = await encodeMetaTransferFromData(transferObj, gasReceipt)
 
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, initBalance+1, data)
+            const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, initBalance+1, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") ) 
           })
 
@@ -337,14 +302,14 @@ contract('ERC1155Meta', (accounts: string[]) => {
             data = await encodeMetaTransferFromData(transferObj, gasReceipt)
 
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, ZERO_ADDRESS, id, amount, data)
-            await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#safeTransferFrom: INVALID_RECIPIENT") ) 
+            const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, ZERO_ADDRESS, id, amount, isGasReceipt, data)
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#metaSafeTransferFrom: INVALID_RECIPIENT") ) 
           })
 
           it('should REVERT if transfer leads to overflow', async () => {
             await erc1155Contract.functions.mintMock(receiverAddress, id, MAXVAL)
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
+            const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("SafeMath#add: OVERFLOW") ) 
           })
 
@@ -353,7 +318,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             data = await encodeMetaTransferFromData(transferObj, gasReceipt)
 
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, erc1155Contract.address, id, amount, data)
+            const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, erc1155Contract.address, id, amount, isGasReceipt, data)
             await expect(tx).to.be.rejected 
           })
 
@@ -365,7 +330,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             await receiverContract.functions.setShouldReject(true)
 
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverContract.address, id, amount, data)
+            const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("ERC1155#_safeTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
           })
 
@@ -374,7 +339,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             data = await encodeMetaTransferFromData(transferObj, gasReceipt)
 
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverContract.address, id, amount, data)
+            const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data)
             
             //await expect(tx).to.be.fulfilled
             await expect(tx).to.be.fulfilled
@@ -396,7 +361,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
               data = await encodeMetaTransferFromData(transferObj, gasReceipt)
 
               // @ts-ignore
-              await operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
+              await operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
 
               let senderBalance = await erc1155Contract.functions.balanceOf(ownerAddress, feeToken)
               let executorBalance = await erc1155Contract.functions.balanceOf(operatorAddress, feeToken)
@@ -411,7 +376,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
               data = await encodeMetaTransferFromData(transferObj, gasReceipt)
 
               // @ts-ignore
-              await receiverERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
+              await receiverERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
 
               let receiverBalance = await erc1155Contract.functions.balanceOf(receiverAddress, feeToken)
 
@@ -420,7 +385,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
             it("should send gas fee to specified fee recipient (if not 0x0), not tx.origin", async () => {
               // @ts-ignore
-              await receiverERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
+              await receiverERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
               let operatorBalance = await erc1155Contract.functions.balanceOf(operatorAddress, feeToken)
 
               expect(gasReceipt!.baseGas).to.be.lessThan(operatorBalance.toNumber())
@@ -428,7 +393,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
             it("should REVERT if gasReceipt is incorrect", async () => {
               const sigArgTypes = ['address', 'address', 'address', 'uint256', 'uint256', 'uint256'];
-              const txDataTypes = ['bytes4', 'bytes', 'bytes'];
+              const txDataTypes = ['bytes', 'bytes'];
             
               let signer = await transferObj.signerWallet.getAddress()
               
@@ -455,10 +420,10 @@ contract('ERC1155Meta', (accounts: string[]) => {
               let sig = await ethSign(transferObj.signerWallet, sigData)
             
               // PASS BAD DATA
-              data = ethers.utils.defaultAbiCoder.encode(txDataTypes, ['0xebc71fa5', sig, badGasAndTransferData])
+              data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [sig, badGasAndTransferData])
   
               // @ts-ignore
-              const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
               await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateTransferSignature: INVALID_SIGNATURE") )
             })
 
@@ -483,7 +448,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
               data = await encodeMetaTransferFromData(transferObj, gasReceipt)
     
               // @ts-ignore
-              const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data, 
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
               await expect(tx).to.be.fulfilled
@@ -509,7 +474,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
               data = await encodeMetaTransferFromData(transferObj, gasReceipt)
     
               // @ts-ignore
-              const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data, 
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
               await expect(tx).to.be.rejectedWith(RevertError('ERC1155#safeTransferFrom: INVALID_OPERATOR'))
@@ -536,7 +501,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
               data = await encodeMetaTransferFromData(transferObj, gasReceipt)
     
               // @ts-ignore
-              const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data, 
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
               await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
@@ -563,7 +528,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
               data = await encodeMetaTransferFromData(transferObj, gasReceipt)
     
               // @ts-ignore
-              const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data, 
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
               await expect(tx).to.be.fulfilled
@@ -589,7 +554,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
               data = await encodeMetaTransferFromData(transferObj, gasReceipt)
     
               // @ts-ignore
-              const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data, 
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
               await expect(tx).to.be.rejected
@@ -617,7 +582,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
               data = await encodeMetaTransferFromData(transferObj, gasReceipt)
     
               // @ts-ignore
-              const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data, 
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
               await expect(tx).to.be.rejected
@@ -630,7 +595,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
             beforeEach(async () => {
               //@ts-ignore
-              tx = await operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, id, amount, data)
+              tx = await operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
             })
 
             it('should correctly update balance of sender', async () => {
@@ -692,7 +657,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
                 // Execute transfer from operator contract
                 // @ts-ignore (https://github.com/ethereum-ts/TypeChain/issues/118)
-                await operatorContract.functions.safeTransferFrom(erc1155Contract.address, ownerAddress, receiverAddress, id, amount, data,
+                await operatorContract.functions.metaSafeTransferFrom(erc1155Contract.address, ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                   {gasLimit: 1000000} // INCORRECT GAS ESTIMATION
                 )
 
@@ -716,7 +681,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
 
 
-  describe('safeBatchTransferFrom() (Meta) Function', () => {
+  describe('metaSafeBatchTransferFrom() Function', () => {
     let receiverContract: ERC1155ReceiverMock
     let operatorContract: ERC1155OperatorMock
     let METATRANSFER_IDENTIFIER = '0xebc71fa5';
@@ -814,50 +779,12 @@ contract('ERC1155Meta', (accounts: string[]) => {
           data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
         })
 
-        it('should call parent function if empty data', async () => {
-          let dataUint8 = toUtf8Bytes("")
-          data = '0xebc71fa4' + bigNumberify(dataUint8).toHexString().slice(2)
-
-          // Check if data lelngth is less than 70
-          expect(ethers.utils.arrayify(data).length).to.be.at.most(69)
-
-          // NOTE: typechain generates the wrong type for `bytes` type at this time
-          // see https://github.com/ethereum-ts/TypeChain/issues/123
-          // @ts-ignore
-          const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
-          await expect(tx).to.be.fulfilled
-        })
-
-        it('should call parent function if data without metaTransfer identifier', async () => {
-          let dataUint8 = toUtf8Bytes("Breakthroughs! over the river! flips and crucifixions! gone down the flood!")
-          let data = '0xebc71fa4' + bigNumberify(dataUint8).toHexString().slice(2)
-
-          // Check if data lelngth is more than 696
-          expect(ethers.utils.arrayify(data).length).to.be.at.least(70)
-    
-          // @ts-ignore
-          const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
-          await expect(tx).to.be.fulfilled
-        })
-
-        it("should REVERT if data first 4 bytes are '0xebc71fa5' and random encoded data the rest", async () => {
-          let dataUint8 = toUtf8Bytes("Breakthroughs! over the river! flips and crucifixions! gone down the flood!")
-          let data = METATRANSFER_IDENTIFIER + bigNumberify(dataUint8).toHexString().slice(2)
-
-          // Check if data lelngth is more than 69
-          expect(ethers.utils.arrayify(data).length).to.be.at.least(70)
-
-          // @ts-ignore
-          const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
-          await expect(tx).to.be.rejected
-        })
-
         it("should REVERT if contract address is incorrect", async () => {
           transferObj.contractAddress = receiverContract.address;
           data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
 
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+          const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateBatchTransferSignature: INVALID_SIGNATURE") )    
         })
 
@@ -866,7 +793,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
 
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+          const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateBatchTransferSignature: INVALID_SIGNATURE") )  
         })
 
@@ -875,7 +802,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
 
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+          const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateBatchTransferSignature: INVALID_SIGNATURE") )  
         })
 
@@ -884,7 +811,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
 
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+          const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateBatchTransferSignature: INVALID_SIGNATURE") )  
         })
 
@@ -893,13 +820,13 @@ contract('ERC1155Meta', (accounts: string[]) => {
           data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
 
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+          const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateBatchTransferSignature: INVALID_SIGNATURE") )  
         })
 
         it("should REVERT if transfer data is incorrect", async () => {
           const sigArgTypes = ['address', 'address', 'address', 'uint256', 'uint256', 'uint256'];
-          const txDataTypes = ['bytes4', 'bytes', 'bytes'];
+          const txDataTypes = ['bytes', 'bytes'];
         
           let signer = await transferObj.signerWallet.getAddress()
           
@@ -929,10 +856,10 @@ contract('ERC1155Meta', (accounts: string[]) => {
           let sig = await ethSign(transferObj.signerWallet, sigData)
         
           // PASS BAD DATA
-          data = ethers.utils.defaultAbiCoder.encode(txDataTypes, ['0xebc71fa5', sig, badGasAndTransferData])
+          data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [sig, badGasAndTransferData])
 
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+          const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateBatchTransferSignature: INVALID_SIGNATURE") )
         })
 
@@ -941,25 +868,16 @@ contract('ERC1155Meta', (accounts: string[]) => {
           data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
 
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+          const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateBatchTransferSignature: INVALID_SIGNATURE") )  
         })
 
         it("should PASS if signature is valid", async () => {
           // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+          const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.fulfilled
         })
 
-        it('should pass if no gas receipt and no transfer data is included, with 0x3fed7708 as a flag', async () => {
-          transferObj.transferData = toUtf8Bytes('');
-          data = await encodeMetaBatchTransferFromData(transferObj)
-
-          // @ts-ignore
-          const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
-          await expect(tx).to.be.fulfilled
-
-        })
 
         describe('When signature is valid', () => {
 
@@ -969,7 +887,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
 
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+            const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") ) 
           })
 
@@ -978,14 +896,14 @@ contract('ERC1155Meta', (accounts: string[]) => {
             data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
 
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, ZERO_ADDRESS, ids, amounts, data)
-            await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#safeBatchTransferFrom: INVALID_RECIPIENT") ) 
+            const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, ZERO_ADDRESS, ids, amounts, isGasReceipt, data)
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#metaSafeBatchTransferFrom: INVALID_RECIPIENT") ) 
           })
 
           it('should REVERT if transfer leads to overflow', async () => {
             await operatorERC1155Contract.functions.mintMock(receiverAddress, ids[0], MAXVAL)
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+            const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("SafeMath#add: OVERFLOW") ) 
           })
 
@@ -994,7 +912,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
 
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, erc1155Contract.address, ids, amounts, data)
+            const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, erc1155Contract.address, ids, amounts, isGasReceipt, data)
             await expect(tx).to.be.rejected;
           })
 
@@ -1006,7 +924,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             await receiverContract.functions.setShouldReject(true)
 
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, data)
+            const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("ERC1155#_safeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
           })
 
@@ -1015,7 +933,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
 
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, data)
+            const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, isGasReceipt, data)
 
             //await expect(tx).to.be.fulfilled
             await expect(tx).to.be.fulfilled
@@ -1037,7 +955,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
               data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
 
               // @ts-ignore
-              await operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+              await operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
 
               let senderBalance = await operatorERC1155Contract.functions.balanceOf(ownerAddress, feeToken)
               let executorBalance = await operatorERC1155Contract.functions.balanceOf(operatorAddress, feeToken)
@@ -1052,7 +970,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
               data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
 
               // @ts-ignore
-              await receiverERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+              await receiverERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
 
               let receiverBalance = await operatorERC1155Contract.functions.balanceOf(receiverAddress, feeToken)
 
@@ -1061,7 +979,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
             it("should send gas fee to specified fee recipient (if not 0x0), not tx.origin", async () => {
               // @ts-ignore
-              await operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+              await operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
               let operatorBalance = await operatorERC1155Contract.functions.balanceOf(operatorAddress, feeToken)
 
               expect(gasReceipt!.baseGas).to.be.lessThan(operatorBalance.toNumber())
@@ -1069,7 +987,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
             it("should REVERT if gasReceipt is incorrect", async () => {
               const sigArgTypes = ['address', 'address', 'address', 'uint256', 'uint256', 'uint256'];
-              const txDataTypes = ['bytes4', 'bytes', 'bytes'];
+              const txDataTypes = ['bytes', 'bytes'];
             
               let signer = await transferObj.signerWallet.getAddress()
               
@@ -1095,10 +1013,10 @@ contract('ERC1155Meta', (accounts: string[]) => {
               let sig = await ethSign(transferObj.signerWallet, sigData)
             
               // PASS BAD DATA
-              data = ethers.utils.defaultAbiCoder.encode(txDataTypes, ['0xebc71fa5', sig, badGasAndTransferData])
+              data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [sig, badGasAndTransferData])
   
               // @ts-ignore
-              const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+              const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
               await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_validateBatchTransferSignature: INVALID_SIGNATURE") )
             })
           })
@@ -1108,7 +1026,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
             beforeEach(async () => {
               //@ts-ignore
-              tx = await operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, data)
+              tx = await operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
             })
 
             it('should correctly update balance of sender and receiver', async () => {
@@ -1182,7 +1100,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
         
                 // Execute transfer from operator contract
                 // @ts-ignore (https://github.com/ethereum-ts/TypeChain/issues/118)
-                await operatorContract.functions.safeBatchTransferFrom(erc1155Contract.address, ownerAddress, receiverAddress, ids, amounts, data, 
+                await operatorContract.functions.metaSafeBatchTransferFrom(erc1155Contract.address, ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data, 
                   {gasLimit: 2000000} // INCORRECT GAS ESTIMATION
                 )
         

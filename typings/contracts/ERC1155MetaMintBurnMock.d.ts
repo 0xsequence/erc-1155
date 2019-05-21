@@ -47,6 +47,26 @@ export class ERC1155MetaMintBurnMock extends Contract {
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
+    metaSafeBatchTransferFrom(
+      _from: string,
+      _to: string,
+      _ids: (number | string | BigNumber)[],
+      _amounts: (number | string | BigNumber)[],
+      _isGasFee: boolean,
+      _data: (string)[],
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
+    metaSafeTransferFrom(
+      _from: string,
+      _to: string,
+      _id: number | string | BigNumber,
+      _amount: number | string | BigNumber,
+      _isGasFee: boolean,
+      _data: (string)[],
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
     safeTransferFrom(
       _from: string,
       _to: string,
@@ -60,7 +80,7 @@ export class ERC1155MetaMintBurnMock extends Contract {
       _owner: string,
       _operator: string,
       _approved: boolean,
-      _isGasReimbursed: boolean,
+      _isGasFee: boolean,
       _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;

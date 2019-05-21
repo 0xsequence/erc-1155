@@ -6,10 +6,16 @@ import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { TransactionOverrides } from ".";
 
-export class Ownable extends Contract {
+export class OwnableMock extends Contract {
   functions: {
     transferOwnership(
       _newOwner: string,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
+    ownerCall(overrides?: TransactionOverrides): Promise<ContractTransaction>;
+
+    nonOwnerCall(
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 

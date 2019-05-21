@@ -69,7 +69,6 @@ export async function encodeMetaTransferFromData(s: TransferSignature, gasReceip
    */ 
 
   let sigData;     // Data to sign
-  let metaTag;     // meta transaction tag
   let txDataTypes; // Types of data to encode
   let sig;         // Signature
 
@@ -96,42 +95,40 @@ export async function encodeMetaTransferFromData(s: TransferSignature, gasReceip
     s.nonce,
   ])
 
-  txDataTypes = ['bytes4', 'bytes', 'bytes']; // (metaTag, sig, (gasReceipt, transferData))
+  txDataTypes = ['bytes', 'bytes']; // (sig, (gasReceipt, transferData))
 
   // When gas receipt is included
   if (gasReceipt && gasReceipt !== null) {
-    metaTag = '0xebc71fa5'
 
     // 1. 
     if (s.transferData !== null) {
       let gasAndTransferData = defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, s.transferData])   
       sigData = ethers.utils.solidityPack(['bytes', 'bytes'], [sigData, gasAndTransferData])
       sig = await ethSign(s.signerWallet, sigData)
-      return  defaultAbiCoder.encode(txDataTypes, [metaTag, sig, gasAndTransferData])
+      return  defaultAbiCoder.encode(txDataTypes, [sig, gasAndTransferData])
     
     // 2.
     } else {
       let gasAndTransferData = defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, toUtf8Bytes('')])
       sigData = ethers.utils.solidityPack(['bytes', 'bytes'], [sigData, gasAndTransferData])
       sig = await ethSign(s.signerWallet, sigData)
-      return  defaultAbiCoder.encode(txDataTypes, [metaTag, sig, gasAndTransferData])
+      return  defaultAbiCoder.encode(txDataTypes, [sig, gasAndTransferData])
     }
 
   } else { 
-    metaTag = '0x3fed7708'
 
     // 3.
     if (s.transferData !== null) {
       sigData = ethers.utils.solidityPack(['bytes', 'bytes'], [sigData, s.transferData])
       sig = await ethSign(s.signerWallet, sigData)
-      return  defaultAbiCoder.encode(txDataTypes, [metaTag, sig, s.transferData])
+      return  defaultAbiCoder.encode(txDataTypes, [sig, s.transferData])
     
     // 4.
     } else { 
       let emptyTransferData = defaultAbiCoder.encode(['bytes'], [toUtf8Bytes('')])
       sigData = ethers.utils.solidityPack(['bytes', 'bytes'], [sigData, emptyTransferData])
       sig = await ethSign(s.signerWallet, sigData)
-      return  defaultAbiCoder.encode(txDataTypes, [metaTag, sig, emptyTransferData])
+      return  defaultAbiCoder.encode(txDataTypes, [sig, emptyTransferData])
     }
 
   }
@@ -157,7 +154,6 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
 
 
   let sigData;     // Data to sign
-  let metaTag;     // meta transaction tag
   let txDataTypes; // Types of data to encode
   let sig;         // Signature
 
@@ -183,42 +179,40 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
     s.nonce,
   ])
 
-  txDataTypes = ['bytes4', 'bytes', 'bytes']; // (metaTag, sig, (gasReceipt, transferData))
+  txDataTypes = ['bytes', 'bytes']; // (sig, (gasReceipt, transferData))
 
   // When gas receipt is included
   if (gasReceipt && gasReceipt !== null) {
-    metaTag = '0xebc71fa5'
 
     // 1. 
     if (s.transferData !== null) {
       let gasAndTransferData = defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, s.transferData])      
       sigData = ethers.utils.solidityPack(['bytes', 'bytes'], [sigData, gasAndTransferData])
       sig = await ethSign(s.signerWallet, sigData)
-      return  defaultAbiCoder.encode(txDataTypes, [metaTag, sig, gasAndTransferData])
+      return  defaultAbiCoder.encode(txDataTypes, [sig, gasAndTransferData])
     
     // 2.
     } else {
       let gasAndTransferData = defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, toUtf8Bytes('')])
       sigData = ethers.utils.solidityPack(['bytes', 'bytes'], [sigData, gasAndTransferData])
       sig = await ethSign(s.signerWallet, sigData)
-      return  defaultAbiCoder.encode(txDataTypes, [metaTag, sig, gasAndTransferData])
+      return  defaultAbiCoder.encode(txDataTypes, [sig, gasAndTransferData])
     }
 
   } else { 
-    metaTag = '0x3fed7708'
 
     // 3.
     if (s.transferData !== null) { 
       sigData = ethers.utils.solidityPack(['bytes', 'bytes'], [sigData, s.transferData])
       sig = await ethSign(s.signerWallet, sigData)
-      return  defaultAbiCoder.encode(txDataTypes, [metaTag, sig, s.transferData])
+      return  defaultAbiCoder.encode(txDataTypes, [sig, s.transferData])
     
     // 4.
     } else { 
       let emptyTransferData = defaultAbiCoder.encode(['bytes'], [toUtf8Bytes('')])
       sigData = ethers.utils.solidityPack(['bytes', 'bytes'], [sigData, emptyTransferData])
       sig = await ethSign(s.signerWallet, sigData)
-      return  defaultAbiCoder.encode(txDataTypes, [metaTag, sig, emptyTransferData])
+      return  defaultAbiCoder.encode(txDataTypes, [sig, emptyTransferData])
     }
 
   }

@@ -75,7 +75,7 @@ interface IERC1155 {
    * @param _owner  The address of the token holder
    * @param _id     ID of the Token
    * @return        The _owner's balance of the Token type requested
-   */   
+   */
   function balanceOf(address _owner, uint256 _id) external view returns (uint256);
 
   /**
@@ -87,14 +87,14 @@ interface IERC1155 {
   function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids) external view returns (uint256[] memory);
 
   /**
-   * @notice Enable or disable approval for a third party ("operator") to manage all of caller's tokens 
-   * @dev MUST emit the ApprovalForAll event on success 
+   * @notice Enable or disable approval for a third party ("operator") to manage all of caller's tokens
+   * @dev MUST emit the ApprovalForAll event on success
    * @param _operator  Address to add to the set of authorized operators
    * @param _approved  True if the operator is approved, false to revoke approval
    */
   function setApprovalForAll(address _operator, bool _approved) external;
 
-  /** 
+  /**
    * @notice Queries the approval status of an operator for a given owner
    * @param _owner     The owner of the Tokens
    * @param _operator  Address of authorized operator

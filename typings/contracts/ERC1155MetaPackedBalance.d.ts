@@ -50,6 +50,15 @@ export class ERC1155MetaPackedBalance extends Contract {
 
     getNonce(_signer: string): Promise<BigNumber>;
 
+    safeBatchTransferFrom(
+      _from: string,
+      _to: string,
+      _ids: (number | string | BigNumber)[],
+      _amounts: (number | string | BigNumber)[],
+      _data: (string)[],
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
     setApprovalForAll(
       _operator: string,
       _approved: boolean,
@@ -65,11 +74,22 @@ export class ERC1155MetaPackedBalance extends Contract {
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
-    safeBatchTransferFrom(
+    metaSafeTransferFrom(
+      _from: string,
+      _to: string,
+      _id: number | string | BigNumber,
+      _amount: number | string | BigNumber,
+      _isGasFee: boolean,
+      _data: (string)[],
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
+    metaSafeBatchTransferFrom(
       _from: string,
       _to: string,
       _ids: (number | string | BigNumber)[],
       _amounts: (number | string | BigNumber)[],
+      _isGasFee: boolean,
       _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
@@ -78,7 +98,7 @@ export class ERC1155MetaPackedBalance extends Contract {
       _owner: string,
       _operator: string,
       _approved: boolean,
-      _isGasReimbursed: boolean,
+      _isGasFee: boolean,
       _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;

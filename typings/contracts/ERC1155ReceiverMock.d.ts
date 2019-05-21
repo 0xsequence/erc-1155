@@ -8,24 +8,26 @@ import { TransactionOverrides } from ".";
 
 export class ERC1155ReceiverMock extends Contract {
   functions: {
+    setShouldReject(
+      _value: boolean,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
     onERC1155Received(
       _operator: string,
       _from: string,
       _id: number | string | BigNumber,
       _value: number | string | BigNumber,
-      _data: (string)[]
-    ): Promise<string>;
+      _data: (string)[],
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
 
     onERC1155BatchReceived(
       _operator: string,
       _from: string,
       _ids: (number | string | BigNumber)[],
       _values: (number | string | BigNumber)[],
-      _data: (string)[]
-    ): Promise<string>;
-
-    setShouldReject(
-      _value: boolean,
+      _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 

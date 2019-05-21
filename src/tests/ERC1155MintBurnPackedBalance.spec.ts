@@ -89,7 +89,7 @@ contract('ERC1155MintBurnPackedBalance', (accounts: string[]) => {
       })
 
       it('should REVERT if amount is larger than limit', async () => {
-        const maxVal = 2**16
+        const maxVal = 2**32
         const tx = erc1155MintBurnContract.functions.mintMock(receiverAddress, tokenID, maxVal)
         await expect(tx).to.be.rejected
       })
