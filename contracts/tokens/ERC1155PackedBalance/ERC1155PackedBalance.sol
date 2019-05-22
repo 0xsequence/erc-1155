@@ -109,6 +109,9 @@ contract ERC1155PackedBalance is IERC165 {
     //Update balances
     _updateIDBalance(_from, _id, _amount, Operations.Sub); // Subtract amount from sender
     _updateIDBalance(_to,   _id, _amount, Operations.Add); // Add amount to recipient
+
+    // Emit event
+    emit TransferSingle(msg.sender, _from, _to, _id, _amount);
       
     //Pass data if recipient is contract
     if (_to.isContract()) {
@@ -116,9 +119,6 @@ contract ERC1155PackedBalance is IERC165 {
       bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _amount, _data);
       require(retval == ERC1155_RECEIVED_VALUE, "ERC1155PackedBalance#_safeTransferFrom: INVALID_ON_RECEIVE_MESSAGE");
     }
-
-    // Emit event
-    emit TransferSingle(msg.sender, _from, _to, _id, _amount);
   }
 
   /**
@@ -130,7 +130,7 @@ contract ERC1155PackedBalance is IERC165 {
    * @param _amounts  Transfer amounts per token type
    * @param _data     Additional data with no specified format, sent in call to `_to`
    */
-  function _safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts, bytes memory _data) 
+  function _safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts, bytes memory _data)
     internal
   {
     require(_ids.length == _amounts.length, "ERC1155PackedBalance#_safeBatchTransferFrom: INVALID_ARRAYS_LENGTH");
@@ -175,13 +175,14 @@ contract ERC1155PackedBalance is IERC165 {
     balances[_from][bin] = balFrom;
     balances[_to][bin] = balTo;
 
+    // Emit event
+    emit TransferBatch(msg.sender, _from, _to, _ids, _amounts);
+
     // Pass data if recipient is contract
     if (_to.isContract()) {
       bytes4 retval = IERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender, _from, _ids, _amounts, _data);
       require(retval == ERC1155_BATCH_RECEIVED_VALUE, "ERC1155PackedBalance#_safeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE");
     }
-
-    emit TransferBatch(msg.sender, _from, _to, _ids, _amounts);
   }
 
 

@@ -9,7 +9,7 @@ import "../../utils/Address.sol";
 
 
 /**
- * @dev Implementation of Multi-Token Standard contract 
+ * @dev Implementation of Multi-Token Standard contract
  */
 contract ERC1155 is IERC165 {
   using SafeMath for uint256;
@@ -42,7 +42,7 @@ contract ERC1155 is IERC165 {
   |__________________________________*/
 
   /**
-   * @notice Transfers amount amount of an _id from the _from address to the _to address specified 
+   * @notice Transfers amount amount of an _id from the _from address to the _to address specified
    * @param _from    Source address
    * @param _to      Target address
    * @param _id      ID of the token type
@@ -97,14 +97,14 @@ contract ERC1155 is IERC165 {
     balances[_from][_id] = balances[_from][_id].sub(_amount); // Subtract amount
     balances[_to][_id] = balances[_to][_id].add(_amount);     // Add amount
 
+    // Emit event
+    emit TransferSingle(msg.sender, _from, _to, _id, _amount);
+
     // Check if recipient is contract
     if (_to.isContract()) {
       bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _amount, _data);
       require(retval == ERC1155_RECEIVED_VALUE, "ERC1155#_safeTransferFrom: INVALID_ON_RECEIVE_MESSAGE");
     }
-
-    // Emit event
-    emit TransferSingle(msg.sender, _from, _to, _id, _amount);
   }
 
   /**
@@ -127,8 +127,11 @@ contract ERC1155 is IERC165 {
     for (uint256 i = 0; i < nTransfer; i++) {
       // Update storage balance of previous bin
       balances[_from][_ids[i]] = balances[_from][_ids[i]].sub(_amounts[i]);
-      balances[_to][_ids[i]]   = balances[_to][_ids[i]].add(_amounts[i]);
+      balances[_to][_ids[i]] = balances[_to][_ids[i]].add(_amounts[i]);
     }
+
+    // Emit event
+    emit TransferBatch(msg.sender, _from, _to, _ids, _amounts);
 
     // Pass data if recipient is contract
     if (_to.isContract()) {
@@ -136,7 +139,6 @@ contract ERC1155 is IERC165 {
       require(retval == ERC1155_BATCH_RECEIVED_VALUE, "ERC1155#_safeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE");
     }
 
-    emit TransferBatch(msg.sender, _from, _to, _ids, _amounts);
   }
 
 

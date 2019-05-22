@@ -16,7 +16,7 @@ import "../../utils/SignatureValidator.sol";
  *  - Signature 0x19 pre-fix?
  *  - Update to solc to second latest
  *  - EIP-712 encoding
- *  - Use enum for last byte instead of bytes4 for gasReceipt
+ *  - Check if contract with codehash vs codesize?
  *
  * COULD DO:
  *  - Support contract validator signature type?

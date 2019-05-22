@@ -32,13 +32,25 @@ export class ERC1155ReceiverMock extends Contract {
     ): Promise<ContractTransaction>;
 
     lastData(): Promise<(string)[]>;
-    ERC1155_BATCH_RECEIVED_SIG(): Promise<string>;
     shouldReject(): Promise<boolean>;
     lastValue(): Promise<BigNumber>;
     lastOperator(): Promise<string>;
-    ERC1155_RECEIVED_SIG(): Promise<string>;
     lastId(): Promise<BigNumber>;
-    ERC1155_RECEIVED_INVALID(): Promise<string>;
+    isERC1155TokenReceiver(): Promise<string>;
   };
-  filters: {};
+  filters: {
+    TransferSingleReceiver(
+      _from: null,
+      _to: null,
+      _fromBalance: null,
+      _toBalance: null
+    ): EventFilter;
+
+    TransferBatchReceiver(
+      _from: null,
+      _to: null,
+      _fromBalances: null,
+      _toBalances: null
+    ): EventFilter;
+  };
 }

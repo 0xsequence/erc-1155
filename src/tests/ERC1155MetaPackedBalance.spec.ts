@@ -12,7 +12,7 @@ import {
 } from './utils'
 import * as utils from './utils'
 
-import { toUtf8Bytes, bigNumberify, BigNumber } from 'ethers/utils'
+import { toUtf8Bytes, BigNumber } from 'ethers/utils'
 
 import { ERC1155MetaMintBurnPackedBalanceMock } from 'typings/contracts/ERC1155MetaMintBurnPackedBalanceMock'
 import { ERC1155ReceiverMock } from 'typings/contracts/ERC1155ReceiverMock'
@@ -886,7 +886,9 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
             data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
 
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, erc1155Contract.address, ids, amounts, isGasReceipt, data)
+            const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, erc1155Contract.address, ids, amounts, isGasReceipt, data,
+              {gasLimit: 2000000}
+            )
             await expect(tx).to.be.rejected;
           })
 
@@ -898,7 +900,9 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
             await receiverContract.functions.setShouldReject(true)
 
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, isGasReceipt, data)
+            const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, isGasReceipt, data,
+              {gasLimit: 2000000}
+            )
             await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_safeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
           })
 
@@ -907,7 +911,9 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
             data = await encodeMetaBatchTransferFromData(transferObj, gasReceipt)
 
             // @ts-ignore
-            const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, isGasReceipt, data)
+            const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, isGasReceipt, data,
+              {gasLimit: 2000000}
+            )
 
             //await expect(tx).to.be.fulfilled
             await expect(tx).to.be.fulfilled

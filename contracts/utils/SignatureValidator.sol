@@ -5,19 +5,19 @@ import "../interfaces/IERC1271Wallet.sol";
 import "./LibBytes.sol";
 
 
-/** 
+/**
  * @dev Contains logic for signature validation.
  * Signatures from wallet contracts assume ERC-1271 support (https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1271.md)
  * Notes: Methods are strongly inspired by contracts in https://github.com/0xProject/0x-monorepo/blob/development/
- * 
+ *
  */
 contract SignatureValidator {
+  using LibBytes for bytes;
 
   /***********************************|
   |             Variables             |
   |__________________________________*/
 
-  using LibBytes for bytes;
 
   // bytes4(keccak256("isValidSignature(bytes,bytes)")
   bytes4 constant internal ERC1271_MAGICVALUE = 0x20c13b0b;
@@ -39,7 +39,7 @@ contract SignatureValidator {
 
   /**
    * @dev Verifies that a hash has been signed by the given signer.
-   * @param _signerAddress  Address that should have signed the given hash.        
+   * @param _signerAddress  Address that should have signed the given hash.
    * @param _data           Data structure that was hashed and signed
    * @param _sig            Proof that the hash has been signed by signer.
    * @return True if the address recovered from the provided signature matches the input signer address.
@@ -54,7 +54,7 @@ contract SignatureValidator {
     returns (bool isValid)
   {
     require(
-      _sig.length > 0, 
+      _sig.length > 0,
       "SignatureValidator#isValidSignature: LENGTH_GREATER_THAN_0_REQUIRED"
     );
 

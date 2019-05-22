@@ -7,7 +7,7 @@ import "./ERC1155PackedBalance.sol";
 /**
  * @dev Multi-Fungible Tokens with minting and burning methods. These methods assume
  *      a parent contract to be executed as they are `internal` functions.
- */ 
+ */
 contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
 
 

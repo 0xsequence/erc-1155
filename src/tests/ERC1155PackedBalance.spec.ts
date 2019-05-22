@@ -205,6 +205,42 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
       await expect(tx).to.be.fulfilled
     })
 
+    it('should have balances updated before onERC1155Received is called', async () => {
+      let filterFromReceiverContract: ethers.ethers.EventFilter
+
+      const fromPreBalance = await erc1155Contract.functions.balanceOf(ownerAddress, 0);
+      const toPreBalance = await erc1155Contract.functions.balanceOf(receiverContract.address, 0);
+
+      // Get event filter to get internal tx event
+      filterFromReceiverContract = receiverContract.filters.TransferSingleReceiver(null, null, null, null);
+
+      await erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverContract.address, 0, 1, [])
+
+      // Get logs from internal transaction event
+      // @ts-ignore (https://github.com/ethers-io/ethers.js/issues/204#issuecomment-427059031)
+      filterFromReceiverContract.fromBlock = 0;
+      
+      let logs = await ownerProvider.getLogs(filterFromReceiverContract);
+      let args = receiverContract.interface.events.TransferSingleReceiver.decode(logs[0].data, logs[0].topics)
+
+      expect(args._from).to.be.eql(ownerAddress)
+      expect(args._to).to.be.eql(receiverContract.address)
+      expect(args._fromBalance).to.be.eql(fromPreBalance.sub(1))
+      expect(args._toBalance).to.be.eql(toPreBalance.add(1))
+    })
+
+    it('should have TransferSingle event emitted before onERC1155Received is called', async () => {
+      // Get event filter to get internal tx event
+      let tx = await erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverContract.address, 0, 1, [])
+      const receipt = await tx.wait(1)
+
+      const firstEventTopic = receipt.logs![0].topics[0]
+      const secondEventTopic = receipt.logs![1].topics[0]
+
+      expect(firstEventTopic).to.be.equal(erc1155Contract.interface.events.TransferSingle.topic)
+      expect(secondEventTopic).to.be.equal(receiverContract.interface.events.TransferSingleReceiver.topic)
+    })
+
     context('When successful transfer', () => {
       let tx: ethers.ContractTransaction
 
@@ -361,18 +397,24 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
     })
 
     it('should REVERT when sending to non-receiver contract', async () => {
-      const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, erc1155Contract.address, types, values, [])
+      const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, erc1155Contract.address, types, values, [],
+        {gasLimit: 2000000}
+      )
       await expect(tx).to.be.rejected;
     })
 
     it('should REVERT if invalid response from receiver contract', async () => {
       await receiverContract.functions.setShouldReject(true)
-      const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [])
+      const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [],
+        {gasLimit: 2000000}
+      )
       await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_safeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
     })
 
     it('should pass if valid response from receiver contract', async () => {
-      const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [])
+      const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [],
+        {gasLimit: 2000000}
+      )
       await expect(tx).to.be.fulfilled
     })
 
@@ -381,8 +423,55 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
 
       // TODO: remove ts-ignore when contract declaration is fixed
       // @ts-ignore
-      const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, data)
+      const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, data,
+        {gasLimit: 2000000}
+      )
       await expect(tx).to.be.fulfilled
+    })
+
+    it('should have balances updated before onERC1155BatchReceived is called', async () => {
+      let filterFromReceiverContract: ethers.ethers.EventFilter
+
+      let fromAddresses = Array(types.length).fill(ownerAddress)
+      let toAddresses = Array(types.length).fill(receiverContract.address)
+
+      const fromPreBalances = await erc1155Contract.functions.balanceOfBatch(fromAddresses, types);
+      const toPreBalances = await erc1155Contract.functions.balanceOfBatch(toAddresses, types);
+
+      // Get event filter to get internal tx event
+      filterFromReceiverContract = receiverContract.filters.TransferBatchReceiver(null, null, null, null);
+
+      await erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [],
+        {gasLimit: 2000000}
+      )
+
+      // Get logs from internal transaction event
+      // @ts-ignore (https://github.com/ethers-io/ethers.js/issues/204#issuecomment-427059031)
+      filterFromReceiverContract.fromBlock = 0;
+      
+      let logs = await ownerProvider.getLogs(filterFromReceiverContract);
+      let args = receiverContract.interface.events.TransferBatchReceiver.decode(logs[0].data, logs[0].topics)
+
+      expect(args._from).to.be.eql(ownerAddress)
+      expect(args._to).to.be.eql(receiverContract.address)
+      for (let i = 0; i < types.length; i++) {
+        expect(args._fromBalances[i]).to.be.eql(fromPreBalances[i].sub(values[i]))
+        expect(args._toBalances[i]).to.be.eql(toPreBalances[i].add(values[i]))
+      }
+    })
+
+    it('should have TransferBatch event emitted before onERC1155BatchReceived is called', async () => {
+      // Get event filter to get internal tx event
+      let tx = await erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [],
+        {gasLimit: 2000000}
+      )
+      const receipt = await tx.wait(1)
+
+      const firstEventTopic = receipt.logs![0].topics[0]
+      const secondEventTopic = receipt.logs![1].topics[0]
+
+      expect(firstEventTopic).to.be.equal(erc1155Contract.interface.events.TransferBatch.topic)
+      expect(secondEventTopic).to.be.equal(receiverContract.interface.events.TransferBatchReceiver.topic)
     })
 
     describe('TransferBatch event', async () => {
