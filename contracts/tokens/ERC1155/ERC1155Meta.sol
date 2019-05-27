@@ -13,13 +13,11 @@ import "../../utils/SignatureValidator.sol";
  *      to presign function calls and allow third parties to execute these on their behalf
  *
  * TO DO:
- *  - Signature 0x19 pre-fix?
  *  - Update to solc to second latest
- *  - EIP-712 encoding
  *  - Check if contract with codehash vs codesize?
- *
- * COULD DO:
- *  - Support contract validator signature type?
+ *  - encodePacked vs encode gas
+ *  - bytes32(address) for EIP-712 members?
+ *  - Gas Receipt and transferData as EIP-712 struct
  *
  */
 contract ERC1155Meta is ERC1155, SignatureValidator {
@@ -84,22 +82,24 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
 
     // Starting gas amount
     uint256 startGas = gasleft();
-
-    bytes memory signedData;
     bytes memory transferData;
     GasReceipt memory gasReceipt;
 
-    // If Gas receipt is being passed
-    if (_isGasFee) {
-      signedData = _validateTransferSignature(_from, _to, _id, _amount, _data);
-      (gasReceipt, transferData) = abi.decode(signedData, (GasReceipt, bytes));
+    // Verify signature and extract the signed data
+    bytes memory signedData = _signatureValidation(
+      _from,
+      _data,
+      abi.encodePacked(META_TX_TYPEHASH, _from, _to, _id, _amount)
+    );
 
+    // If Gas is being reimbursed
+    if (_isGasFee) {
+      (gasReceipt, transferData) = abi.decode(signedData, (GasReceipt, bytes));
       _safeTransferFrom(_from, _to, _id, _amount, transferData);
       _transferGasFee(_from, startGas, gasReceipt);
 
     } else {
-      transferData = _validateTransferSignature(_from, _to, _id, _amount, _data);
-      _safeTransferFrom(_from, _to, _id, _amount, transferData);
+      _safeTransferFrom(_from, _to, _id, _amount, signedData);
     }
   }
 
@@ -126,14 +126,18 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
 
     // Starting gas amount
     uint256 startGas = gasleft();
-
-    bytes memory signedData;
     bytes memory transferData;
     GasReceipt memory gasReceipt;
 
-    // If Gas receipt is being passed
+    // Verify signature and extract the signed data
+    bytes memory signedData = _signatureValidation(
+      _from,
+      _data,
+      abi.encodePacked(META_BATCH_TX_TYPEHASH, _from, _to, _ids, _amounts)
+    );
+
+    // If gas fee being reimbursed
     if (_isGasFee) {
-      signedData = _validateBatchTransferSignature(_from, _to, _ids, _amounts, _data);
       (gasReceipt, transferData) = abi.decode(signedData, (GasReceipt, bytes));
 
       // Update balances
@@ -143,8 +147,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
       _transferGasFee(_from, startGas, gasReceipt);
 
     } else {
-      transferData = _validateBatchTransferSignature(_from, _to, _ids, _amounts, _data);
-      _safeBatchTransferFrom(_from, _to, _ids, _amounts, transferData);
+      _safeBatchTransferFrom(_from, _to, _ids, _amounts, signedData);
     }
 
   }
@@ -174,16 +177,13 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
   {
     // Starting gas amount
     uint256 startGas = gasleft();
-    GasReceipt memory gasReceipt;
 
-    // If gas reimbursement or not
-    if (_isGasFee) {
-      bytes memory signedData = _validateApprovalSignature(_owner, _operator, _approved, _data);
-      gasReceipt = abi.decode(signedData, (GasReceipt));
-
-    } else {
-      _validateApprovalSignature(_owner, _operator, _approved, _data);
-    }
+    // Verify signature and extract the signed data
+    bytes memory signedData = _signatureValidation(
+      _owner,
+      _data,
+      abi.encodePacked(META_APPROVAL_TYPEHASH, _owner, _operator, _approved)
+    );
 
     // Update operator status
     operators[_owner][_operator] = _approved;
@@ -193,6 +193,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
 
     // Handle gas reimbursement
     if (_isGasFee) {
+      GasReceipt memory gasReceipt = abi.decode(signedData, (GasReceipt));
       _transferGasFee(_owner, startGas, gasReceipt);
     }
   }
@@ -202,114 +203,52 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
   |      Signture Validation Functions     |
   |_______________________________________*/
 
-  /**
-   * @notice Verifies if a transfer signature is valid based on data and update nonce
-   * @param _from    Source address
-   * @param _to      Target address
-   * @param _id      ID of the token type
-   * @param _amount  Transfered amount
-   * @param _data    Encodes a meta transfer indicator, signature, gas payment receipt and extra transfer data
-   *   _data should be encoded as (bytes4 METATRANSFER_FLAG, (bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g, bytes data))
-   *   i.e. high level encoding should be (bytes4, bytes, bytes), where the latter bytes array is a nested bytes array
-   */
-  function _validateTransferSignature(
-    address _from,
-    address _to,
-    uint256 _id,
-    uint256 _amount,
-    bytes memory _data)
-    internal returns (bytes memory signedData)
-  {
-    bytes memory sig;
+  // keccak256(
+  //   "metaSafeTransferFrom(address _from,address _to,uint256 _id,uint256 _amount,uint256 nonce,bytes signedData)"
+  // );
+  bytes32 internal constant META_TX_TYPEHASH = 0xda41aee141786e5a994acb21bcafccf68ed6e07786cb44008c785a06f2819038;
 
-    // Get signature and data to sign
-    (sig, signedData) = abi.decode(_data, (bytes, bytes));
+  // keccak256(
+  //   "metaSafeBatchTransferFrom(address _from,address _to,uint256[] _ids,uint256[] _amounts,uint256 nonce,bytes signedData)"
+  // );
+  bytes32 internal constant META_BATCH_TX_TYPEHASH = 0xa358be8ef28a8eef7877f5d78ce30ff1cada344474e3d550ee9f4be9151f84f7;
 
-    // Get signer's currently available nonce
-    uint256 nonce = nonces[_from];
-
-    // Get data that formed the hash
-    bytes memory data = abi.encodePacked(address(this), _from, _to, _id,  _amount, nonce, signedData);
-
-    // Verify if _from is the signer
-    require(isValidSignature(_from, data, sig), "ERC1155Meta#_validateTransferSignature: INVALID_SIGNATURE");
-
-    //Update signature nonce
-    nonces[_from] += 1;
-
-    return signedData;
-  }
+  // keccak256(
+  //   "metaSetApprovalForAll(address _owner,address _operator,bool _approved,uint256 nonce,bytes signedData)"
+  // );
+  bytes32 internal constant META_APPROVAL_TYPEHASH = 0xd72d507eb90d918a375b250ea7bfc291be59526e94e2baa2fe3b35daa72a0b15;
 
   /**
-   * @notice Verifies if a batch transfer signature is valid based on data and update nonce
-   * @param _from     Source addresses
-   * @param _to       Target addresses
-   * @param _ids      IDs of each token type
-   * @param _amounts  Transfer amounts per token type
-   * @param _data     Encodes a meta transfer indicator, signature, gas payment receipt and extra transfer data
-   *   _data should be encoded as (bytes4 METATRANSFER_FLAG, (bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g, bytes data))
-   *   i.e. high level encoding should be (bytes4, bytes, bytes), where the latter bytes array is a nested bytes array
-   */
-  function _validateBatchTransferSignature(
-    address _from,
-    address _to,
-    uint256[] memory _ids,
-    uint256[] memory _amounts,
-    bytes memory _data)
-    internal returns (bytes memory signedData)
-  {
-    bytes memory sig;
-
-    // Get signature and data to sign
-    (sig, signedData) = abi.decode(_data, (bytes, bytes));
-
-    // Get signer's currently available nonce
-    uint256 nonce = nonces[_from];
-
-    // Get data that formed the hash
-    bytes memory data = abi.encodePacked(address(this), _from, _to, _ids, _amounts, nonce, signedData);
-
-    // Verify if _from is the signer
-    require(isValidSignature(_from, data, sig), "ERC1155Meta#_validateBatchTransferSignature: INVALID_SIGNATURE");
-
-    //Update signature nonce
-    nonces[_from] += 1;
-
-    return signedData;
-  }
-
-  /**
-   * @notice Verifies if an approval is a signature is valid based on data and update nonce
-   * @param _owner     Address that wants to set operator status  _spender
-   * @param _operator  Address to add to the set of authorized operators
-   * @param _approved  True if the operator is approved, false to revoke approval
-   * @param _data      Encodes signature and gas payment receipt
-   *   _data should be encoded as ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g))
+   * @notice Verifies signatures for this contract
+   * @param _signer     Address of signer
+   * @param _sigData    Encodes signature and gas payment receipt
+   * @param _encMembers Encoded EIP-712 type members (except nonce and _data)
+   * @dev _data should be encoded as ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g, ?bytes transferData))
    *   i.e. high level encoding should be (bytes, bytes), where the latter bytes array is a nested bytes array
    */
-  function _validateApprovalSignature(
-    address _owner,
-    address _operator,
-    bool _approved,
-    bytes memory _data)
+  function _signatureValidation(
+    address _signer,
+    bytes memory _sigData,
+    bytes memory _encMembers)
     internal returns (bytes memory signedData)
   {
+    uint256 nonce = nonces[_signer];
     bytes memory sig;
 
     // Get signature and data to sign
-    (sig, signedData) = abi.decode(_data, (bytes, bytes));
+    (sig, signedData) = abi.decode(_sigData, (bytes, bytes));
 
-    // Get signer's currently available nonce
-    uint256 nonce = nonces[_owner];
+    // Take hash of bytes arrays
+    bytes32 hash = hashEIP712Message(keccak256(abi.encodePacked(_encMembers, nonce, keccak256(signedData))));
 
-    // Get data that formed the hash
-    bytes memory data = abi.encodePacked(address(this), _owner, _operator, _approved, nonce, signedData);
+    // Complete data to pass to signer verifier
+    bytes memory fullData = abi.encodePacked(_encMembers, nonce, signedData);
 
-    // Verify if _owner is the signer
-    require(isValidSignature(_owner, data, sig), "ERC1155Meta#_validateApprovalSignature: INVALID_SIGNATURE");
+    // Verify if _from is the signer
+    require(isValidSignature(_signer, hash, fullData, sig), "ERC1155Meta#_signatureValidation: INVALID_SIGNATURE");
 
     //Update signature nonce
-    nonces[_owner] += 1;
+    nonces[_signer] = nonce + 1;
 
     return signedData;
   }

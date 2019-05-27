@@ -38,6 +38,7 @@ contract('SignatureValidator Contract', (accounts: string[]) => {
   describe('isValidSignature() Function', () => {
 
     let data = ethers.utils.toUtf8Bytes('Did the Ethereum blockchain reach 1TB yet? No.')
+    let dataHash = ethers.utils.keccak256(data)
     let ethsig: string
     let eip712sig: string
 
@@ -47,25 +48,25 @@ contract('SignatureValidator Contract', (accounts: string[]) => {
 
     it('should REVERT if signature is of length 0', async () => {
       // @ts-ignore
-      const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, data, [])
+      const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, dataHash, data, [])
       await expect(tx).to.be.rejectedWith( RevertError("SignatureValidator#isValidSignature: LENGTH_GREATER_THAN_0_REQUIRED") )    
     })
 
     it('should REVERT if expected signer is 0x0', async () => {
       // @ts-ignore
-      const tx = signatureValidatorContract.functions.isValidSignature(AddressZero, data, ethsig)
+      const tx = signatureValidatorContract.functions.isValidSignature(AddressZero, dataHash, data, ethsig)
       await expect(tx).to.be.rejectedWith( RevertError("SignatureValidator#isValidSignature: INVALID_SIGNER") )    
     })
 
     it('should REVERT if signature is illigal (SignatureType: 0x0)', async () => {
       // @ts-ignore
-      const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, data, ethsig.slice(0, -2) + '00')
+      const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, dataHash, data, ethsig.slice(0, -2) + '00')
       await expect(tx).to.be.rejectedWith( RevertError("SignatureValidator#isValidSignature: ILLEGAL_SIGNATURE") )    
     })
 
     it('should REVERT if signatureType is above 05', async () => {
       // @ts-ignore
-      const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, data, ethsig.slice(0, -2) + '06')
+      const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, dataHash, data, ethsig.slice(0, -2) + '06')
       await expect(tx).to.be.rejectedWith( RevertError("SignatureValidator#isValidSignature: UNSUPPORTED_SIGNATURE") )    
     })
 
@@ -77,13 +78,13 @@ contract('SignatureValidator Contract', (accounts: string[]) => {
 
       it('should REVERT if signature length is not 65', async () => {
         // @ts-ignore
-        const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, data, '0x1234' + eip712sig.slice(2) )
+        const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, dataHash, data, '0x1234' + eip712sig.slice(2) )
         await expect(tx).to.be.rejectedWith( RevertError("SignatureValidator#isValidSignature: LENGTH_65_REQUIRED") )    
       })
 
       it('should return TRUE if signature is valid', async () => {
         // @ts-ignore
-        let isValid = await signatureValidatorContract.functions.isValidSignature(signerAddress, data, eip712sig)
+        let isValid = await signatureValidatorContract.functions.isValidSignature(signerAddress, dataHash, data, eip712sig)
         await expect(isValid).to.be.equal(true);   
       })
 
@@ -93,13 +94,13 @@ contract('SignatureValidator Contract', (accounts: string[]) => {
       
       it('should REVERT if signature length is not 65', async () => {
         // @ts-ignore
-        const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, data, '0x1234' + ethsig.slice(2))
+        const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, dataHash, data, '0x1234' + ethsig.slice(2))
         await expect(tx).to.be.rejectedWith( RevertError("SignatureValidator#isValidSignature: LENGTH_65_REQUIRED") )    
       })
 
       it('should return TRUE if signature is valid', async () => {
         // @ts-ignore
-        let isValid = await signatureValidatorContract.functions.isValidSignature(signerAddress, data, ethsig)
+        let isValid = await signatureValidatorContract.functions.isValidSignature(signerAddress, dataHash, data, ethsig)
         expect(isValid).to.be.equal(true);   
       })
 
@@ -116,7 +117,7 @@ contract('SignatureValidator Contract', (accounts: string[]) => {
       
       it('should return FALSE if contract returns incorrect magic value', async () => {
         // @ts-ignore
-        let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, data, ethsig + '03')
+        let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, dataHash, data, ethsig + '03')
         expect(isValid).to.be.equal(false)
       })
 
@@ -124,7 +125,7 @@ contract('SignatureValidator Contract', (accounts: string[]) => {
         await erc1271WalletMockContract.functions.setShouldReject(false)
 
         // @ts-ignore
-        let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, data, ethsig + '03')
+        let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, dataHash, data, ethsig + '03')
         await expect(isValid).to.be.equal(true);   
       })
     })
@@ -140,7 +141,7 @@ contract('SignatureValidator Contract', (accounts: string[]) => {
       
       it('should return FALSE if contract returns incorrect magic value', async () => {
         // @ts-ignore
-        let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, data, ethsig + '04')
+        let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, dataHash, data, ethsig + '04')
         expect(isValid).to.be.equal(false)
       })
 
@@ -148,7 +149,7 @@ contract('SignatureValidator Contract', (accounts: string[]) => {
         await erc1271WalletMockContract.functions.setShouldReject(false)
 
         // @ts-ignore
-        let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, data, ethsig + '04')
+        let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, dataHash, data, ethsig + '04')
         await expect(isValid).to.be.equal(true);   
       })
     })

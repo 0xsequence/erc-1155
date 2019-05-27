@@ -20,13 +20,14 @@ export class ERC1155Meta extends Contract {
       _ids: (number | string | BigNumber)[]
     ): Promise<(BigNumber)[]>;
 
+    isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
+
     isValidSignature(
       _signerAddress: string,
+      _hash: string,
       _data: (string)[],
       _sig: (string)[]
     ): Promise<boolean>;
-
-    isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
 
     getNonce(_signer: string): Promise<BigNumber>;
 

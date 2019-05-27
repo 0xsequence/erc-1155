@@ -28,12 +28,6 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
       _amount: number | string | BigNumber
     ): Promise<BigNumber>;
 
-    isValidSignature(
-      _signerAddress: string,
-      _data: (string)[],
-      _sig: (string)[]
-    ): Promise<boolean>;
-
     getIDBinIndex(
       _id: number | string | BigNumber
     ): Promise<{
@@ -49,6 +43,13 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
       _binAmount: number | string | BigNumber,
       _index: number | string | BigNumber
     ): Promise<BigNumber>;
+
+    isValidSignature(
+      _signerAddress: string,
+      _hash: string,
+      _data: (string)[],
+      _sig: (string)[]
+    ): Promise<boolean>;
 
     safeBatchTransferFrom(
       _from: string,

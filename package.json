@@ -1,6 +1,6 @@
 {
   "name": "multi-token-standard",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "ERC1155 Multi-Token Standard implementation for Ethereum",
   "repository": "https://github.com/horizon-games/multi-token-standard",
   "license": "MIT",

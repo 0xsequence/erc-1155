@@ -8,7 +8,7 @@ contract ERC1155ReceiverMock {
   bytes4 constant internal ERC1155_RECEIVED_SIG = 0xf23a6e61;
   bytes4 constant internal ERC1155_BATCH_RECEIVED_SIG = 0xbc197c81;
   bytes4 constant internal ERC1155_RECEIVED_INVALID = 0xdeadbeef;
-  bytes4 constant internal IS_ERC1155_RECEIVER = bytes4(keccak256("isERC1155TokenReceiver()"));
+  bytes4 constant internal IS_ERC1155_RECEIVER = 0x0d912442; //bytes4(keccak256("isERC1155TokenReceiver()"));
 
   // Keep values from last received contract.
   bool public shouldReject;

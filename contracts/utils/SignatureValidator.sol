@@ -3,15 +3,14 @@ pragma experimental ABIEncoderV2;
 
 import "../interfaces/IERC1271Wallet.sol";
 import "./LibBytes.sol";
-
+import "./LibEIP712.sol";
 
 /**
  * @dev Contains logic for signature validation.
  * Signatures from wallet contracts assume ERC-1271 support (https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1271.md)
  * Notes: Methods are strongly inspired by contracts in https://github.com/0xProject/0x-monorepo/blob/development/
- *
  */
-contract SignatureValidator {
+contract SignatureValidator is LibEIP712 {
   using LibBytes for bytes;
 
   /***********************************|
@@ -40,12 +39,14 @@ contract SignatureValidator {
   /**
    * @dev Verifies that a hash has been signed by the given signer.
    * @param _signerAddress  Address that should have signed the given hash.
-   * @param _data           Data structure that was hashed and signed
+   * @param _hash           Hash of the EIP-712 encoded data
+   * @param _data           Full EIP-712 data structure that was hashed and signed
    * @param _sig            Proof that the hash has been signed by signer.
    * @return True if the address recovered from the provided signature matches the input signer address.
    */
   function isValidSignature(
     address _signerAddress,
+    bytes32 _hash,
     bytes memory _data,
     bytes memory _sig
   )
@@ -62,9 +63,6 @@ contract SignatureValidator {
       _signerAddress != address(0x0),
       "SignatureValidator#isValidSignature: INVALID_SIGNER"
     );
-
-    // Get hash of _data (TO IMPLEMENT / VERIFY) <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    bytes32 hash = keccak256(_data);
 
     // Pop last byte off of signature byte array.
     uint8 signatureTypeRaw = uint8(_sig.popLastByte());
@@ -102,7 +100,7 @@ contract SignatureValidator {
       r = _sig.readBytes32(0);
       s = _sig.readBytes32(32);
       v = uint8(_sig[64]);
-      recovered = ecrecover(hash, v, r, s);
+      recovered = ecrecover(_hash, v, r, s);
       isValid = _signerAddress == recovered;
       return isValid;
 
@@ -117,7 +115,7 @@ contract SignatureValidator {
       s = _sig.readBytes32(32);
       v = uint8(_sig[64]);
       recovered = ecrecover(
-        keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)),
+        keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash)),
         v,
         r,
         s
@@ -134,7 +132,7 @@ contract SignatureValidator {
 
     // Signature verified by wallet contract without data validation.
     } else if (signatureType == SignatureType.WalletBytes32) {
-      isValid = ERC1271_MAGICVALUE == IERC1271Wallet(_signerAddress).isValidSignature(hash, _sig);
+      isValid = ERC1271_MAGICVALUE == IERC1271Wallet(_signerAddress).isValidSignature(_hash, _sig);
       return isValid;
     }
 

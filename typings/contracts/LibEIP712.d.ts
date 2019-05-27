@@ -6,14 +6,7 @@ import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { TransactionOverrides } from ".";
 
-export class SignatureValidator extends Contract {
-  functions: {
-    isValidSignature(
-      _signerAddress: string,
-      _hash: string,
-      _data: (string)[],
-      _sig: (string)[]
-    ): Promise<boolean>;
-  };
+export class LibEIP712 extends Contract {
+  functions: {};
   filters: {};
 }
