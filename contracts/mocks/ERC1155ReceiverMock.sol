@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.9;
 
 import '../interfaces/IERC1155.sol';
 
@@ -98,7 +98,7 @@ contract ERC1155ReceiverMock {
    * This function MUST NOT consume more than 5,000 gas.
    * @return `bytes4(keccak256("isERC1155TokenReceiver()"))`
    */
-  function isERC1155TokenReceiver() public view returns (bytes4) {
+  function isERC1155TokenReceiver() public pure returns (bytes4) {
     return IS_ERC1155_RECEIVER;
   }
 

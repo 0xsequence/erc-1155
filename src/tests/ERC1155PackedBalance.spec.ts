@@ -312,7 +312,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
   describe('safeBatchTransferFrom() function', () => {
 
     let types: any[], values: any[]
-    let nTokenTypes    = 32
+    let nTokenTypes    = 30 //2075
     let nTokensPerType = 10
 
     let receiverContract: ERC1155ReceiverMock
@@ -322,16 +322,16 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
 
       // Minting enough values for transfer for each types
       for (let i = 0; i < nTokenTypes; i++) {
-        await erc1155Contract.functions.mintMock(ownerAddress, i, nTokensPerType)
         types.push(i)
         values.push(nTokensPerType)
       }
+      await erc1155Contract.functions.batchMintMock(ownerAddress, types, values)
 
       const abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
       receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
     })
 
-    it('should be able to transfer if sufficient balances', async () => {
+    it('should be able to transfer 2075 tokens if sufficient balances', async () => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, types, values, [])
       await expect(tx).to.be.fulfilled
     })

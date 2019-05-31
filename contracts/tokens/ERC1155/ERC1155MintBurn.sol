@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.9;
 pragma experimental ABIEncoderV2;
 
 import "./ERC1155.sol";
@@ -7,8 +7,8 @@ import "./ERC1155.sol";
 /**
  * @dev Multi-Fungible Tokens with minting and burning methods. These methods assume
  *      a parent contract to be executed as they are `internal` functions
- */ 
-contract ERC1155MintBurn is ERC1155 { 
+ */
+contract ERC1155MintBurn is ERC1155 {
 
 
   /****************************************|

@@ -13,19 +13,22 @@ module.exports = {
       network_id: "*",
       port: 8545,         // <-- If you change this, also set the port option in .solcover.js.
       gas: 0xfffffffffff, // <-- Use this high gas value
-      gasPrice: 0x01      // <-- Use this low gas price
+      gasPrice: 0x0000000000000001      // <-- Use this low gas price
     },
   },
 
   compilers: {
     solc: {
-      version: "0.5.0"
+      version: "./node_modules/solc"
     }
   },
   solc: {
     optimizer: {
-      enabled: false, // TO TURN ON for launch
-      runs: 200
+      enabled: true, // TO TURN ON for launch
+      runs: 500,
+      details: {
+        yul: true
+      }
     }
   },
 

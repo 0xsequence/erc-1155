@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.9;
 pragma experimental ABIEncoderV2;
 
 import "./ERC1155PackedBalance.sol";
@@ -23,7 +23,7 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
    */
   function _mint(address _to, uint256 _id, uint256 _amount)
     internal
-  { 
+  {
     //Add _amount
     _updateIDBalance(_to,   _id, _amount, Operations.Add); // Add amount to recipient
 

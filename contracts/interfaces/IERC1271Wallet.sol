@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.9;
 
 
 interface  IERC1271Wallet {
@@ -12,12 +12,12 @@ interface  IERC1271Wallet {
    * @param _signature  Signature byte array associated with _data
    * @return Magic value 0x20c13b0b if the signature is valid and 0x0 otherwise
    *
-   */ 
+   */
   function isValidSignature(
-    bytes calldata _data, 
+    bytes calldata _data,
     bytes calldata _signature)
     external
-    view 
+    view
     returns (bytes4 magicValue);
 
   /**
@@ -28,11 +28,11 @@ interface  IERC1271Wallet {
    * @param _hash       keccak256 hash that was signed
    * @param _signature  Signature byte array associated with _data
    * @return Magic value 0x20c13b0b if the signature is valid and 0x0 otherwise
-   */ 
+   */
   function isValidSignature(
-    bytes32 _hash, 
+    bytes32 _hash,
     bytes calldata _signature)
     external
-    view 
+    view
     returns (bytes4 magicValue);
 }

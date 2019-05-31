@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.9;
 
 
 /**
@@ -21,13 +21,6 @@ contract Ownable {
   }
 
   /**
-   * @return the address of the owner.
-   */
-  function getOwner() public view returns (address) {
-    return owner;
-  }
-
-  /**
    * @dev Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {
@@ -44,4 +37,12 @@ contract Ownable {
     emit OwnershipTransferred(owner, _newOwner);
     owner = _newOwner;
   }
+
+  /**
+   * @notice Returns the address of the owner.
+   */
+  function getOwner() public view returns (address) {
+    return owner;
+  }
+
 }

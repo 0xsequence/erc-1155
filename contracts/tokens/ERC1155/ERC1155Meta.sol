@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.9;
 pragma experimental ABIEncoderV2;
 
 import "./ERC1155.sol";
@@ -18,7 +18,6 @@ import "../../utils/SignatureValidator.sol";
  *  - encodePacked vs encode gas
  *  - bytes32(address) for EIP-712 members?
  *  - Gas Receipt and transferData as EIP-712 struct
- *
  */
 contract ERC1155Meta is ERC1155, SignatureValidator {
   using LibBytes for bytes;
@@ -224,7 +223,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
    * @param _sigData    Encodes signature and gas payment receipt
    * @param _encMembers Encoded EIP-712 type members (except nonce and _data)
    * @dev _data should be encoded as ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g, ?bytes transferData))
-   *   i.e. high level encoding should be (bytes, bytes), where the latter bytes array is a nested bytes array
+   *   i.e. high level encoding svhould be (bytes, bytes), where the latter bytes array is a nested bytes array
    */
   function _signatureValidation(
     address _signer,

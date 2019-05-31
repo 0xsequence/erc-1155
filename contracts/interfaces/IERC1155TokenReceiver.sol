@@ -1,9 +1,10 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.9;
 
 /**
  * @dev ERC-1155 interface for accepting safe transfers.
  */
 interface IERC1155TokenReceiver {
+
   /**
    * @notice Handle the receipt of a single ERC1155 token type
    * @dev An ERC1155-compliant smart contract MUST call this function on the token recipient contract, at the end of a `safeTransferFrom` after the balance has been updated
@@ -18,7 +19,7 @@ interface IERC1155TokenReceiver {
    * @return           `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`
    */
   function onERC1155Received(address _operator, address _from, uint256 _id, uint256 _amount, bytes calldata _data) external returns(bytes4);
-  
+
   /**
    * @notice Handle the receipt of multiple ERC1155 token types
    * @dev An ERC1155-compliant smart contract MUST call this function on the token recipient contract, at the end of a `safeBatchTransferFrom` after the balances have been updated
@@ -31,6 +32,15 @@ interface IERC1155TokenReceiver {
    * @param _amounts   An array containing amounts of each token being transferred
    * @param _data      Additional data with no specified format
    * @return           `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`
-  */
+   */
   function onERC1155BatchReceived(address _operator, address _from, uint256[] calldata _ids, uint256[] calldata _amounts, bytes calldata _data) external returns(bytes4);
+
+  /**
+   * @notice Indicates whether a contract implements the `ERC1155TokenReceiver` functions and so can accept ERC1155 token types.
+   * @dev This function MUST return `bytes4(keccak256("isERC1155TokenReceiver()"))` (i.e. 0x0d912442).
+   * This function MUST NOT consume more than 5,000 gas.
+   * @return           `bytes4(keccak256("isERC1155TokenReceiver()"))`
+   */
+  function isERC1155TokenReceiver() external view returns (bytes4);
+
 }

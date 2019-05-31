@@ -25,6 +25,8 @@ export class IERC1155TokenReceiver extends Contract {
       _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
+
+    isERC1155TokenReceiver(): Promise<string>;
   };
   filters: {};
 }

@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.9;
 
 
 contract LibEIP712 {
@@ -40,7 +40,6 @@ contract LibEIP712 {
       view
       returns (bytes32 result)
   {
-    bytes32 eip712DomainHash = EIP712_DOMAIN_HASH;
 
     return keccak256(
       abi.encodePacked(
@@ -49,6 +48,7 @@ contract LibEIP712 {
         hashStruct
     ));
 
+    //bytes32 eip712DomainHash = EIP712_DOMAIN_HASH;
     // Assembly for more efficient computing:
     // assembly {
     //   // Load free memory pointer
