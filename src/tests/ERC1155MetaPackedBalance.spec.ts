@@ -289,7 +289,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, initBalance+1, isGasReceipt, data)
-            await expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") ) 
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: UNDERFLOW") ) 
           })
 
           it('should REVERT if sending to 0x0', async () => {
@@ -305,7 +305,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
             await erc1155Contract.functions.mintMock(receiverAddress, id, MAXVAL)
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
-            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#writeValueInBin: OVERFLOW") ) 
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: OVERFLOW") ) 
           })
 
           it('should REVERT when sending to non-receiver contract', async () => {
@@ -498,7 +498,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
               const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
-              await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
+              await expect(tx).to.be.rejectedWith(RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: UNDERFLOW"))
             })
 
             it("should PASS if approved ERC20 is used for fee", async () => {
@@ -884,7 +884,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
-            await expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") ) 
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: UNDERFLOW") ) 
           })
 
           it('should REVERT if sending to 0x0', async () => {
@@ -900,7 +900,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
             await operatorERC1155Contract.functions.mintMock(receiverAddress, ids[0], MAXVAL)
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
-            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#writeValueInBin: OVERFLOW") ) 
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: OVERFLOW") ) 
           })
 
           it('should REVERT when sending to non-receiver contract', async () => {

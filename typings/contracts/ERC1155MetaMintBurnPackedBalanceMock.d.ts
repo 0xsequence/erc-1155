@@ -22,12 +22,6 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
       _ids: (number | string | BigNumber)[]
     ): Promise<(BigNumber)[]>;
 
-    writeValueInBin(
-      _binAmount: number | string | BigNumber,
-      _index: number | string | BigNumber,
-      _amount: number | string | BigNumber
-    ): Promise<BigNumber>;
-
     getIDBinIndex(
       _id: number | string | BigNumber
     ): Promise<{

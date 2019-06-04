@@ -34,12 +34,6 @@ export class ERC1155PackedBalance extends Contract {
       _index: number | string | BigNumber
     ): Promise<BigNumber>;
 
-    writeValueInBin(
-      _binAmount: number | string | BigNumber,
-      _index: number | string | BigNumber,
-      _amount: number | string | BigNumber
-    ): Promise<BigNumber>;
-
     supportsInterface(_interfaceID: string): Promise<boolean>;
 
     safeTransferFrom(

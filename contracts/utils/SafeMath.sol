@@ -34,7 +34,7 @@ library SafeMath {
     // assert(a == b * c + a % b); // There is no case in which this doesn't hold
 
     return c;
-}
+  }
 
   /**
    * @dev Subtracts two unsigned integers, reverts on overflow (i.e. if subtrahend is greater than minuend).
