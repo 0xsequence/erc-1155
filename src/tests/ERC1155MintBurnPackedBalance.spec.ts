@@ -117,7 +117,7 @@ contract('ERC1155MintBurnPackedBalance', (accounts: string[]) => {
     })
 
     describe('_batchMint() function', () => {
-      const Ntypes = 32
+      const Ntypes = 64
       const amountToMint = 10
       const typesArray  = Array.apply(null, {length: Ntypes}).map(Number.call, Number)
       const amountArray = Array.apply(null, Array(Ntypes)).map(Number.prototype.valueOf, amountToMint)

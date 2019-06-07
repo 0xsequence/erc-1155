@@ -164,7 +164,7 @@ contract ERC1155PackedBalance is IERC165 {
         lastBin = bin;
       }
 
-      // Update memory balance
+    //   // Update memory balance
       balFrom = _viewUpdateIDBalance(balFrom, index, _amounts[i], Operations.Sub);
       balTo = _viewUpdateIDBalance(balTo, index, _amounts[i], Operations.Add);
     }

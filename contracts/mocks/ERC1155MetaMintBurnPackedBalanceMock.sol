@@ -20,7 +20,7 @@ contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, E
   function mintMock(address _to, uint256 _id, uint256 _value)
     public
   {
-    super._mint(_to, _id, _value);
+    _mint(_to, _id, _value);
   }
 
   /**
@@ -32,7 +32,7 @@ contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, E
   function batchMintMock(address _to, uint256[] memory _ids, uint256[] memory _values)
     public
   {
-    super._batchMint(_to, _ids, _values);
+    _batchMint(_to, _ids, _values);
   }
 
   // ---- Burning functions
@@ -45,8 +45,8 @@ contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, E
    */
   function burnMock(address _from, uint256 _id, uint256 _value)
     public
-  { 
-    super._burn(_from, _id, _value);
+  {
+    _burn(_from, _id, _value);
   }
 
   /**
@@ -56,9 +56,9 @@ contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, E
    * @param _values Array of the amount to be burned
    */
   function batchBurnMock(address _from, uint256[] memory _ids, uint256[] memory _values)
-    public 
+    public
   {
-    super._batchBurn(_from, _ids, _values);
+    _batchBurn(_from, _ids, _values);
   }
 
   /***********************************|
