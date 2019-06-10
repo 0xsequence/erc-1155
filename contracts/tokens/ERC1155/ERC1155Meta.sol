@@ -132,7 +132,13 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     bytes memory signedData = _signatureValidation(
       _from,
       _data,
-      abi.encodePacked(META_BATCH_TX_TYPEHASH, _from, _to, _ids, _amounts)
+      abi.encodePacked(
+        META_BATCH_TX_TYPEHASH,
+        _from,
+        _to,
+        keccak256(abi.encodePacked(_ids)),
+        keccak256(abi.encodePacked(_amounts))
+      )
     );
 
     // If gas fee being reimbursed

@@ -188,13 +188,13 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
 
   // Struct Data type
   const sigArgTypes = [
-    'bytes32',   // META_TX_TYPEHASH
-    'address',   // _from
-    'address',   // _to
-    'uint256[]', // _ids
-    'uint256[]', // _amounts
-    'uint256',   // nonce
-  // bytes32     // hash of signed data
+    'bytes32', // META_TX_TYPEHASH
+    'address', // _from
+    'address', // _to
+    'bytes32', // keccak256(_ids)
+    'bytes32', // keccak256(_amounts)
+    'uint256', // nonce
+  // bytes32   // hash of signed data
     ];
   
 
@@ -205,8 +205,8 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
     META_BATCH_TX_TYPEHASH,
     signer,
     s.receiver,
-    s.ids,
-    s.amounts,
+    ethers.utils.keccak256(ethers.utils.solidityPack(['uint256[]'], [s.ids])),
+    ethers.utils.keccak256(ethers.utils.solidityPack(['uint256[]'], [s.amounts])),
     s.nonce,
   ])
 
