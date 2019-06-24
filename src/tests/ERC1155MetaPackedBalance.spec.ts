@@ -100,7 +100,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
     let feeTokenID = 666   
     let isGasReceipt: boolean = true;
-    let feeTokenInitBalance = new BigNumber(30000);
+    let feeTokenInitBalance = new BigNumber(100000000);
 
     let feeType = 0 //ERC-11555
     let feeTokenAddress : string
@@ -141,8 +141,8 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
           // Gas Receipt
           gasReceipt = {
-            gasLimit: 10000,
-            baseGas: 1000,
+            gasLimit: 125000,
+            baseGas: 30000,
             gasPrice: 1,
             feeRecipient: operatorAddress,
             feeTokenData: feeTokenDataERC1155,
@@ -326,7 +326,11 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data)
-            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_safeTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
+            if (gasReceipt){
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155MetaPackedBalance#metaSafeTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
+            } else {
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE") )
+            }
           })
 
           it('should PASS if valid response from receiver contract', async () => {
@@ -431,7 +435,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
                 [erc1155Contract2.address, feeTokenID, 0]
               )
     
-              gasReceipt = {gasLimit: 10000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC1155
               }
     
@@ -457,7 +461,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
                 [erc1155Contract2.address, feeTokenID, 0]
               )
     
-              gasReceipt = {gasLimit: 10000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC1155
               }
     
@@ -484,7 +488,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
                 [erc1155Contract2.address, feeTokenID, 0]
               )
     
-              gasReceipt = {gasLimit: 10000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC1155
               }
     
@@ -511,7 +515,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
                 ['address', 'uint8'], [erc20Contract.address, 1]
               )
     
-              gasReceipt = {gasLimit: 10000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
               }
     
@@ -537,7 +541,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
                 ['address', 'uint8'], [erc20Contract.address, 1]
               )
     
-              gasReceipt = {gasLimit: 10000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
               }
     
@@ -563,7 +567,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
                 ['address', 'uint8'], [erc20Contract.address, 1]
               )
     
-              gasReceipt = {gasLimit: 10000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
               }
     
@@ -687,7 +691,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
     let nTokenTypes = 33
 
     let isGasReceipt: boolean = true;
-    let feeTokenInitBalance = new BigNumber(30000);
+    let feeTokenInitBalance = new BigNumber(100000000);
 
     let feeType = 0
     let feeTokenID = 666
@@ -739,8 +743,8 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
           // Gas Receipt
           gasReceipt = {
-            gasLimit: 10000,
-            baseGas: 2000,
+            gasLimit: 125000,
+            baseGas: 30000,
             gasPrice: 1,
             feeRecipient: operatorAddress,
             feeTokenData: feeTokenDataERC1155,
@@ -925,7 +929,11 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, isGasReceipt, data,
               {gasLimit: 2000000}
             )
-            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_safeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
+            if (gasReceipt){
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155MetaPackedBalance#metaSafeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
+            } else {
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE") )
+            }
           })
 
           it('should PASS if valid response from receiver contract', async () => {
@@ -1142,7 +1150,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
     let data: string;
 
     let isGasReceipt: boolean = true;
-    let feeTokenInitBalance = new BigNumber(30000);
+    let feeTokenInitBalance = new BigNumber(100000000);
 
     let feeType = 0
     let feeTokenID = 666  
@@ -1168,8 +1176,8 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
           // Gas Receipt
           gasReceipt = {
-            gasLimit: 10000,
-            baseGas: 1100,
+            gasLimit: 125000,
+            baseGas: 30000,
             gasPrice: 1,
             feeRecipient: operatorAddress,
             feeTokenData: feeTokenDataERC1155,

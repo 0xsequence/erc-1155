@@ -90,11 +90,24 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
     // If Gas is being reimbursed
     if (_isGasFee) {
       (gasReceipt, transferData) = abi.decode(signedData, (GasReceipt, bytes));
-      _safeTransferFrom(_from, _to, _id, _amount, transferData);
+      _safeTransferFrom(_from, _to, _id, _amount);
+
+      // Check if recipient is contract
+      if (_to.isContract()) {
+        // We need to somewhat protect operators against gas griefing attacks in recipient contract.
+        // Hence we only pass the gasLimit to the recipient such that the validator knows the griefing
+        // limit. Nothing can prevent the receiver to revert the transaction as close to the gasLimit as
+        // possible, but the operator can now only accept meta-transaction gasLimit within a certain range.
+        bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received.gas(gasReceipt.gasLimit)(msg.sender, _from, _id, _amount, transferData);
+        require(retval == ERC1155_RECEIVED_VALUE, "ERC1155MetaPackedBalance#metaSafeTransferFrom: INVALID_ON_RECEIVE_MESSAGE");
+      }
+
+      // Transfer gas cost
       _transferGasFee(_from, startGas, gasReceipt);
 
     } else {
-      _safeTransferFrom(_from, _to, _id, _amount, signedData);
+      _safeTransferFrom(_from, _to, _id, _amount);
+      _callonERC1155Received(_from, _to, _id, _amount, signedData);
     }
   }
 
@@ -142,15 +155,25 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
       (gasReceipt, transferData) = abi.decode(signedData, (GasReceipt, bytes));
 
       // Update balances
-      _safeBatchTransferFrom(_from, _to, _ids, _amounts, transferData);
+      _safeBatchTransferFrom(_from, _to, _ids, _amounts);
+
+            // Check if recipient is contract
+      if (_to.isContract()) {
+        // We need to somewhat protect operators against gas griefing attacks in recipient contract.
+        // Hence we only pass the gasLimit to the recipient such that the validator knows the griefing
+        // limit. Nothing can prevent the receiver to revert the transaction as close to the gasLimit as
+        // possible, but the operator can now only accept meta-transaction gasLimit within a certain range.
+        bytes4 retval = IERC1155TokenReceiver(_to).onERC1155BatchReceived.gas(gasReceipt.gasLimit)(msg.sender, _from, _ids, _amounts, transferData);
+        require(retval == ERC1155_BATCH_RECEIVED_VALUE, "ERC1155MetaPackedBalance#metaSafeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE");
+      }
 
       // Handle gas reimbursement
       _transferGasFee(_from, startGas, gasReceipt);
 
     } else {
-      _safeBatchTransferFrom(_from, _to, _ids, _amounts, signedData);
+      _safeBatchTransferFrom(_from, _to, _ids, _amounts);
+      _callonERC1155BatchReceived(_from, _to, _ids, _amounts, signedData);
     }
-
   }
 
 
@@ -313,8 +336,9 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
 
       // Fee is paid from this ERC1155 contract
       if (tokenAddress == address(this)) {
-        _safeTransferFrom(_from, feeRecipient, tokenID, fee, "");
-    
+        _safeTransferFrom(_from, feeRecipient, tokenID, fee);
+        _callonERC1155Received(_from, feeRecipient, tokenID, fee, "");
+
       // Fee is paid from another ERC-1155 contract
       } else {
         IERC1155(tokenAddress).safeTransferFrom(_from, feeRecipient, tokenID, fee, "");
@@ -325,7 +349,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
       tokenAddress = abi.decode(_g.feeTokenData, (address));
       require(
         IERC20(tokenAddress).transferFrom(_from, feeRecipient, fee),
-        "ERC1155MetaPackedBalance#_transferGasFee: ERC20_TRANSFER_FAILED"
+        "ERC1155Meta#_transferGasFee: ERC20_TRANSFER_FAILED"
       );
     }
   }

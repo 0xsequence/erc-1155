@@ -10,10 +10,10 @@ contract ERC1155MetadataMock is ERC1155Metadata {
   |         Base URI Functions        |
   |__________________________________*/
 
-  /** 
+  /**
    * @notice Will update the base URL of token's URI
    * @param _newBaseMetadataURI New base URL of token's URI
-   */ 
+   */
   function setBaseMetadataURI(string memory _newBaseMetadataURI) public {
     super._setBaseMetadataURI(_newBaseMetadataURI);
   }
@@ -47,5 +47,5 @@ contract ERC1155MetadataMock is ERC1155Metadata {
 
   function () external {
     revert('ERC1155MetadataMock: INVALID_METHOD');
-  } 
+  }
 }

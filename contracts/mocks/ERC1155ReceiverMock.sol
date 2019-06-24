@@ -27,18 +27,18 @@ contract ERC1155ReceiverMock {
   }
 
   /**
-  * @notice Handle the receipt of a single ERC1155 token type.
-  * @dev An ERC1155-compliant smart contract MUST call this function on the token recipient contract, at the end of a `safeTransferFrom` after the balance has been updated.
-  * This function MAY throw to revert and reject the transfer.
-  * Return of other than the magic value MUST result in the transaction being reverted.
-  * Note: The contract address is always the message sender.
-  * @param _operator  The address which called the `safeTransferFrom` function
-  * @param _from      The address which previously owned the token
-  * @param _id        The id of the token being transferred
-  * @param _value     The amount of tokens being transferred
-  * @param _data      Additional data with no specified format
-  * @return           `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`
-  */
+   * @notice Handle the receipt of a single ERC1155 token type.
+   * @dev An ERC1155-compliant smart contract MUST call this function on the token recipient contract, at the end of a `safeTransferFrom` after the balance has been updated.
+   * This function MAY throw to revert and reject the transfer.
+   * Return of other than the magic value MUST result in the transaction being reverted.
+   * Note: The contract address is always the message sender.
+   * @param _operator  The address which called the `safeTransferFrom` function
+   * @param _from      The address which previously owned the token
+   * @param _id        The id of the token being transferred
+   * @param _value     The amount of tokens being transferred
+   * @param _data      Additional data with no specified format
+   * @return           `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`
+   */
   function onERC1155Received(address _operator, address _from, uint256 _id, uint256 _value, bytes memory _data)
     public returns(bytes4)
   {
@@ -57,18 +57,18 @@ contract ERC1155ReceiverMock {
   }
 
   /**
-  * @notice Handle the receipt of multiple ERC1155 token types.
-  * @dev An ERC1155-compliant smart contract MUST call this function on the token recipient contract, at the end of a `safeBatchTransferFrom` after the balances have been updated.
-  * This function MAY throw to revert and reject the transfer.
-  * Return of other than the magic value WILL result in the transaction being reverted.
-  * Note: The contract address is always the message sender.
-  * @param _operator  The address which called the `safeBatchTransferFrom` function
-  * @param _from      The address which previously owned the token
-  * @param _ids       An array containing ids of each token being transferred
-  * @param _values    An array containing amounts of each token being transferred
-  * @param _data      Additional data with no specified format
-  * @return           `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`
-  */
+   * @notice Handle the receipt of multiple ERC1155 token types.
+   * @dev An ERC1155-compliant smart contract MUST call this function on the token recipient contract, at the end of a `safeBatchTransferFrom` after the balances have been updated.
+   * This function MAY throw to revert and reject the transfer.
+   * Return of other than the magic value WILL result in the transaction being reverted.
+   * Note: The contract address is always the message sender.
+   * @param _operator  The address which called the `safeBatchTransferFrom` function
+   * @param _from      The address which previously owned the token
+   * @param _ids       An array containing ids of each token being transferred
+   * @param _values    An array containing amounts of each token being transferred
+   * @param _data      Additional data with no specified format
+   * @return           `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`
+   */
   function onERC1155BatchReceived(address _operator, address _from, uint256[] memory _ids, uint256[] memory _values, bytes memory _data) 
     public returns(bytes4)
   {
@@ -94,12 +94,14 @@ contract ERC1155ReceiverMock {
 
   /**
    * @notice Indicates whether a contract implements the `ERC1155TokenReceiver` functions and so can accept ERC1155 token types.
-   * @dev This function MUST return `bytes4(keccak256("isERC1155TokenReceiver()"))` (i.e. 0x0d912442).
-   * This function MUST NOT consume more than 5,000 gas.
-   * @return `bytes4(keccak256("isERC1155TokenReceiver()"))`
+   * @param  interfaceID The ERC-165 interface ID that is queried for support.s
+   * @dev This function MUST return true if it implements the ERC1155TokenReceiver interface and ERC-165 interface.
+   *      This function MUST NOT consume more than 5,000 gas.
+   * @return Wheter ERC-165 or ERC1155TokenReceiver interfaces are supported.
    */
-  function isERC1155TokenReceiver() public pure returns (bytes4) {
-    return IS_ERC1155_RECEIVER;
+  function supportsInterface(bytes4 interfaceID) external view returns (bool) {
+    return  interfaceID == 0x01ffc9a7 || // ERC-165 support (i.e. `bytes4(keccak256('supportsInterface(bytes4)'))`).
+      interfaceID == 0x4e2312e0;         // ERC-1155 `ERC1155TokenReceiver` support (i.e. `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)")) ^ bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`).
   }
 
 }

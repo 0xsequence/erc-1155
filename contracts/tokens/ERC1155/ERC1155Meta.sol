@@ -13,11 +13,9 @@ import "../../utils/SignatureValidator.sol";
  *      to presign function calls and allow third parties to execute these on their behalf
  *
  * TO DO:
- *  - Update to solc to second latest
- *  - Check if contract with codehash vs codesize?
  *  - encodePacked vs encode gas
- *  - bytes32(address) for EIP-712 members?
  *  - Gas Receipt and transferData as EIP-712 struct
+ *  - Rentrancy greedfing attacks with metaTransfers
  */
 contract ERC1155Meta is ERC1155, SignatureValidator {
   using LibBytes for bytes;
@@ -94,11 +92,24 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     // If Gas is being reimbursed
     if (_isGasFee) {
       (gasReceipt, transferData) = abi.decode(signedData, (GasReceipt, bytes));
-      _safeTransferFrom(_from, _to, _id, _amount, transferData);
+      _safeTransferFrom(_from, _to, _id, _amount);
+
+      // Check if recipient is contract
+      if (_to.isContract()) {
+        // We need to somewhat protect operators against gas griefing attacks in recipient contract.
+        // Hence we only pass the gasLimit to the recipient such that the validator knows the griefing
+        // limit. Nothing can prevent the receiver to revert the transaction as close to the gasLimit as
+        // possible, but the operator can now only accept meta-transaction gasLimit within a certain range.
+        bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received.gas(gasReceipt.gasLimit)(msg.sender, _from, _id, _amount, transferData);
+        require(retval == ERC1155_RECEIVED_VALUE, "ERC1155Meta#metaSafeTransferFrom: INVALID_ON_RECEIVE_MESSAGE");
+      }
+
+      // Transfer gas cost
       _transferGasFee(_from, startGas, gasReceipt);
 
     } else {
-      _safeTransferFrom(_from, _to, _id, _amount, signedData);
+      _safeTransferFrom(_from, _to, _id, _amount);
+      _callonERC1155Received(_from, _to, _id, _amount, signedData);
     }
   }
 
@@ -146,15 +157,25 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
       (gasReceipt, transferData) = abi.decode(signedData, (GasReceipt, bytes));
 
       // Update balances
-      _safeBatchTransferFrom(_from, _to, _ids, _amounts, transferData);
+      _safeBatchTransferFrom(_from, _to, _ids, _amounts);
+
+            // Check if recipient is contract
+      if (_to.isContract()) {
+        // We need to somewhat protect operators against gas griefing attacks in recipient contract.
+        // Hence we only pass the gasLimit to the recipient such that the validator knows the griefing
+        // limit. Nothing can prevent the receiver to revert the transaction as close to the gasLimit as
+        // possible, but the operator can now only accept meta-transaction gasLimit within a certain range.
+        bytes4 retval = IERC1155TokenReceiver(_to).onERC1155BatchReceived.gas(gasReceipt.gasLimit)(msg.sender, _from, _ids, _amounts, transferData);
+        require(retval == ERC1155_BATCH_RECEIVED_VALUE, "ERC1155Meta#metaSafeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE");
+      }
 
       // Handle gas reimbursement
       _transferGasFee(_from, startGas, gasReceipt);
 
     } else {
-      _safeBatchTransferFrom(_from, _to, _ids, _amounts, signedData);
+      _safeBatchTransferFrom(_from, _to, _ids, _amounts);
+      _callonERC1155BatchReceived(_from, _to, _ids, _amounts, signedData);
     }
-
   }
 
 
@@ -226,7 +247,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
   /**
    * @notice Verifies signatures for this contract
    * @param _signer     Address of signer
-   * @param _sigData    Encodes signature and gas payment receipt
+   * @param _sigData    Encodes signature, gas payment receipt and transfer data (if any)
    * @param _encMembers Encoded EIP-712 type members (except nonce and _data)
    * @dev _data should be encoded as ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g, ?bytes transferData))
    *   i.e. high level encoding svhould be (bytes, bytes), where the latter bytes array is a nested bytes array
@@ -317,8 +338,9 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
 
       // Fee is paid from this ERC1155 contract
       if (tokenAddress == address(this)) {
-        _safeTransferFrom(_from, feeRecipient, tokenID, fee, "");
-    
+        _safeTransferFrom(_from, feeRecipient, tokenID, fee);
+        _callonERC1155Received(_from, feeRecipient, tokenID, fee, "");
+
       // Fee is paid from another ERC-1155 contract
       } else {
         IERC1155(tokenAddress).safeTransferFrom(_from, feeRecipient, tokenID, fee, "");
@@ -332,7 +354,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
         "ERC1155Meta#_transferGasFee: ERC20_TRANSFER_FAILED"
       );
     }
-
+    
   }
 
 }

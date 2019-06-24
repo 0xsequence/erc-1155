@@ -8,6 +8,8 @@ import { TransactionOverrides } from ".";
 
 export class IERC1155TokenReceiver extends Contract {
   functions: {
+    supportsInterface(interfaceID: string): Promise<boolean>;
+
     onERC1155Received(
       _operator: string,
       _from: string,
@@ -25,8 +27,6 @@ export class IERC1155TokenReceiver extends Contract {
       _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
-
-    isERC1155TokenReceiver(): Promise<string>;
   };
   filters: {};
 }

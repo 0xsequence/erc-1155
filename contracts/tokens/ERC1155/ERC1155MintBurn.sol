@@ -68,7 +68,7 @@ contract ERC1155MintBurn is ERC1155 {
    */
   function _burn(address _from, uint256 _id, uint256 _amount)
     internal
-  {    
+  {
     //Substract _amount
     balances[_from][_id] = balances[_from][_id].sub(_amount);
 
@@ -83,7 +83,7 @@ contract ERC1155MintBurn is ERC1155 {
    * @param _amounts  Array of the amount to be burned
    */
   function _batchBurn(address _from, uint256[] memory _ids, uint256[] memory _amounts)
-    internal 
+    internal
   {
     require(_ids.length == _amounts.length, "ERC1155MintBurn#batchBurn: INVALID_ARRAYS_LENGTH");
 

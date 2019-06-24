@@ -186,7 +186,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
       await receiverContract.functions.setShouldReject(true)
 
       const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverContract.address, 0, 1, [])
-      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_safeTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
+      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE") )
     })
 
     it('should pass if valid response from receiver contract', async () => {
@@ -407,7 +407,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [],
         {gasLimit: 2000000}
       )
-      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_safeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
+      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE") )
     })
 
     it('should pass if valid response from receiver contract', async () => {

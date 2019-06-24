@@ -1,6 +1,6 @@
 import * as ethers from 'ethers'
 
-import { AbstractContract, expect, BigNumber } from './utils'
+import { AbstractContract, expect, BigNumber, RevertError } from './utils'
 import * as utils from './utils'
 
 import { ERC1155MetaMintBurnMock } from 'typings/contracts/ERC1155MetaMintBurnMock'
@@ -85,11 +85,25 @@ contract('ERC1155', (accounts: string[]) => {
       expect(balancesNull[1]).to.be.eql(new BigNumber(0))
     })
 
-    it('isERC1155TokenReceiver() on receiver should return correct bytes4', async () => {
+    it('supportsInterface(0x4e2312e0) on receiver should return true', async () => {
       let abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
       const receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
-      const returnedValue = await receiverContract.functions.isERC1155TokenReceiver()
-      await expect(returnedValue).to.be.equal('0x0d912442')
+      const returnedValue = await receiverContract.functions.supportsInterface('0x4e2312e0')
+      await expect(returnedValue).to.be.equal(true)
+    })
+
+    it('supportsInterface(v) on receiver should return true', async () => {
+      let abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
+      const receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
+      const returnedValue = await receiverContract.functions.supportsInterface('0x01ffc9a7')
+      await expect(returnedValue).to.be.equal(true)
+    })
+
+    it('supportsInterface(0x4e2312ee) on receiver should return false', async () => {
+      let abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
+      const receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
+      const returnedValue = await receiverContract.functions.supportsInterface('0x4e2312ee')
+      await expect(returnedValue).to.be.equal(false)
     })
 
   })
@@ -150,7 +164,7 @@ contract('ERC1155', (accounts: string[]) => {
       await receiverContract.functions.setShouldReject(true)
 
       const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverContract.address, 0, 1, [])
-      await expect(tx).to.be.rejected
+      await expect(tx).to.be.rejectedWith( RevertError("ERC1155#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE") )
     })
 
     it('should pass if valid response from receiver contract', async () => {
@@ -294,7 +308,7 @@ contract('ERC1155', (accounts: string[]) => {
       receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
     })
 
-    it('should be able to transfer 560 tokens if sufficient balances', async () => {
+    it('should be able to transfer tokens if sufficient balances', async () => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, types, values, [])
       await expect(tx).to.be.fulfilled
     })
@@ -368,7 +382,7 @@ contract('ERC1155', (accounts: string[]) => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [],
         {gasLimit: 2000000}
       )
-      await expect(tx).to.be.rejected
+      await expect(tx).to.be.rejectedWith( RevertError("ERC1155#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE") )
     })
 
 

@@ -8,6 +8,8 @@ import { TransactionOverrides } from ".";
 
 export class ERC1155ReceiverMock extends Contract {
   functions: {
+    supportsInterface(interfaceID: string): Promise<boolean>;
+
     setShouldReject(
       _value: boolean,
       overrides?: TransactionOverrides
@@ -36,7 +38,6 @@ export class ERC1155ReceiverMock extends Contract {
     lastValue(): Promise<BigNumber>;
     lastOperator(): Promise<string>;
     lastId(): Promise<BigNumber>;
-    isERC1155TokenReceiver(): Promise<string>;
   };
   filters: {
     TransferSingleReceiver(
