@@ -15,7 +15,7 @@ import "../../utils/SignatureValidator.sol";
  * TO DO:
  *  - encodePacked vs encode gas
  *  - Gas Receipt and transferData as EIP-712 struct
- *  - Rentrancy greedfing attacks with metaTransfers
+ *  - Tests for gas griefing protection
  */
 contract ERC1155Meta is ERC1155, SignatureValidator {
   using LibBytes for bytes;

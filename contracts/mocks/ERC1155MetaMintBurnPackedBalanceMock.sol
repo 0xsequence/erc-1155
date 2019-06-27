@@ -16,11 +16,12 @@ contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, E
    * @param _to The address to mint tokens to.
    * @param _id token id to mint
    * @param _value The amount to be minted
+   * @param _data Data to be passed if receiver is contract
    */
-  function mintMock(address _to, uint256 _id, uint256 _value)
+  function mintMock(address _to, uint256 _id, uint256 _value, bytes memory _data)
     public
   {
-    _mint(_to, _id, _value);
+    _mint(_to, _id, _value, _data);
   }
 
   /**
@@ -28,11 +29,12 @@ contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, E
    * @param _to The address to mint tokens to.
    * @param _ids Array of ids to mint
    * @param _values Array of amount of tokens to mint per id
+   * @param _data Data to be passed if receiver is contract
    */
-  function batchMintMock(address _to, uint256[] memory _ids, uint256[] memory _values)
+  function batchMintMock(address _to, uint256[] memory _ids, uint256[] memory _values, bytes memory _data)
     public
   {
-    _batchMint(_to, _ids, _values);
+    _batchMint(_to, _ids, _values, _data);
   }
 
   // ---- Burning functions

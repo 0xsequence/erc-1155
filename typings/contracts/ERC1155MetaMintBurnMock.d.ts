@@ -90,6 +90,7 @@ export class ERC1155MetaMintBurnMock extends Contract {
       _to: string,
       _id: number | string | BigNumber,
       _value: number | string | BigNumber,
+      _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
@@ -97,6 +98,7 @@ export class ERC1155MetaMintBurnMock extends Contract {
       _to: string,
       _ids: (number | string | BigNumber)[],
       _values: (number | string | BigNumber)[],
+      _data: (string)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 

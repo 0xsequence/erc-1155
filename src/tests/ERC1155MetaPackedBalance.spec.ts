@@ -163,10 +163,10 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
           }
 
           // Mint tokens
-          await erc1155Contract.functions.mintMock(ownerAddress, id, initBalance)
+          await erc1155Contract.functions.mintMock(ownerAddress, id, initBalance, [])
 
           // Mint tokens used to pay for gas
-          await erc1155Contract.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance)
+          await erc1155Contract.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance, [])
 
           // Get domain hash
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
@@ -302,7 +302,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
           })
 
           it('should REVERT if transfer leads to overflow', async () => {
-            await erc1155Contract.functions.mintMock(receiverAddress, id, MAXVAL)
+            await erc1155Contract.functions.mintMock(receiverAddress, id, MAXVAL, [])
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: OVERFLOW") ) 
@@ -427,7 +427,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
             it("should PASS if another approved ERC-1155 is used for fee", async () => {
               let erc1155Contract2 = await erc1155Abstract.deploy(ownerWallet) as ERC1155MetaMintBurnPackedBalanceMock
-              await erc1155Contract2.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance)
+              await erc1155Contract2.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance, [])
               await erc1155Contract2.functions.setApprovalForAll(operatorERC1155Contract.address, true)
     
               feeTokenDataERC1155 = ethers.utils.defaultAbiCoder.encode(
@@ -454,7 +454,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
             it("should REVERT if NOT approved ERC-1155 is used for fee", async () => {
               let erc1155Contract2 = await erc1155Abstract.deploy(ownerWallet) as ERC1155MetaMintBurnPackedBalanceMock
-              await erc1155Contract2.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance)
+              await erc1155Contract2.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance, [])
     
               feeTokenDataERC1155 = ethers.utils.defaultAbiCoder.encode(
                 ['address', 'uint256', 'uint8'], 
@@ -480,7 +480,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
             it("should REVERT if another ERC-1155 is used for fee without sufficient balance", async () => {
               let erc1155Contract2 = await erc1155Abstract.deploy(ownerWallet) as ERC1155MetaMintBurnPackedBalanceMock
-              await erc1155Contract2.functions.mintMock(ownerAddress, feeTokenID, 100)
+              await erc1155Contract2.functions.mintMock(ownerAddress, feeTokenID, 100, [])
               await erc1155Contract2.functions.setApprovalForAll(operatorERC1155Contract.address, true)
     
               feeTokenDataERC1155 = ethers.utils.defaultAbiCoder.encode(
@@ -729,7 +729,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
           // Minting enough amounts for transfer for each types
           for (let i = 0; i < nTokenTypes; i++) {
-            await erc1155Contract.functions.mintMock(ownerAddress, i, initBalance)
+            await erc1155Contract.functions.mintMock(ownerAddress, i, initBalance, [])
             ids.push(i)
             amounts.push(amount)
           }
@@ -765,7 +765,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
           }
 
           // Mint tokens used to pay for gas
-          await erc1155Contract.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance)
+          await erc1155Contract.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance, [])
 
           // Domain hash
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
@@ -901,7 +901,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
           })
 
           it('should REVERT if transfer leads to overflow', async () => {
-            await operatorERC1155Contract.functions.mintMock(receiverAddress, ids[0], MAXVAL)
+            await operatorERC1155Contract.functions.mintMock(receiverAddress, ids[0], MAXVAL, [])
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: OVERFLOW") ) 
@@ -1197,10 +1197,10 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
           }
 
           // Mint tokens
-          await erc1155Contract.functions.mintMock(ownerAddress, id, initBalance)
+          await erc1155Contract.functions.mintMock(ownerAddress, id, initBalance, [])
 
           // Mint tokens used to pay for gas
-          await erc1155Contract.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance)
+          await erc1155Contract.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance, [])
 
           // Domain hash
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(

@@ -63,8 +63,8 @@ contract('ERC1155', (accounts: string[]) => {
   describe('Getter functions', () => {
 
     beforeEach(async () => {
-      await erc1155Contract.functions.mintMock(ownerAddress, 5, 256)
-      await erc1155Contract.functions.mintMock(receiverAddress, 66, 133)
+      await erc1155Contract.functions.mintMock(ownerAddress, 5, 256, [])
+      await erc1155Contract.functions.mintMock(receiverAddress, 66, 133, [])
     })
 
     it('balanceOf() should return types balance for queried address', async () => {
@@ -117,7 +117,7 @@ contract('ERC1155', (accounts: string[]) => {
       let abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
       receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
       operatorContract = await operatorAbstract.deploy(operatorWallet) as ERC1155OperatorMock
-      await erc1155Contract.functions.mintMock(ownerAddress, 0, 256)
+      await erc1155Contract.functions.mintMock(ownerAddress, 0, 256, [])
     })
 
     it('should be able to transfer if sufficient balance', async () => {
@@ -150,7 +150,7 @@ contract('ERC1155', (accounts: string[]) => {
     })
 
     it('should REVERT if transfer leads to overflow', async () => {
-      await erc1155Contract.functions.mintMock(receiverAddress, 0, MAXVAL)
+      await erc1155Contract.functions.mintMock(receiverAddress, 0, MAXVAL, [])
       const tx2 = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, 0, 1, [])
       await expect(tx2).to.be.rejected
     })
@@ -302,7 +302,7 @@ contract('ERC1155', (accounts: string[]) => {
         types.push(i)
         values.push(nTokensPerType)
       }
-      await erc1155Contract.functions.batchMintMock(ownerAddress, types, values)
+      await erc1155Contract.functions.batchMintMock(ownerAddress, types, values, [])
 
       const abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
       receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
@@ -349,7 +349,7 @@ contract('ERC1155', (accounts: string[]) => {
     })
 
     it('should REVERT if transfer leads to overflow', async () => {
-      await erc1155Contract.functions.mintMock(receiverAddress, 5, MAXVAL)
+      await erc1155Contract.functions.mintMock(receiverAddress, 5, MAXVAL, [])
 
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [5], [1], [])
       await expect(tx).to.be.rejected

@@ -107,7 +107,6 @@ contract ERC1155PackedBalance is IERC165 {
   function _safeTransferFrom(address _from, address _to, uint256 _id, uint256 _amount)
     internal
   {
-  
     //Update balances
     _updateIDBalance(_from, _id, _amount, Operations.Sub); // Subtract amount from sender
     _updateIDBalance(_to,   _id, _amount, Operations.Add); // Add amount to recipient
