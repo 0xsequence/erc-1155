@@ -337,6 +337,8 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
       // Fee is paid from this ERC1155 contract
       if (tokenAddress == address(this)) {
         _safeTransferFrom(_from, feeRecipient, tokenID, fee);
+
+        // No need to protect against griefing since recipient contract is most likely the operator
         _callonERC1155Received(_from, feeRecipient, tokenID, fee, "");
 
       // Fee is paid from another ERC-1155 contract

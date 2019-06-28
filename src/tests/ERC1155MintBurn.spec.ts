@@ -93,15 +93,16 @@ contract('ERC1155MintBurn', (accounts: string[]) => {
         expect(recipientBalanceB).to.be.eql(recipientBalanceA.add(amount))
       })
 
-      it('should REVERT if amount is larger than limit', async () => {
-        const maxVal = 2**256
-        const tx = erc1155MintBurnContract.functions.mintMock(receiverAddress, tokenID, maxVal, [])
-        await expect(tx).to.be.rejected
+      it('should REVERT if added amount leads to overflow', async () => {
+        const val = new BigNumber(2).pow(256).sub(1)
+        await erc1155MintBurnContract.functions.mintMock(receiverAddress, tokenID, val, [])
+        const tx = erc1155MintBurnContract.functions.mintMock(receiverAddress, tokenID, 1, [])
+        await expect(tx).to.be.rejectedWith( RevertError("SafeMath#add: OVERFLOW") )
       })
 
       it('should REVERT when sending to non-receiver contract', async () => {
         const tx = erc1155MintBurnContract.functions.mintMock(erc1155MintBurnContract.address, tokenID, amount, [])
-        await expect(tx).to.be.rejected
+        await expect(tx).to.be.rejectedWith(RevertError())
       })
   
       it('should REVERT if invalid response from receiver contract', async () => {
@@ -223,7 +224,7 @@ contract('ERC1155MintBurn', (accounts: string[]) => {
         const tx = erc1155MintBurnContract.functions.batchMintMock(erc1155MintBurnContract.address, typesArray, amountArray, [],
           {gasLimit: 2000000}
         )
-        await expect(tx).to.be.rejected
+        await expect(tx).to.be.rejectedWith(RevertError())
       })
   
       it('should REVERT if invalid response from receiver contract', async () => {
@@ -351,7 +352,7 @@ contract('ERC1155MintBurn', (accounts: string[]) => {
       it('should REVERT if amount is hgher than balance', async () => {
         const invalidVal = initBalance + 1 
         const tx = erc1155MintBurnContract.functions.burnMock(receiverAddress, tokenID, invalidVal)
-        await expect(tx).to.be.rejected
+        await expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") )
       })
 
       it('should emit a Transfer event', async () => {

@@ -127,17 +127,17 @@ contract('ERC1155', (accounts: string[]) => {
 
     it('should REVERT if insufficient balance', async () => {
       const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, 0, 257, [])
-      await expect(tx).to.be.rejected
+      await  expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") )
     })
 
     it('should REVERT if sending to 0x0', async () => {
       const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, ZERO_ADDRESS, 0, 1, [])
-      await expect(tx).to.be.rejected
+      await expect(tx).to.be.rejectedWith( RevertError("ERC1155#safeTransferFrom: INVALID_RECIPIENT") )
     })
 
     it('should REVERT if operator not approved', async () => {
-      const tx = operatorERC1155Contract.functions.safeTransferFrom(operatorAddress, receiverAddress, 0, 1, [])
-      await expect(tx).to.be.rejected
+      const tx = operatorERC1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, 0, 1, [])
+      await expect(tx).to.be.rejectedWith( RevertError("ERC1155#safeTransferFrom: INVALID_OPERATOR") )
     })
 
     it('should be able to transfer via operator if operator is approved', async () => {
@@ -151,13 +151,13 @@ contract('ERC1155', (accounts: string[]) => {
 
     it('should REVERT if transfer leads to overflow', async () => {
       await erc1155Contract.functions.mintMock(receiverAddress, 0, MAXVAL, [])
-      const tx2 = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, 0, 1, [])
-      await expect(tx2).to.be.rejected
+      const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, 0, 1, [])
+      expect(tx).to.be.rejectedWith( RevertError("SafeMath#add: OVERFLOW") )
     })
 
     it('should REVERT when sending to non-receiver contract', async () => {
       const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, erc1155Contract.address, 0, 1, [])
-      await expect(tx).to.be.rejected
+      await expect(tx).to.be.rejectedWith(RevertError());
     })
 
     it('should REVERT if invalid response from receiver contract', async () => {
@@ -315,30 +315,30 @@ contract('ERC1155', (accounts: string[]) => {
 
     it('should REVERT if insufficient balance', async () => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [0], [11], [])
-      await expect(tx).to.be.rejected
+      await expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") )
     })
 
     it('should REVERT if single insufficient balance', async () => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [0, 15, 30], [1,  9,  11], [])
-      await expect(tx).to.be.rejected
+      await expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") )
     })
 
     it('should REVERT if operator not approved', async () => {
       const tx = operatorERC1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, types, values, [])
-      await expect(tx).to.be.rejected
+      expect(tx).to.be.rejectedWith( RevertError( "ERC1155#safeBatchTransferFrom: INVALID_OPERATOR") )
     })
 
     it('should REVERT if length of ids and values are not equal', async () => {
       const tx1 = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [0, 15, 30, 0], [1, 9, 10], [])
-      await expect(tx1).to.be.rejected
+      await expect(tx1).to.be.rejectedWith( RevertError("ERC1155#_safeBatchTransferFrom: INVALID_ARRAYS_LENGTH") )
 
       const tx2 = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [0, 15, 30], [1, 9, 10, 0], [])
-      await expect(tx2).to.be.rejected
+      await expect(tx2).to.be.rejectedWith( RevertError("ERC1155#_safeBatchTransferFrom: INVALID_ARRAYS_LENGTH") )
     })
 
     it('should REVERT if sending to 0x0', async () => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, ZERO_ADDRESS, types, values, [])
-      await expect(tx).to.be.rejected
+      await expect(tx).to.be.rejectedWith( RevertError("ERC1155#safeBatchTransferFrom: INVALID_RECIPIENT") )
     })
 
     it('should be able to transfer via operator if operator is approved', async () => {
@@ -352,7 +352,7 @@ contract('ERC1155', (accounts: string[]) => {
       await erc1155Contract.functions.mintMock(receiverAddress, 5, MAXVAL, [])
 
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [5], [1], [])
-      await expect(tx).to.be.rejected
+      await expect(tx).to.be.rejectedWith( RevertError("SafeMath#add: OVERFLOW") )
     })
 
     it('should update balances of sender and receiver', async () => {
@@ -374,7 +374,7 @@ contract('ERC1155', (accounts: string[]) => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, erc1155Contract.address, types, values, [],
         {gasLimit: 2000000}
       )
-      await expect(tx).to.be.rejected
+      await expect(tx).to.be.rejectedWith(RevertError());
     })
 
     it('should REVERT if invalid response from receiver contract', async () => {

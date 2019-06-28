@@ -15,7 +15,6 @@ import "../../utils/SignatureValidator.sol";
  * TO DO:
  *  - encodePacked vs encode gas
  *  - Gas Receipt and transferData as EIP-712 struct
- *  - Tests for gas griefing protection
  */
 contract ERC1155Meta is ERC1155, SignatureValidator {
   using LibBytes for bytes;
@@ -339,6 +338,8 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
       // Fee is paid from this ERC1155 contract
       if (tokenAddress == address(this)) {
         _safeTransferFrom(_from, feeRecipient, tokenID, fee);
+
+        // No need to protect against griefing since recipient contract is most likely the operator
         _callonERC1155Received(_from, feeRecipient, tokenID, fee, "");
 
       // Fee is paid from another ERC-1155 contract
