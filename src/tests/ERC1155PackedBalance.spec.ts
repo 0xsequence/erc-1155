@@ -104,8 +104,8 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
   describe('Getter functions', () => {
 
     beforeEach(async () => {
-      await erc1155Contract.functions.mintMock(ownerAddress, 5, 256)
-      await erc1155Contract.functions.mintMock(receiverAddress, 66, 133)
+      await erc1155Contract.functions.mintMock(ownerAddress, 5, 256, [])
+      await erc1155Contract.functions.mintMock(receiverAddress, 66, 133, [])
     })
 
     it('balanceOf() should return types balance for queried address', async () => {
@@ -139,7 +139,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
       receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
       operatorContract = await operatorAbstract.deploy(operatorWallet) as ERC1155OperatorMock
 
-      await erc1155Contract.functions.mintMock(ownerAddress, 0, 256)
+      await erc1155Contract.functions.mintMock(ownerAddress, 0, 256, [])
     })
 
     it('should be able to transfer if sufficient balance', async () => {
@@ -172,21 +172,21 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
     })
 
     it('should REVERT if transfer leads to overflow', async () => {
-      await erc1155Contract.functions.mintMock(receiverAddress, 0, 2**32-1)
+      await erc1155Contract.functions.mintMock(receiverAddress, 0, new BigNumber(2).pow(32).sub(1), [])
       const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, 0, 1, [])
       await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: OVERFLOW") )
     })
 
     it('should REVERT when sending to non-receiver contract', async () => {
       const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, erc1155Contract.address, 0, 1, [])
-      await expect(tx).to.be.rejected;
+      await expect(tx).to.be.rejectedWith(RevertError());
     })
 
     it('should REVERT if invalid response from receiver contract', async () => {
       await receiverContract.functions.setShouldReject(true)
 
       const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverContract.address, 0, 1, [])
-      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_safeTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
+      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE") )
     })
 
     it('should pass if valid response from receiver contract', async () => {
@@ -324,7 +324,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
         types.push(i)
         values.push(nTokensPerType)
       }
-      await erc1155Contract.functions.batchMintMock(ownerAddress, types, values)
+      await erc1155Contract.functions.batchMintMock(ownerAddress, types, values, [])
 
       const abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
       receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
@@ -374,7 +374,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
     })
 
     it('should REVERT if transfer leads to overflow', async () => {
-      await erc1155Contract.functions.mintMock(receiverAddress, types[0], 2**32-1)
+      await erc1155Contract.functions.mintMock(receiverAddress, types[0], new BigNumber(2).pow(32).sub(1), [])
       
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [types[0], types[2]], [1, 1], [])
       await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: OVERFLOW") )
@@ -399,7 +399,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, erc1155Contract.address, types, values, [],
         {gasLimit: 2000000}
       )
-      await expect(tx).to.be.rejected;
+      await expect(tx).to.be.rejectedWith(RevertError());
     })
 
     it('should REVERT if invalid response from receiver contract', async () => {
@@ -407,7 +407,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [],
         {gasLimit: 2000000}
       )
-      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_safeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
+      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE") )
     })
 
     it('should pass if valid response from receiver contract', async () => {

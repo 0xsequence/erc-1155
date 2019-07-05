@@ -37,10 +37,11 @@ interface IERC1155TokenReceiver {
 
   /**
    * @notice Indicates whether a contract implements the `ERC1155TokenReceiver` functions and so can accept ERC1155 token types.
-   * @dev This function MUST return `bytes4(keccak256("isERC1155TokenReceiver()"))` (i.e. 0x0d912442).
-   * This function MUST NOT consume more than 5,000 gas.
-   * @return           `bytes4(keccak256("isERC1155TokenReceiver()"))`
+   * @param  interfaceID The ERC-165 interface ID that is queried for support.s
+   * @dev This function MUST return true if it implements the ERC1155TokenReceiver interface and ERC-165 interface.
+   *      This function MUST NOT consume more than 5,000 gas.
+   * @return Wheter ERC-165 or ERC1155TokenReceiver interfaces are supported.
    */
-  function isERC1155TokenReceiver() external view returns (bytes4);
+  function supportsInterface(bytes4 interfaceID) external view returns (bool);
 
 }

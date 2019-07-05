@@ -68,7 +68,8 @@ contract ERC1155PackedBalance is IERC165 {
     require(_to != address(0),"ERC1155PackedBalance#safeTransferFrom: INVALID_RECIPIENT");
     // require(_amount <= balances);  Not necessary since checked with _viewUpdateIDBalance() checks
 
-    _safeTransferFrom(_from, _to, _id, _amount, _data);
+    _safeTransferFrom(_from, _to, _id, _amount);
+    _callonERC1155Received(_from, _to, _id, _amount, _data);
   }
 
   /**
@@ -87,7 +88,8 @@ contract ERC1155PackedBalance is IERC165 {
     require((msg.sender == _from) || operators[_from][msg.sender], "ERC1155PackedBalance#safeBatchTransferFrom: INVALID_OPERATOR");
     require(_to != address(0),"ERC1155PackedBalance#safeBatchTransferFrom: INVALID_RECIPIENT");
 
-    _safeBatchTransferFrom(_from, _to, _ids, _amounts, _data);
+    _safeBatchTransferFrom(_from, _to, _ids, _amounts);
+    _callonERC1155BatchReceived(_from, _to, _ids, _amounts, _data);
   }
 
 
@@ -101,9 +103,8 @@ contract ERC1155PackedBalance is IERC165 {
    * @param _to      Target address
    * @param _id      ID of the token type
    * @param _amount  Transfered amount
-   * @param _data    Additional data with no specified format, sent in call to `_to`
    */
-  function _safeTransferFrom(address _from, address _to, uint256 _id, uint256 _amount, bytes memory _data)
+  function _safeTransferFrom(address _from, address _to, uint256 _id, uint256 _amount)
     internal
   {
     //Update balances
@@ -112,12 +113,18 @@ contract ERC1155PackedBalance is IERC165 {
 
     // Emit event
     emit TransferSingle(msg.sender, _from, _to, _id, _amount);
+  }
 
-    //Pass data if recipient is contract
+  /**
+   * @notice Verifies if receiver is contract and if so, calls (_to).onERC1155Received(...)
+   */
+  function _callonERC1155Received(address _from, address _to, uint256 _id, uint256 _amount, bytes memory _data)
+    internal
+  {
+    // Check if recipient is contract
     if (_to.isContract()) {
-      // Call receiver function on recipient
       bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _amount, _data);
-      require(retval == ERC1155_RECEIVED_VALUE, "ERC1155PackedBalance#_safeTransferFrom: INVALID_ON_RECEIVE_MESSAGE");
+      require(retval == ERC1155_RECEIVED_VALUE, "ERC1155PackedBalance#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE");
     }
   }
 
@@ -128,9 +135,8 @@ contract ERC1155PackedBalance is IERC165 {
    * @param _to       Target addresses
    * @param _ids      IDs of each token type
    * @param _amounts  Transfer amounts per token type
-   * @param _data     Additional data with no specified format, sent in call to `_to`
    */
-  function _safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts, bytes memory _data)
+  function _safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts)
     internal
   {
     require(_ids.length == _amounts.length, "ERC1155PackedBalance#_safeBatchTransferFrom: INVALID_ARRAYS_LENGTH");
@@ -175,11 +181,18 @@ contract ERC1155PackedBalance is IERC165 {
 
     // //Emit event
     emit TransferBatch(msg.sender, _from, _to, _ids, _amounts);
+  }
 
+  /**
+   * @notice Verifies if receiver is contract and if so, calls (_to).onERC1155BatchReceived(...)
+   */
+  function _callonERC1155BatchReceived(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts, bytes memory _data)
+    internal
+  {
     // Pass data if recipient is contract
     if (_to.isContract()) {
       bytes4 retval = IERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender, _from, _ids, _amounts, _data);
-      require(retval == ERC1155_BATCH_RECEIVED_VALUE, "ERC1155PackedBalance#_safeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE");
+      require(retval == ERC1155_BATCH_RECEIVED_VALUE, "ERC1155PackedBalance#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE");
     }
   }
 

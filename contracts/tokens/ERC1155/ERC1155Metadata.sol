@@ -23,7 +23,7 @@ contract ERC1155Metadata {
    * @notice A distinct Uniform Resource Identifier (URI) for a given token.
    * @dev URIs are defined in RFC 3986.
    *      URIs are assumed to be deterministically generated based on token ID
-   *      Token IDs are assumed to be represented in their hex format in URIs 
+   *      Token IDs are assumed to be represented in their hex format in URIs
    * @return URI string
    */
   function uri(uint256 _id) public view returns (string memory) {
@@ -61,10 +61,10 @@ contract ERC1155Metadata {
     }
   }
 
-  /** 
+  /**
    * @notice Will update the base URL of token's URI
    * @param _newBaseMetadataURI New base URL of token's URI
-   */ 
+   */
   function _setBaseMetadataURI(string memory _newBaseMetadataURI) internal {
     baseMetadataURI = _newBaseMetadataURI;
   }
@@ -73,7 +73,7 @@ contract ERC1155Metadata {
   /***********************************|
   |    Utility Internal Functions     |
   |__________________________________*/
-  
+
   /**
    * @notice Convert uint256 to string
    * @param _i Unsigned integer to convert to string
@@ -86,7 +86,7 @@ contract ERC1155Metadata {
     uint256 j = _i;
     uint256 ii = _i;
     uint256 len;
-    
+
     // Get number of bytes
     while (j != 0) {
       len++;
