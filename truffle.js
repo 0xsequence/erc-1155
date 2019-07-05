@@ -36,8 +36,7 @@ module.exports = {
     reporter: "eth-gas-reporter",
     reporterOptions: {
       currency: "USD",
-      gasPrice: 21,
-      outputFile: "/dev/null",
+      gasPrice: 10,
       showTimeSpent: true
     }
   }
