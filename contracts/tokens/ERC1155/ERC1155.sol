@@ -1,4 +1,4 @@
-pragma solidity ^0.5.9;
+pragma solidity ^0.5.11;
 pragma experimental ABIEncoderV2;
 
 import "../../interfaces/IERC165.sol";
@@ -234,7 +234,7 @@ contract ERC1155 is IERC165 {
   bytes4 constant private INTERFACE_SIGNATURE_ERC165 = 0x01ffc9a7;
 
   /**
-   * INTERFACE_SIGNATURE_ERC1155 = 
+   * INTERFACE_SIGNATURE_ERC1155 =
    * bytes4(keccak256("safeTransferFrom(address,address,uint256,uint256,bytes)")) ^
    * bytes4(keccak256("safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)")) ^
    * bytes4(keccak256("balanceOf(address,uint256)")) ^

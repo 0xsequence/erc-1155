@@ -113,9 +113,9 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
     let conditions = [
       [transferData, true, 'Gas receipt & transfer data'],
-     [null, true, 'Gas receipt w/o transfer data'],
-     [transferData, false, 'Transfer data w/o gas receipt '],  
-     [null, false, 'No Gas receipt & No transfer data']  
+      [null, true, 'Gas receipt w/o transfer data'],
+      [transferData, false, 'Transfer data w/o gas receipt '],  
+      [null, false, 'No Gas receipt & No transfer data']  
     ]
 
     conditions.forEach(function(condition) {
@@ -1092,7 +1092,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
               })
 
               it('should PASS if gas used in onERC1155BatchReceived does not exceed limit', async () => {
-                let okGasLimit = 120000;
+                let okGasLimit = 130000;
                 gasReceipt!.gasLimit = okGasLimit
                 transferObj.receiver = receiverContract.address;
   

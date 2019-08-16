@@ -114,9 +114,9 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
     let conditions = [
       [transferData, true, 'Gas receipt & transfer data'],  
-     [null, true, 'Gas receipt w/o transfer data'],
-     [transferData, false, 'Transfer data w/o gas receipt '],  
-     [null, false, 'No Gas receipt & No transfer data']  
+      [null, true, 'Gas receipt w/o transfer data'],
+      [transferData, false, 'Transfer data w/o gas receipt '],  
+      [null, false, 'No Gas receipt & No transfer data']  
     ]
 
     conditions.forEach(function(condition) {
@@ -293,7 +293,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
         })
 
         it("should PASS if signature is valid", async () => {
-          //@ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.fulfilled
         })
