@@ -38,8 +38,8 @@ interface ERC1155ReceiverMockInterface extends Interface {
   };
 
   events: {
-    TransferSingleReceiver: TypedEventDescription<{
-      encodeTopics([_from, _to, _fromBalance, _toBalance]: [
+    TransferBatchReceiver: TypedEventDescription<{
+      encodeTopics([_from, _to, _fromBalances, _toBalances]: [
         null,
         null,
         null,
@@ -47,8 +47,8 @@ interface ERC1155ReceiverMockInterface extends Interface {
       ]): string[];
     }>;
 
-    TransferBatchReceiver: TypedEventDescription<{
-      encodeTopics([_from, _to, _fromBalances, _toBalances]: [
+    TransferSingleReceiver: TypedEventDescription<{
+      encodeTopics([_from, _to, _fromBalance, _toBalance]: [
         null,
         null,
         null,
@@ -101,25 +101,25 @@ export class ERC1155ReceiverMock extends Contract {
     ): Promise<ContractTransaction>;
 
     lastData(): Promise<string>;
-    shouldReject(): Promise<boolean>;
-    lastValue(): Promise<BigNumber>;
-    lastOperator(): Promise<string>;
     lastId(): Promise<BigNumber>;
+    lastOperator(): Promise<string>;
+    lastValue(): Promise<BigNumber>;
+    shouldReject(): Promise<boolean>;
   };
 
   filters: {
-    TransferSingleReceiver(
-      _from: null,
-      _to: null,
-      _fromBalance: null,
-      _toBalance: null
-    ): EventFilter;
-
     TransferBatchReceiver(
       _from: null,
       _to: null,
       _fromBalances: null,
       _toBalances: null
+    ): EventFilter;
+
+    TransferSingleReceiver(
+      _from: null,
+      _to: null,
+      _fromBalance: null,
+      _toBalance: null
     ): EventFilter;
   };
 

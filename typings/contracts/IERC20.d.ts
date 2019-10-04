@@ -26,16 +26,16 @@ interface IERC20Interface extends Interface {
   };
 
   events: {
-    Transfer: TypedEventDescription<{
-      encodeTopics([from, to, value]: [
+    Approval: TypedEventDescription<{
+      encodeTopics([owner, spender, value]: [
         string | null,
         string | null,
         null
       ]): string[];
     }>;
 
-    Approval: TypedEventDescription<{
-      encodeTopics([owner, spender, value]: [
+    Transfer: TypedEventDescription<{
+      encodeTopics([from, to, value]: [
         string | null,
         string | null,
         null
@@ -85,13 +85,13 @@ export class IERC20 extends Contract {
   };
 
   filters: {
-    Transfer(from: string | null, to: string | null, value: null): EventFilter;
-
     Approval(
       owner: string | null,
       spender: string | null,
       value: null
     ): EventFilter;
+
+    Transfer(from: string | null, to: string | null, value: null): EventFilter;
   };
 
   estimate: {

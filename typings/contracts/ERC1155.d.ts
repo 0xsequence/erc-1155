@@ -38,12 +38,10 @@ interface ERC1155Interface extends Interface {
   };
 
   events: {
-    TransferSingle: TypedEventDescription<{
-      encodeTopics([_operator, _from, _to, _id, _amount]: [
+    ApprovalForAll: TypedEventDescription<{
+      encodeTopics([_owner, _operator, _approved]: [
         string | null,
         string | null,
-        string | null,
-        null,
         null
       ]): string[];
     }>;
@@ -58,10 +56,12 @@ interface ERC1155Interface extends Interface {
       ]): string[];
     }>;
 
-    ApprovalForAll: TypedEventDescription<{
-      encodeTopics([_owner, _operator, _approved]: [
+    TransferSingle: TypedEventDescription<{
+      encodeTopics([_operator, _from, _to, _id, _amount]: [
         string | null,
         string | null,
+        string | null,
+        null,
         null
       ]): string[];
     }>;
@@ -123,12 +123,10 @@ export class ERC1155 extends Contract {
   };
 
   filters: {
-    TransferSingle(
+    ApprovalForAll(
+      _owner: string | null,
       _operator: string | null,
-      _from: string | null,
-      _to: string | null,
-      _id: null,
-      _amount: null
+      _approved: null
     ): EventFilter;
 
     TransferBatch(
@@ -139,10 +137,12 @@ export class ERC1155 extends Contract {
       _amounts: null
     ): EventFilter;
 
-    ApprovalForAll(
-      _owner: string | null,
+    TransferSingle(
       _operator: string | null,
-      _approved: null
+      _from: string | null,
+      _to: string | null,
+      _id: null,
+      _amount: null
     ): EventFilter;
 
     URI(_uri: null, _id: BigNumberish | null): EventFilter;

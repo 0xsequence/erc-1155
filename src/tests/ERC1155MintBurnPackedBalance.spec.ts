@@ -183,7 +183,7 @@ contract('ERC1155MintBurnPackedBalance', (accounts: string[]) => {
     })
 
     describe('_batchMint() function', () => {
-      const Ntypes = 64
+      const Ntypes = 123
       const amountToMint = 10
       const typesArray  = Array.apply(null, {length: Ntypes}).map(Number.call, Number)
       const amountArray = Array.apply(null, Array(Ntypes)).map(Number.prototype.valueOf, amountToMint)
@@ -239,7 +239,7 @@ contract('ERC1155MintBurnPackedBalance', (accounts: string[]) => {
   
       it('should pass if valid response from receiver contract', async () => {
         const tx = erc1155MintBurnContract.functions.batchMintMock(receiverContract.address, typesArray, amountArray, [],
-          {gasLimit: 2000000}
+          {gasLimit: 6000000}
         )
         await expect(tx).to.be.fulfilled
       })

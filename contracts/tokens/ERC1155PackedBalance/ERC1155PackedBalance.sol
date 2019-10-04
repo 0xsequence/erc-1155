@@ -1,4 +1,4 @@
-pragma solidity ^0.5.11;
+pragma solidity ^0.5.12;
 pragma experimental ABIEncoderV2;
 
 import "../../utils/SafeMath.sol";
@@ -8,10 +8,10 @@ import "../../utils/Address.sol";
 
 
 /**
- * @dev Implementation of Multi-Token Standard contract. This implementation of the ERC-1155 standard 
- *      utilizes the fact that balances of different token ids can be concatenated within individual 
- *      uint256 storage slots. This allows the contract to batch transfer tokens more efficiently at 
- *      the cost of limiting the maximum token balance each address can hold. This limit is 
+ * @dev Implementation of Multi-Token Standard contract. This implementation of the ERC-1155 standard
+ *      utilizes the fact that balances of different token ids can be concatenated within individual
+ *      uint256 storage slots. This allows the contract to batch transfer tokens more efficiently at
+ *      the cost of limiting the maximum token balance each address can hold. This limit is
  *      2^IDS_BITS_SIZE, which can be adjusted below. In practice, using IDS_BITS_SIZE smaller than 16
  *      did not lead to major efficiency gains.
  */

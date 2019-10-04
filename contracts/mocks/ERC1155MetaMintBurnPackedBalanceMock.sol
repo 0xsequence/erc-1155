@@ -1,4 +1,4 @@
-pragma solidity ^0.5.11;
+pragma solidity ^0.5.12;
 pragma experimental ABIEncoderV2;
 
 import "../tokens/ERC1155PackedBalance/ERC1155MetaPackedBalance.sol";

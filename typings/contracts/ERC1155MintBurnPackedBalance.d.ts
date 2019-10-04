@@ -22,10 +22,6 @@ interface ERC1155MintBurnPackedBalanceInterface extends Interface {
       ]): string;
     }>;
 
-    setApprovalForAll: TypedFunctionDescription<{
-      encode([_operator, _approved]: [string, boolean]): string;
-    }>;
-
     safeTransferFrom: TypedFunctionDescription<{
       encode([_from, _to, _id, _amount, _data]: [
         string,
@@ -35,15 +31,17 @@ interface ERC1155MintBurnPackedBalanceInterface extends Interface {
         Arrayish
       ]): string;
     }>;
+
+    setApprovalForAll: TypedFunctionDescription<{
+      encode([_operator, _approved]: [string, boolean]): string;
+    }>;
   };
 
   events: {
-    TransferSingle: TypedEventDescription<{
-      encodeTopics([_operator, _from, _to, _id, _amount]: [
+    ApprovalForAll: TypedEventDescription<{
+      encodeTopics([_owner, _operator, _approved]: [
         string | null,
         string | null,
-        string | null,
-        null,
         null
       ]): string[];
     }>;
@@ -58,10 +56,12 @@ interface ERC1155MintBurnPackedBalanceInterface extends Interface {
       ]): string[];
     }>;
 
-    ApprovalForAll: TypedEventDescription<{
-      encodeTopics([_owner, _operator, _approved]: [
+    TransferSingle: TypedEventDescription<{
+      encodeTopics([_operator, _from, _to, _id, _amount]: [
         string | null,
         string | null,
+        string | null,
+        null,
         null
       ]): string[];
     }>;
@@ -104,8 +104,6 @@ export class ERC1155MintBurnPackedBalance extends Contract {
   functions: {
     balanceOf(_owner: string, _id: BigNumberish): Promise<BigNumber>;
 
-    supportsInterface(_interfaceID: Arrayish): Promise<boolean>;
-
     balanceOfBatch(
       _owners: (string)[],
       _ids: (BigNumberish)[]
@@ -120,12 +118,14 @@ export class ERC1155MintBurnPackedBalance extends Contract {
       1: BigNumber;
     }>;
 
-    isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
-
     getValueInBin(
       _binAmount: BigNumberish,
       _index: BigNumberish
     ): Promise<BigNumber>;
+
+    isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
+
+    supportsInterface(_interfaceID: Arrayish): Promise<boolean>;
 
     safeBatchTransferFrom(
       _from: string,
@@ -133,12 +133,6 @@ export class ERC1155MintBurnPackedBalance extends Contract {
       _ids: (BigNumberish)[],
       _amounts: (BigNumberish)[],
       _data: Arrayish,
-      overrides?: TransactionOverrides
-    ): Promise<ContractTransaction>;
-
-    setApprovalForAll(
-      _operator: string,
-      _approved: boolean,
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
@@ -150,15 +144,19 @@ export class ERC1155MintBurnPackedBalance extends Contract {
       _data: Arrayish,
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
+
+    setApprovalForAll(
+      _operator: string,
+      _approved: boolean,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
   };
 
   filters: {
-    TransferSingle(
+    ApprovalForAll(
+      _owner: string | null,
       _operator: string | null,
-      _from: string | null,
-      _to: string | null,
-      _id: null,
-      _amount: null
+      _approved: null
     ): EventFilter;
 
     TransferBatch(
@@ -169,10 +167,12 @@ export class ERC1155MintBurnPackedBalance extends Contract {
       _amounts: null
     ): EventFilter;
 
-    ApprovalForAll(
-      _owner: string | null,
+    TransferSingle(
       _operator: string | null,
-      _approved: null
+      _from: string | null,
+      _to: string | null,
+      _id: null,
+      _amount: null
     ): EventFilter;
 
     URI(_uri: null, _id: BigNumberish | null): EventFilter;
@@ -187,17 +187,17 @@ export class ERC1155MintBurnPackedBalance extends Contract {
       _data: Arrayish
     ): Promise<BigNumber>;
 
-    setApprovalForAll(
-      _operator: string,
-      _approved: boolean
-    ): Promise<BigNumber>;
-
     safeTransferFrom(
       _from: string,
       _to: string,
       _id: BigNumberish,
       _amount: BigNumberish,
       _data: Arrayish
+    ): Promise<BigNumber>;
+
+    setApprovalForAll(
+      _operator: string,
+      _approved: boolean
     ): Promise<BigNumber>;
   };
 }

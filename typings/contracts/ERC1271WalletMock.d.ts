@@ -44,9 +44,9 @@ export class ERC1271WalletMock extends Contract {
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
+    ERC1271_INVALID(): Promise<string>;
     ERC1271_MAGIC_VAL(): Promise<string>;
     shouldReject(): Promise<boolean>;
-    ERC1271_INVALID(): Promise<string>;
   };
 
   filters: {};
