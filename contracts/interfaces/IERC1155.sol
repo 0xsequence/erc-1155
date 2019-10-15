@@ -69,22 +69,6 @@ interface IERC1155 {
    * @param _data     Additional data with no specified format, sent in call to `_to`
   */
   function safeBatchTransferFrom(address _from, address _to, uint256[] calldata _ids, uint256[] calldata _amounts, bytes calldata _data) external;
-  
-  /**
-   * @notice Get the balance of an account's Tokens
-   * @param _owner  The address of the token holder
-   * @param _id     ID of the Token
-   * @return        The _owner's balance of the Token type requested
-   */
-  function balanceOf(address _owner, uint256 _id) external view returns (uint256);
-
-  /**
-   * @notice Get the balance of multiple account/token pairs
-   * @param _owners The addresses of the token holders
-   * @param _ids    ID of the Tokens
-   * @return        The _owner's balance of the Token types requested (i.e. balance for each (owner, id) pair)
-   */
-  function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids) external view returns (uint256[] memory);
 
   /**
    * @notice Enable or disable approval for a third party ("operator") to manage all of caller's tokens
@@ -93,13 +77,5 @@ interface IERC1155 {
    * @param _approved  True if the operator is approved, false to revoke approval
    */
   function setApprovalForAll(address _operator, bool _approved) external;
-
-  /**
-   * @notice Queries the approval status of an operator for a given owner
-   * @param _owner     The owner of the Tokens
-   * @param _operator  Address of authorized operator
-   * @return           True if the operator is approved, false if not
-   */
-  function isApprovedForAll(address _owner, address _operator) external view returns (bool isOperator);
 
 }

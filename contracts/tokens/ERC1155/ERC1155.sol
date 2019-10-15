@@ -1,5 +1,4 @@
 pragma solidity ^0.5.12;
-pragma experimental ABIEncoderV2;
 
 import "../../interfaces/IERC165.sol";
 import "../../utils/SafeMath.sol";
@@ -179,7 +178,7 @@ contract ERC1155 is IERC165 {
    * @return True if the operator is approved, false if not
    */
   function isApprovedForAll(address _owner, address _operator)
-    external view returns (bool isOperator)
+    public view returns (bool isOperator)
   {
     return operators[_owner][_operator];
   }
@@ -196,7 +195,7 @@ contract ERC1155 is IERC165 {
    * @return The _owner's balance of the Token type requested
    */
   function balanceOf(address _owner, uint256 _id)
-    external view returns (uint256)
+    public view returns (uint256)
   {
     return balances[_owner][_id];
   }
@@ -207,8 +206,8 @@ contract ERC1155 is IERC165 {
    * @param _ids    ID of the Tokens
    * @return        The _owner's balance of the Token types requested (i.e. balance for each (owner, id) pair)
    */
-  function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids)
-    external view returns (uint256[] memory)
+  function balanceOfBatch(address[] memory _owners, uint256[] memory _ids)
+    public view returns (uint256[] memory)
   {
     require(_owners.length == _ids.length, "ERC1155#balanceOfBatch: INVALID_ARRAY_LENGTH");
 
