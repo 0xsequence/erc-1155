@@ -1,5 +1,4 @@
 pragma solidity ^0.5.12;
-pragma experimental ABIEncoderV2;
 
 import "../../utils/SafeMath.sol";
 import "../../interfaces/IERC1155TokenReceiver.sol";
@@ -220,7 +219,7 @@ contract ERC1155PackedBalance is IERC165 {
    * @return True if the operator is approved, false if not
    */
   function isApprovedForAll(address _owner, address _operator)
-    external view returns (bool isOperator)
+    public view returns (bool isOperator)
   {
     return operators[_owner][_operator];
   }
@@ -237,7 +236,7 @@ contract ERC1155PackedBalance is IERC165 {
    * @return The _owner's balance of the Token type requested
    */
   function balanceOf(address _owner, uint256 _id)
-    external view returns (uint256)
+    public view returns (uint256)
   {
     uint256 bin;
     uint256 index;
@@ -253,8 +252,8 @@ contract ERC1155PackedBalance is IERC165 {
    * @param _ids    ID of the Tokens
    * @return The _owner's balance of the Token types requested (i.e. balance for each (owner, id) pair)
     */
-  function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids)
-    external view returns (uint256[] memory)
+  function balanceOfBatch(address[] memory _owners, uint256[] memory _ids)
+    public view returns (uint256[] memory)
   {
     require(_owners.length == _ids.length, "ERC1155PackedBalance#balanceOfBatch: INVALID_ARRAY_LENGTH");
 
@@ -309,7 +308,7 @@ contract ERC1155PackedBalance is IERC165 {
    *   Operations.Sub: Substract _amount from id balance
    */
   function _viewUpdateIDBalance(uint256 _binBalances, uint256 _index, uint256 _amount, Operations _operation)
-    internal returns (uint256 newBinBalance)
+    internal pure returns (uint256 newBinBalance)
   {
     uint256 shift = 256 - IDS_BITS_SIZE * (_index + 1);
     uint256 mask = (uint256(1) << IDS_BITS_SIZE) - 1;

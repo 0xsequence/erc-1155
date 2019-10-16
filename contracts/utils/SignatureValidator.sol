@@ -1,5 +1,4 @@
 pragma solidity ^0.5.12;
-pragma experimental ABIEncoderV2;
 
 import "../interfaces/IERC1271Wallet.sol";
 import "./LibBytes.sol";

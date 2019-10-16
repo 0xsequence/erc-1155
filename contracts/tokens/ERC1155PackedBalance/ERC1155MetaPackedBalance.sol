@@ -282,7 +282,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
    * @param _signer Address to query signature nonce for
    */
   function getNonce(address _signer)
-    external view returns (uint256 nonce)
+    public view returns (uint256 nonce)
   {
     return nonces[_signer];
   }
