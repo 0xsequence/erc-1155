@@ -187,7 +187,7 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
     getNonce(_signer: string): Promise<BigNumber>;
 
     getValueInBin(
-      _binAmount: BigNumberish,
+      _binValues: BigNumberish,
       _index: BigNumberish
     ): Promise<BigNumber>;
 
