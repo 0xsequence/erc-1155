@@ -141,7 +141,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
           // Gas Receipt
           gasReceipt = {
-            gasLimit: 125000,
+            gasLimit: 130000,
             baseGas: 30000,
             gasPrice: 1,
             feeRecipient: operatorAddress,
@@ -435,7 +435,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
                 [erc1155Contract2.address, feeTokenID, 0]
               )
     
-              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimit: 130000, baseGas: 1000, gasPrice: 1, 
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC1155
               }
     
@@ -461,7 +461,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
                 [erc1155Contract2.address, feeTokenID, 0]
               )
     
-              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimit: 130000, baseGas: 1000, gasPrice: 1, 
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC1155
               }
     
@@ -488,7 +488,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
                 [erc1155Contract2.address, feeTokenID, 0]
               )
     
-              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimit: 130000, baseGas: 1000, gasPrice: 1, 
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC1155
               }
     
@@ -515,7 +515,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
                 ['address', 'uint8'], [erc20Contract.address, 1]
               )
     
-              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimit: 130000, baseGas: 1000, gasPrice: 1, 
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
               }
     
@@ -541,7 +541,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
                 ['address', 'uint8'], [erc20Contract.address, 1]
               )
     
-              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimit: 130000, baseGas: 1000, gasPrice: 1, 
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
               }
     
@@ -567,7 +567,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
                 ['address', 'uint8'], [erc20Contract.address, 1]
               )
     
-              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimit: 130000, baseGas: 1000, gasPrice: 1, 
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
               }
     
@@ -788,7 +788,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
           // Gas Receipt
           gasReceipt = {
-            gasLimit: 125000,
+            gasLimit: 130000,
             baseGas: 30000,
             gasPrice: 1,
             feeRecipient: operatorAddress,
@@ -1267,7 +1267,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
           // Gas Receipt
           gasReceipt = {
-            gasLimit: 125000,
+            gasLimit: 130000,
             baseGas: 30000,
             gasPrice: 1,
             feeRecipient: operatorAddress,
