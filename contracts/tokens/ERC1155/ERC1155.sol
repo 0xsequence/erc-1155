@@ -51,7 +51,7 @@ contract ERC1155 is IERC165 {
   function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _amount, bytes memory _data)
     public
   {
-    require((msg.sender == _from) || operators[_from][msg.sender], "ERC1155#safeTransferFrom: INVALID_OPERATOR");
+    require((msg.sender == _from) || isApprovedForAll(_from, msg.sender), "ERC1155#safeTransferFrom: INVALID_OPERATOR");
     require(_to != address(0),"ERC1155#safeTransferFrom: INVALID_RECIPIENT");
     // require(_amount >= balances[_from][_id]) is not necessary since checked with safemath operations
 
@@ -71,7 +71,7 @@ contract ERC1155 is IERC165 {
     public
   {
     // Requirements
-    require((msg.sender == _from) || operators[_from][msg.sender], "ERC1155#safeBatchTransferFrom: INVALID_OPERATOR");
+    require((msg.sender == _from) || isApprovedForAll(_from, msg.sender), "ERC1155#safeBatchTransferFrom: INVALID_OPERATOR");
     require(_to != address(0), "ERC1155#safeBatchTransferFrom: INVALID_RECIPIENT");
 
     _safeBatchTransferFrom(_from, _to, _ids, _amounts);
