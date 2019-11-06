@@ -170,7 +170,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
           // Get domain hash
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
-            ['bytes32', 'address'], 
+            ['bytes32', 'uint256'], 
             [DOMAIN_SEPARATOR_TYPEHASH, erc1155Contract.address]
           ))
 
@@ -181,7 +181,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
         it("should REVERT if contract address is incorrect", async () => {
           // Domain hash
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
-            ['bytes32', 'address'], 
+            ['bytes32', 'uint256'], 
             [DOMAIN_SEPARATOR_TYPEHASH, receiverContract.address]
           ))
           data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
@@ -289,7 +289,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, initBalance+1, isGasReceipt, data)
-            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: UNDERFLOW") ) 
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW") ) 
           })
 
           it('should REVERT if sending to 0x0', async () => {
@@ -305,7 +305,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
             await erc1155Contract.functions.mintMock(receiverAddress, id, MAXVAL, [])
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
-            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: OVERFLOW") ) 
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW") ) 
           })
 
           it('should REVERT when sending to non-receiver contract', async () => {
@@ -502,7 +502,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
               const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
-              await expect(tx).to.be.rejectedWith(RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: UNDERFLOW"))
+              await expect(tx).to.be.rejectedWith(RevertError("ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW"))
             })
 
             it("should PASS if approved ERC20 is used for fee", async () => {
@@ -582,6 +582,53 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
                 {gasLimit: 2000000}
               )
               await expect(tx).to.be.rejectedWith(RevertError());
+            })
+
+            it("should REVERT if FeeTokenType is not supported", async () => {
+              let erc20Abstract = await AbstractContract.fromArtifactName('ERC20Mock')
+              let erc20Contract = await erc20Abstract.deploy(ownerWallet) as ERC20Mock
+              await erc20Contract.functions.mockMint(ownerAddress, feeTokenInitBalance)
+              await erc20Contract.functions.approve(operatorERC1155Contract.address, feeTokenInitBalance)
+    
+              let feeTokenDataERC20 = ethers.utils.defaultAbiCoder.encode(
+                ['address', 'uint8'], [erc20Contract.address, 2]
+              )
+    
+              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+                feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
+              }
+    
+              // Check if gas receipt is included
+              gasReceipt = isGasReceipt ? gasReceipt : null
+    
+              // Data to pass in transfer method
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
+    
+              // @ts-ignore
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.rejectedWith(RevertError("ERC1155MetaPackedBalance#_transferGasFee: UNSUPPORTED_TOKEN"));
+
+              feeTokenDataERC20 = ethers.utils.defaultAbiCoder.encode(
+                ['address', 'uint8'], [erc20Contract.address, 3]
+              )
+    
+              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+                feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
+              }
+    
+              // Check if gas receipt is included
+              gasReceipt = isGasReceipt ? gasReceipt : null
+    
+              // Data to pass in transfer method
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
+    
+              // @ts-ignore
+              const tx2 = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
+                {gasLimit: 2000000}
+              )
+              await expect(tx2).to.be.rejectedWith(RevertError("ERC1155MetaPackedBalance#_transferGasFee: UNSUPPORTED_TOKEN"));
             })
 
             describe('When receiver is a contract', () => {
@@ -814,7 +861,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
           // Domain hash
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
-            ['bytes32', 'address'], 
+            ['bytes32', 'uint256'], 
             [DOMAIN_SEPARATOR_TYPEHASH, erc1155Contract.address]
           ))
 
@@ -824,7 +871,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
         it("should REVERT if contract address is incorrect", async () => {
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
-            ['bytes32', 'address'], 
+            ['bytes32', 'uint256'], 
             [DOMAIN_SEPARATOR_TYPEHASH, receiverContract.address]
           ))
           data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
@@ -933,7 +980,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
-            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: UNDERFLOW") ) 
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW") ) 
           })
 
           it('should REVERT if sending to 0x0', async () => {
@@ -949,7 +996,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
             await operatorERC1155Contract.functions.mintMock(receiverAddress, ids[0], MAXVAL, [])
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
-            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: OVERFLOW") ) 
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW") ) 
           })
 
           it('should REVERT when sending to non-receiver contract', async () => {
@@ -1295,7 +1342,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
           // Domain hash
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
-            ['bytes32', 'address'], 
+            ['bytes32', 'uint256'], 
             [DOMAIN_SEPARATOR_TYPEHASH, erc1155Contract.address]
           ))
 
@@ -1333,7 +1380,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
         it("should REVERT if contract address is incorrect", async () => {
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
-            ['bytes32', 'address'], 
+            ['bytes32', 'uint256'], 
             [DOMAIN_SEPARATOR_TYPEHASH, receiverAddress]
           ))
           data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt)

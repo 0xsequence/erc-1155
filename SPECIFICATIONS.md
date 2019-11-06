@@ -1,47 +1,6 @@
-# 0x protocol 2.0.0 specification
+# Arcadeum's ERC-1155 Specification
 
-## Table of contents
-
-1.  [Overview](#overview)
-1.  [Contracts](#contracts)
-    1.  [Exchange](#exchange)
-    1.  [AssetProxy](#assetproxy)
-        1. [ERC20Proxy](#erc20proxy)
-        1. [ERC721Proxy](#erc721proxy)
-        1. [MultiAssetProxy](#multiassetproxy)
-    1.  [AssetProxyOwner](#assetproxyowner)
-1.  [Contract Interactions](#contract-interactions)
-    1.  [Trade settlement](#trade-settlement)
-    1.  [Upgrading the Exchange contract](#upgrading-the-exchange-contract)
-    1.  [Upgrading the AssetProxyOwner contract](#upgrading-the-assetproxyowner-contract)
-    1.  [Adding new AssetProxy contracts](#adding-new-assetproxy-contracts)
-1.  [Orders](#orders)
-    1.  [Message format](#order-message-format)
-    1.  [Hashing an order](#hashing-an-order)
-    1.  [Creating an order](#creating-an-order)
-    1.  [Filling orders](#filling-orders)
-    1.  [Cancelling orders](#cancelling-orders)
-    1.  [Querying state of an order](#querying-state-of-an-order)
-1.  [Transactions](#transactions)
-    1.  [Message format](#transaction-message-format)
-    1.  [Hash of a transaction](#hash-of-a-transaction)
-    1.  [Creating a transaction](#creating-a-transaction)
-    1.  [Executing a transaction](#executing-a-transaction)
-    1.  [Filter contracts](#filter-contracts)
-1.  [Signatures](#signatures)
-    1.  [Validating signatures](#validating-signatures)
-    1.  [Signature types](#signature-types)
-1.  [Events](#events)
-    1.  [Exchange events](#exchange-events)
-    1.  [AssetProxy events](#assetproxy-events)
-    1.  [AssetProxyOwner events](#assetproxyowner-events)
-1.  [ithTypes](#types)
-1.  [Standard relayer API](#standard-relayer-api)
-1.  [Miscellaneous](#miscellaneous)
-    1.  [EIP712 usage](#eip712-usage)
-    1.  [Optimizing calldata](#optimizing-calldata)
-    1.  [ecrecover usage](#ecrecover-usage)
-    1.  [Reentrancy protection](#reentrancy-protection)
+[TOC]
 
 # Overview
 
@@ -49,17 +8,19 @@ This repository contains two implementations of the **ERC-1155** token standard.
 
 One of the **ERC-1155** implementation in this repository has a "packed balance" approach, meaning that some token IDs share the same uint256 storage slot. This permits cheaper balance update since token id balances can be updated in a single SSTORE operation, but it impose a lower maximum supply on tokens. The other implementation does not have this "packed balance" approach hence each token id use a full `uint256` storage slot for the balances.
 
-In addition to the methods specified in the [ERC-1155 standard](<https://github.com/ethereum/eips/issues/1155>), the implementations in this repository support native-metatransactions methods, meaning that methods can be called on behalf of any users so long as they provide a corresponding valid signature. This enable users to delegate the transaction execution to a third party securely. Meta-transactions can be executed for a fee specified by the user, paid in arbitrary ERC-20 or ERC-1155 tokens, but these fees can be omitted if desired.
+In addition to the methods specified in the [ERC-1155 standard](<https://github.com/ethereum/eips/issues/1155>), the implementations in this repository support native meta-transactions methods, meaning that methods can be called on behalf of any users so long as they provide a corresponding valid signature. This enable users to delegate the transaction execution to a third party securely. Meta-transactions can be executed for a fee specified by the user, paid in arbitrary ERC-20 or ERC-1155 tokens, but these fees can be omitted if desired.
+
+Most of the ERC-1155 methods are not explained in details in this document since the [ERC-1155 standard](<https://github.com/ethereum/eips/issues/1155>) document contains sufficient information. The present document will focus on implementation details that are not included in the ERC-1155 standard.
 
 # Contracts
 
 ### ERC1155.sol & ERC1155PackedBalance.sol
 
-The main purpose of this contract is to manage transfer, balances and approval methods. For an in-depth specification of this contract, see the [ERC-1155 official specification](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1155.md). The ERC1155PackedBalance.sol contract uses a packed balance approach (see [#???](???) for more information on packed balance approach).
+The main purpose of this contract is to manage transfer, balances and approval methods. For an in-depth specification of this contract, see the [ERC-1155 official specification](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1155.md). The ERC1155PackedBalance.sol contract uses a packed balance approach. See the [Packed Balance](#packed-balance) for more information on packed balance approach.
 
 ### ERC1155Meta.sol & ERC1155MetaPackedBalance.sol
 
-This contract is an extension of the previous contract, [ERC1155](#erc1155). This contract implements meta-transaction methods, enabling users to delegate their transfers and approvals to a third party via corresponding valid signed messages. The contract enables any address to transfer and set an approval on behalf of a user given that user signed a corresponding message. See [???](???) for more information on the message and signature formatting for metatransactions. The ERC1155MetaPackedBalance.sol contract uses a packed balance approach (see [#???](???) for more information on packed balance approach).
+This contract is an extension of the previous contract, [ERC1155](#erc1155.sol-&-erc1155packedbalance.sol). This contract implements meta-transaction methods, enabling users to delegate their transfers and approvals to a third party via corresponding valid signed messages. The contract enables any address to transfer and set an approval on behalf of a user given that user signed a corresponding message. See the [Meta-Transactions](#meta-transactions) section for more information on the message and signature formatting for meta-transactions. The ERC1155MetaPackedBalance.sol contract uses a packed balance approach. See the [Packed Balance](#packed-balance) section for more information on packed balance approach.
 
 ### ERC1155Metadata.sol 
 
@@ -67,24 +28,7 @@ This contract handles metadata related methods, which are not mandatory with res
 
 ### ERC1155MintBurn.sol & ERC1155MintBurnPackedBalance.sol
 
-This contract is an extension of the previous contract, [ERC1155](#erc1155). This contract implements minting and burning related methods, which are not mandated by the ERC-1155 standard. The minting and burning methods are `internal` and a parent contract must invoke them. This design choice was made to let developers using these methods set their own authentication gates. The ERC1155MintBurnPackedBalance.sol contract uses a packed balance approach (see [#???](???) for more information on packed balance approach).
-
-
-
-
-
-```solidity
-// 0x02571792
-bytes4 ERC721_SELECTOR = bytes4(keccak256("ERC721Token(address,uint256)"));
-```
-
-The data is then encoded as:
-
-| Offset | Length | Contents                                         |
-| ------ | ------ | ------------------------------------------------ |
-| 0x00   | 4      | ERC721 proxy id (always 0x02571792)              |
-| 0x04   | 32     | Address of ERC721 token, left padded with zeroes |
-| 0x24   | 32     | tokenId of ERC721 token                          |
+This contract is an extension of the previous contract, [ERC1155](#erc1155). This contract implements minting and burning related methods, which are not mandated by the ERC-1155 standard. The minting and burning methods are `internal` and a parent contract must invoke them. This design choice was made to let developers  set their own authentication gates. The ERC1155MintBurnPackedBalance.sol contract uses a packed balance approach. 
 
 
 
@@ -138,7 +82,7 @@ function safeBatchTransferFrom(address _from, address _to, uint256[] calldata _i
 
 [ERC1155Meta.sol & ERC1155MetaPackedBalance.sol](#erc1155meta.sol-&-erc1155metapackedbalance.sol) have two additional methods to transfer tokens. These methods MUST follow the conditions specified in `safeTransferFrom()` and `safeBatchTransferFrom()`, in addition to other conditions specified below:
 
-```
+```solidity
 /**
  * @notice Allows anyone with a valid signature to transfer _amount amount of a token _id on the bahalf of _from
  * @dev MUST meet the conditions specified in safeTransferFrom()
@@ -167,7 +111,7 @@ function metaSafeTransferFrom(address _from, address _to, uint256 _id, uint256 _
 function metaSafeBatchTransferFrom(address _from, address _to, uint256[] calldata _ids, uint256[] calldata _amounts, bool _isGasFee, bytes calldata _data) external;
 ```
 
-For how the data must be encoded in the `_data` byte arrays, see [???](???). 
+For how the data must be encoded in the `_data` byte arrays, see the [Meta-Transaction for Asset Transfers](meta--transaction-for-asset-transfers) section. 
 
 For what constitutes a valid signature, see [???](???).
 
@@ -275,14 +219,14 @@ uint256 internal constant IDS_BITS_SIZE = 32;
 
 In this example, each token id balance uses 32 bits, or 1/8 of a `uint256` storage slot:
 
-```
+```solidity
 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
   [ ID 7 ][ ID 6 ][ ID 5 ][ ID 4 ][ ID 3 ][ ID 2 ][ ID 1 ][ ID 0 ]
 ```
 
 For instance, if Bob had **four** token **#0**, **seven** token **#3** and **twenty-seven** token **#7**, the value at the storage slot they share should be 
 
-```
+```solidity
 0x0000001b00000000000000000000000000000007000000000000000000000004
   [ ID 7 ][ ID 6 ][ ID 5 ][ ID 4 ][ ID 3 ][ ID 2 ][ ID 1 ][ ID 0 ]
 ```
@@ -354,245 +298,209 @@ for (uint256 i = 1; i < nTransfer; i++) {
 }
 ```
 
-
-
 # Meta-transactions
 
-## Order message format
+The three meta-transactions methods in these ERC-1155 implementations ([metaSafeTransferFrom()](???), [metaSafeBatchTransferFrom()](???) & [metaSetApprovalForAll()](???)) follow a similar structure. These three methods share two meta-transaction relevant arguments, `_isGasFee` and `_data`.
 
-An order message consists of the following parameters:
+`_isGasFee` : *Boolean* specifying whether gas is reimbursed by user to operator (address executing the transaction), in which case a [Gas Receipt](#gas-receipt) struct must be provided in the `_data` argument.
 
-| Parameter                       | Type    | Description                                                                                                                                     |
-| ------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| makerAddress                    | address | Address that created the order.                                                                                                                 |
-| takerAddress                    | address | Address that is allowed to fill the order. If set to 0, any address is allowed to fill the order.                                               |
-| feeRecipientAddress             | address | Address that will receive fees when order is filled.                                                                                            |
-| [senderAddress](#senderaddress) | address | Address that is allowed to call Exchange contract methods that affect this order. If set to 0, any address is allowed to call these methods.    |
-| makerAssetAmount                | uint256 | Amount of makerAsset being offered by maker. Must be greater than 0.                                                                            |
-| takerAssetAmount                | uint256 | Amount of takerAsset being bid on by maker. Must be greater than 0.                                                                             |
-| makerFee                        | uint256 | Amount of ZRX paid to feeRecipient by maker when order is filled. If set to 0, no transfer of ZRX from maker to feeRecipient will be attempted. |
-| takerFee                        | uint256 | Amount of ZRX paid to feeRecipient by taker when order is filled. If set to 0, no transfer of ZRX from taker to feeRecipient will be attempted. |
-| expirationTimeSeconds           | uint256 | Timestamp in seconds at which order expires.                                                                                                    |
-| [salt](#salt)                   | uint256 | Arbitrary number to facilitate uniqueness of the order's hash.                                                                                  |
-| [makerAssetData](#assetdata)    | bytes   | ABIv2 encoded data that can be decoded by a specified proxy contract when transferring makerAsset.                                              |
-| [takerAssetData](#assetdata)    | bytes   | ABIv2 encoded data that can be decoded by a specified proxy contract when transferring takerAsset.                                              |
+`_data`: *Bytes array* containing the `signature`, `GasReceipt` struct (optional) and an optional extra byte array (optional).
 
-### senderAddress
+A meta-transaction's hash must be signed with a [supported signature type](#signature-types), unless if that type is [WalletBytes](#walletbytes) as explained in the corresponding section.
 
-If the `senderAddress` of an order is not set to 0, only that address may call [`Exchange`](#exchange) contract methods that affect that order. See the [filter contracts examples](#filter-contracts) for more information.
+## Meta-Transaction for Asset Transfers
 
-### salt
+For the `metaSafeTransferFrom(_from, _to, _id, _amount, _isGasFee, _data)` and `metaSafeBatchTransferFrom(_from, _to, _ids, _amounts, _isGasFee, _data)` methods, the `_data` provided must be encoded as `abi.encode(Signature, ?GasReceiptAndTansferData)` where `Signature` is tightly encoded as:
 
-An order's `salt` parameter has two main usecases:
+| Offset | Length | Contents                          |
+| ------ | ------ | --------------------------------- |
+| 0x00   | 32     | r                                 |
+| 0x20   | 32     | s                                 |
+| 0x40   | 1      | v (always 27 or 28)               |
+| 0x41   | 1      | [SignatureType](#signature-types) |
 
-- To ensure uniqueness within an order's hash.
-- To be used in combination with [`cancelOrdersUpTo`](#cancelordersupto). When creating an order, the `salt` value _should_ be equal to the value of the current timestamp in milliseconds. This allows maker to create 1000 orders with the same parameters per second. Note that although this is part of the protocol specification, there is currently no way to enforce this usage and `salt` values should _not_ be relied upon as a source of truth.
+and where `GasReceiptAndTansferData = abi.encode(?GasReceipt, tansferData)` if `_isGasFee` is `true`, else `GasReceiptAndTansferData` is simply `tansferData`.  `tansferData` is a byte array that will be passed to the recipient contract, if any.
 
-### assetData
+### metaSafeTransferFrom() Meta-Transaction Hash
 
-The `makerAssetData` and `takerAssetData` fields of an order contain information specific to that asset. These fields are encoded using [ABIv2](http://solidity.readthedocs.io/en/latest/abi-spec.html) with a 4 byte id that references the proxy that is intended to decode the data. See the [`ERC20Proxy`](#erc20proxy) and [`ERC721Proxy`](#erc721proxy) sections for the layouts of the `assetData` fields for each `AssetProxy` contract.
-
-## Hashing an order
-
-The hash of an order is used as a unique identifier of that order. An order is hashed according to the [EIP712 specification](#https://github.com/ethereum/EIPs/pull/712/files). See the [EIP712 Usage](#eip712-usage) section for information on how to calculate the required domain separator for hashing an order.
+The hash of a meta `safeTransferFrom()` transaction is hashed according to the [EIP712 specification](#https://github.com/ethereum/EIPs/pull/712/files). See the [EIP712 Usage](#eip712-usage) section for information on how to calculate the required domain separator for hashing a `metaSafeTransferFrom()` meta-transaction.
 
 ```
-bytes32 constant EIP712_ORDER_SCHEMA_HASH = keccak256(abi.encodePacked(
-    "Order(",
-    "address makerAddress,",
-    "address takerAddress,",
-    "address feeRecipientAddress,",
-    "address senderAddress,",
-    "uint256 makerAssetAmount,",
-    "uint256 takerAssetAmount,",
-    "uint256 makerFee,",
-    "uint256 takerFee,",
-    "uint256 expirationTimeSeconds,",
-    "uint256 salt,",
-    "bytes makerAssetData,",
-    "bytes takerAssetData",
-    ")"
-));
+// TypeHash for the EIP712 metaSafeTransferFrom Schema
+bytes32 constant internal META_TX_TYPEHASH = keccak256(
+	"metaSafeTransferFrom(address _from,address _to,uint256 _id,uint256 _amount,uint256 nonce,bytes signedData)"
+);
 
-bytes32 orderHash = keccak256(abi.encodePacked(
+bytes32 metaSafeTransferFromHash = keccak256(abi.encodePacked(
     EIP191_HEADER,
     EIP712_DOMAIN_HASH,
     keccak256(abi.encodePacked(
-        EIP712_ORDER_SCHEMA_HASH,
-        bytes32(order.makerAddress),
-        bytes32(order.takerAddress),
-        bytes32(order.feeRecipientAddress),
-        bytes32(order.senderAddress),
-        order.makerAssetAmount,
-        order.takerAssetAmount,
-        order.makerFee,
-        order.takerFee,
-        order.expirationTimeSeconds,
-        order.salt,
-        keccak256(order.makerAssetData),
-        keccak256(order.takerAssetData)
+        META_TX_TYPEHASH,                   // Bytes32
+        uint256(_from),                     // Address as uint256
+        uint256(_to),                       // Address as uint256
+        _id,                                // Uint256
+        _amount                             // Uint256
+        nonce,                              // Uint256
+        keccak256(GasReceiptAndTansferData) // Bytes32
     ))
 ));
 ```
 
-## Creating an order
+### metaSafeBatchTransferFrom() Meta-Transaction Hash
 
-An order may only be filled if it can be paired with an associated valid signature. Signatures are only validated the first time an order is filled. For later fills, no signature must be submitted. An order's hash must be signed with a [supported signature type](#signature-types).
-
-
-
-## Cancelling orders
-
-### cancelOrder
-
-`cancelOrder` cancels the specified order. Partial cancels are not allowed.
-
-`cancelOrder` will revert under the following conditions:
-
-- The `makerAssetAmount` or `takerAssetAmount` specified in the order are equal to 0.
-- The caller of `cancelOrder` is different from the `senderAddress` specified in the order (unless `senderAddress == address(0)`).
-- The maker of the order has not authorized the cancel, either by calling `cancelOrder` through an Ethereum transaction or a [0x transaction](#transactions).
-- The order has expired.
-- The order has already been cancelled.
-
-If successful, `cancelOrder` will emit a [`Cancel`](#cancel) event.
+The hash of a meta `batchSafeTransferFrom()` transaction is hashed according to the [EIP712 specification](#https://github.com/ethereum/EIPs/pull/712/files). See the [EIP712 Usage](#eip712-usage) section for information on how to calculate the required domain separator for hashing a `metaSafeBatchTransferFrom()` meta-transaction.
 
 ```
-/// @dev After calling, the order can not be filled anymore.
-/// @param order Order struct containing order specifications.
-/// @return True if the order state changed to cancelled.
-///         False if the transaction was already cancelled or expired.
-function cancelOrder(Order memory order)
-    public;
-```
+// TypeHash for the EIP712 metaSafeBatchTransferFrom Schema
+bytes32 constant internal META_BATCH_TX_TYPEHASH = keccak256(
+	"metaSafeBatchTransferFrom(address _from,address _to,uint256[] _ids,uint256[] _amounts,uint256 nonce,bytes signedData)"
+);
 
-
-
-# Transactions
-
-Transaction messages exist for the purpose of calling methods on the [`Exchange`](#exchange) contract in the context of another address (see [ZEIP18](https://github.com/0xProject/ZEIPs/issues/18)). This is especially useful for implementing [filter contracts](#filter-contracts).
-
-## Transaction message format
-
-| Parameter     | Type    | Description                                                                      |
-| ------------- | ------- | -------------------------------------------------------------------------------- |
-| signerAddress | address | Address of transaction signer                                                    |
-| salt          | uint256 | Arbitrary number to facilitate uniqueness of the transactions's hash.            |
-| data          | bytes   | The calldata that is to be executed. This must call an Exchange contract method. |
-
-## Hash of a transaction
-
-The hash of a transaction is used as a unique identifier for that transaction. A transaction is hashed according to the [EIP712 specification](#https://github.com/ethereum/EIPs/pull/712/files). See the [EIP712 Usage](#eip712-usage) section for information on how to calculate the required domain separator for hashing an order.
-
-```
-// Hash for the EIP712 ZeroEx Transaction Schema
-bytes32 constant internal EIP712_ZEROEX_TRANSACTION_SCHEMA_HASH = keccak256(abi.encodePacked(
-    "ZeroExTransaction(",
-    "uint256 salt,",
-    "address signerAddress,",
-    "bytes data",
-    ")"
-));
-
-bytes32 transactionHash = keccak256(abi.encodePacked(
+bytes32 metaSafeBatchTransferFromHash = keccak256(abi.encodePacked(
     EIP191_HEADER,
     EIP712_DOMAIN_HASH,
     keccak256(abi.encodePacked(
-        EIP712_ZEROEX_TRANSACTION_SCHEMA_HASH,
-        salt,
-        bytes32(signerAddress),
-        keccak256(data)
+        META_BATCH_TX_TYPEHASH,               // Bytes32
+        uint256(_from),                       // Address as uint256
+        uint256(_to),                         // Address as uint256
+        keccak256(abi.encodePacked(_ids)),    // Bytes32
+        keccak256(abi.encodePacked(_amounts)) // Bytes32
+        nonce,                                // Uint256
+        keccak256(GasReceiptAndTansferData)   // Bytes32
     ))
 ));
 ```
 
-## Creating a transaction
+## Meta-Transaction for Approvals
 
-A transaction may only be executed if it can be paired with an associated valid signature. A transaction's hash must be signed with a [supported signature type](#signature-types).
+For the `metaSetApprovalForAll(_owner, _operator, _approved, _isGasFee, _data)` method the `_data` provided must be encoded as `abi.encode(Signature, ?GasReceipt)` where `Signature` is tightly encoded as:
 
-## Executing a transaction
+| Offset | Length | Contents            |
+| ------ | ------ | ------------------- |
+| 0x00   | 32     | r                   |
+| 0x20   | 32     | s                   |
+| 0x40   | 1      | v (always 27 or 28) |
+| 0x41   | 1      | SignatureType       |
 
-A transaction may only be executed by calling the `executeTransaction` method of the Exchange contract. `executeTransaction` attempts to execute any function on the Exchange contract in the context of the transaction signer (rather than `msg.sender`).
+and where `GasReceipt` is passed if `_isGasFee` is `true`.
 
-`executeTransaction` will revert under the following conditions:
+### metaSetApprovalForAll() Meta-Transaction Hash
 
-- Reentrancy is attempted (e.g `executeTransaction` calls `executeTransaction` again).
-- A transaction with an equivalent hash has already been executed.
-- An invalid signature is submitted.
-- The execution of the provided data reverts.
-
-```
-/// @dev Executes an exchange method call in the context of signer.
-/// @param salt Arbitrary number to ensure uniqueness of transaction hash.
-/// @param signerAddress Address of transaction signer.
-/// @param data AbiV2 encoded calldata.
-/// @param signature Proof that transaction has been signed by signer.
-function executeTransaction(
-    uint256 salt,
-    address signerAddress,
-    bytes data,
-    bytes signature
-)
-    external;
-```
-
-# Signatures
-
-## Validating signatures
-
-The `Exchange` contract includes a public method `isValidSignature` for validating signatures. This method has the following interface:
+The hash of a meta `setApprovalForAll()` transaction is hashed according to the [EIP712 specification](#https://github.com/ethereum/EIPs/pull/712/files). See the [EIP712 Usage](#eip712-usage) section for information on how to calculate the required domain separator for hashing a `metaSetApprovalForAll()` meta-transaction.
 
 ```
-/// @dev Verifies that a signature is valid.
-/// @param hash Message hash that is signed.
-/// @param signerAddress Address of signer.
-/// @param signature Proof of signing.
-/// @return Validity of order signature.
-function isValidSignature(
-    bytes32 hash,
-    address signerAddress,
-    bytes memory signature
-)
-    public
-    view
-    returns (bool isValid);
+// TypeHash for the EIP712 metaSetApprovalForAll Schema
+bytes32 constant internal META_APPROVAL_TYPEHASH = keccak256(
+	"metaSetApprovalForAll(address _owner,address _operator,bool _approved,uint256 nonce,bytes signedData)"
+);
+
+bytes32 metaSetApprovalForAllHash = keccak256(abi.encodePacked(
+    EIP191_HEADER,
+    EIP712_DOMAIN_HASH,
+    keccak256(abi.encodePacked(
+        META_APPROVAL_TYPEHASH,             // Bytes32
+        uint256(_owner),                    // Address as uint256
+        uint256(_operator),                 // Address as uint256
+        _approved ? uint256(1) : uint256(0) // Uint256
+        nonce,                              // Uint256
+        keccak256(GasReceipt)               // Bytes32
+    ))
+));
 ```
 
-## Signature Types
+# Gas Reimbursement
 
-All signatures submitted to the Exchange contract are represented as a byte array of arbitrary length, where the last byte (the "signature byte") specifies the signatures type. The signature type is popped from the signature byte array before validation. The following signature types are supported within the protocol:
+Meta-transaction operators can charge a fee to the signer of the meta-transaction in exchange of paying for the gas in ETH. All three [meta-transaction methods](#meta-transactions) have an`_isGasFee` argument, which indicates whether a [Gas Receipt](#gas-receipt) is expected to be encoded in the `_data` argument. This receipts will determine what the fee will be and in which asset it must be paid. 
 
-| Signature byte | Signature type          |
-| -------------- | ----------------------- |
-| 0x00           | [Illegal](#illegal)     |
-| 0x01           | [Invalid](#invalid)     |
-| 0x02           | [EIP712](#eip712)       |
-| 0x03           | [EthSign](#ethsign)     |
-| 0x04           | [Wallet](#wallet)       |
-| 0x05           | [Validator](#validator) |
-| 0x06           | [PreSigned](#presigned) |
+At the beginning of each meta-transaction method, a gas counter is started for the remaining of the transaction.
+
+```solidity
+uint256 startGas = gasleft();
+```
+
+Towards the end of a transaction, the fee to be paid is calculated as follow:
+
+```solidity
+// Amount of gas consumed so far
+gasUsed = _startGas.sub(gasleft()).add(_g.baseGas);
+
+// Reimburse up to gasLimit (instead of throwing)
+fee = gasUsed > _g.gasLimit ? _g.gasLimit.mul(_g.gasPrice) : gasUsed.mul(_g.gasPrice);
+```
+
+The `baseGas` value is there to account for gas that was not accounted for by the gas counter, such as the CALLDATA, the expected cost of reimbursing the gas, a supplementary fee required by operator, etc. 
+
+The `gasLimit` value is there to protect the users by imposing a limit on how much gas can be reimbursed to the operator. 
+
+The `gasPrice` is used to dictate the price of each gas unit, similar to the [gasPrice](<https://www.investopedia.com/terms/g/gas-ethereum.asp>) in native Ethereum transactions. 
+
+## Gas Receipt
+
+The `GasReceipt` object passed with a meta-transaction will determine whether the gas will be reimbursed from the `_from` address to the `operator` (i.e. `feeRecipient`) if the meta-transaction is successful. It is entirely up to the operator to verify that the `GasReceipt` signed by the user satisfies their needs. The `GasReceipt` consists of the following fields:
+
+| Elements     | Type    | Description                                                  |
+| ------------ | ------- | ------------------------------------------------------------ |
+| gasLimit     | uint256 | Max amount of gas that can be reimbursed                     |
+| baseGas      | uint256 | Base gas cost, such as the 21k base transaction cost, CALLDATA cost, etc. |
+| gasPrice     | address | Price denominated in token X per gas unit                    |
+| feeRecipient | address | Address to send gas fee payment to                           |
+| feeTokenData | bytes   | Encoded data for token to use to pay for gas                 |
+
+The `feeTokenData` should be structured as followed when the token used for gas fee is an ERC-20:
+
+| Offset | Length | Contents                                             |
+| ------ | ------ | ---------------------------------------------------- |
+| 0x00   | 32     | Address of the ERC-20 token, left padded with zeroes |
+| 0x20   | 1      | FeeTokenType.ERC20                                   |
+
+The `feeTokenData` should be structured as followed when the token used for gas fee is an ERC-1155:
+
+| Offset | Length | Contents                                               |
+| ------ | ------ | ------------------------------------------------------ |
+| 0x00   | 32     | Address of the ERC-1155 token, left padded with zeroes |
+| 0x20   | 32     | Token ID to pay gas fee with, left padded with zeroes  |
+| 0x40   | 1      | FeeTokenType.ERC1155                                   |
+
+ where `FeeTokenType` is an enum:
+
+| FeeTokenType byte | FeeTokenType type |
+| ----------------- | ----------------- |
+| 0x00              | ERC20             |
+| 0x01              | ERC1155           |
+
+Any `FeeTokenType` other than these two MUST revert if used in a transaction. 
+
+# Signature Types
+
+All signatures submitted to the ERC-1155 contract are represented as a byte array of arbitrary length, where the last byte (the "signature byte") specifies the signatures type. The signature type is popped from the signature byte array before validation. The following signature types are supported:
+
+| Signature byte | Signature type       |
+| -------------- | -------------------- |
+| 0x00           | [Illegal](???)       |
+| 0x01           | [EIP712](???)        |
+| 0x02           | [EthSign](???)       |
+| 0x03           | [WalletBytes](???)   |
+| 0x04           | [WalletBytes32](???) |
+
+The data being signed is always encoded and hashed according to [EIP-712](<https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md>). The only notable exception is for when the signature type is [WalletBytes](#walletbytes), as described in the corresponding section.
 
 ### Illegal
 
 This is the default value of the signature byte. A transaction that includes an Illegal signature will be reverted. Therefore, users must explicitly specify a valid signature type.
 
-### Invalid
-
-An `Invalid` signature always returns false. An invalid signature can always be recreated and is therefore offered explicitly. This signature type is largely used for testing purposes.
-
 ### EIP712
 
-An `EIP712` signature is considered valid if the address recovered from calling [`ecrecover`](#ecrecover-usage) with the given hash and decoded `v`, `r`, `s` values is the same as the specified signer. In this case, the signature is encoded in the following way:
+An `EIP712` signature is considered valid if the address recovered from calling [`ecrecover`](???) with the given hash and decoded `v`, `r`, `s` values is the same as the specified signer. In this case, the signature is encoded in the following way:
 
 | Offset | Length | Contents            |
 | ------ | ------ | ------------------- |
-| 0x00   | 1      | v (always 27 or 28) |
-| 0x01   | 32     | r                   |
-| 0x21   | 32     | s                   |
+| 0x00   | 32     | r                   |
+| 0x20   | 32     | s                   |
+| 0x40   | 1      | v (always 27 or 28) |
 
 ### EthSign
 
-An `EthSign` signature is considered valid if the address recovered from calling [`ecrecover`](#ecrecover-usage) with the an EthSign-prefixed hash and decoded `v`, `r`, `s` values is the same as the specified signer.
+An `EthSign` signature is considered valid if the address recovered from calling [`ecrecover`](https://github.com/0xProject/0x-protocol-specification/blob/master/v2/v2-specification.md#ecrecover-usage) with the an EthSign-prefixed hash and decoded `v`, `r`, `s` values is the same as the specified signer.
 
 The prefixed `msgHash` is calculated with:
 
@@ -601,435 +509,87 @@ string constant ETH_PERSONAL_MESSAGE = "\x19Ethereum Signed Message:\n32";
 bytes32 msgHash = keccak256(abi.encodePacked(ETH_PERSONAL_MESSAGE, hash));
 ```
 
-`v`, `r`, and `s` are encoded in the signature byte array using the same scheme as [EIP712 signatures](#EIP712).
+`v`, `r`, and `s` are encoded in the signature byte array using the same scheme as [EIP712 signatures](???).
 
-### Wallet
+### WalletBytes
 
-The `Wallet` signature type allows a contract to trade on behalf of any other address(es) by defining its own signature validation function. When used with order signing, the `Wallet` contract _is_ the `maker` of the order and should hold any assets that will be traded. When using this signature type, the [`Exchange`](#exchange) contract makes a `STATICCALL` to the `Wallet` contract's `isValidSignature` method, which means that signature verifcation will fail and revert if the `Wallet` attempts to update state. This contract should have the following interface:
+The `WalletBytes` signature type allows a contract to interact with the ERC-1155 token contract on behalf of any other address(es) by defining its own signature validation function. When used with meta-transaction signing, the `Wallet` contract *is* the signer of the meta-transaction. When using this signature type, the token contract makes a `STATICCALL` to the `Wallet`contract's `isValidSignature` method, which means that signature verification will fail and revert if the `Wallet` attempts to update state. This contract should have the following interface:
 
-```
+```solidity
 contract IWallet {
-
-    /// @dev Verifies that a signature is valid.
-    /// @param hash Message hash that is signed.
-    /// @param signature Proof of signing.
-    /// @return Validity of order signature.
-    function isValidSignature(
-        bytes32 hash,
-        bytes signature
-    )
-        external
-        view
-        returns (bytes4 magicValue);
+  /** 
+   * @notice Verifies that a signature is valid.
+   * @param data      Data that was hashed and signed
+   * @param signature Proof of signing.
+   */ @return Validity of signature for provided data.
+  function isValidSignature(
+    bytes calldata data,
+    bytes calldata signature
+  ) external view returns (bytes4 magicValue);
 }
 ```
 
-A `Wallet` contract's `isValidSignature` method must return the following magic value if successful:
+The `data` passed to the `Wallet` signer is the encoded data according to EIP-712, expect that the ***byte arrays are not hashed***. For that matter, the recipient contract is expected to know how the received data is structured, which is facilitated by the fact that the first 32 bytes of the byte array received is the `typeHash` (see [EIP-712#rationale-for-typehash](<https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md#rationale-for-typehash>)). This signature type distinguishes itself from the `WalletBytes32` as it permits the signer `Wallet` to verify the data itself that was signed. A `Wallet` contract's `isValidSignature(bytes,bytes)` method must return the following magic value if successful:
 
 ```solidity
-// 0xb0671381
-bytes4 WALLET_MAGIC_VALUE = bytes4(keccak256("isValidWalletSignature(bytes32,address,bytes)"));
+bytes4 ERC1271_MAGICVALUE = bytes4(keccak256("isValidSignature(bytes,bytes)"));
 ```
 
-Note when using this method to sign orders: although it can be useful to allow the validity of signatures to be determined by some state stored on the blockchain, it should be noted that the signature will only be checked the first time an order is filled. Therefore, the signature cannot be later invalidated by updating the associates state.
+### WalletBytes32
 
-### Validator
-
-The `Validator` signature type allows an address to delegate signature verification to any other address. The `Validator` contract must first be approved by calling the `setSignatureValidatorApproval` method:
-
-```
-// Mapping of signer => validator => approved
-mapping (address => mapping (address => bool)) public allowedValidators;
-
-/// @dev Approves/unnapproves a Validator contract to verify signatures on signer's behalf.
-/// @param validatorAddress Address of Validator contract.
-/// @param approval Approval or disapproval of  Validator contract.
-function setSignatureValidatorApproval(
-    address validatorAddress,
-    bool approval
-)
-    external;
-```
-
-The `setSignatureValidatorApproval` method emits a [`SignatureValidatorApproval`](#signaturevalidatorapprovalset) event when executed.
-
-A Validator signature is then encoded as:
-
-| Offset   | Length | Contents                   |
-| -------- | ------ | -------------------------- |
-| 0x00     | x      | signature                  |
-| 0x00 + x | 20     | Validator contract address |
-
-A Validator contract must have the following interface:
-
-```
-contract IValidator {
-
-    /// @dev Verifies that a signature is valid.
-    /// @param hash Message hash that is signed.
-    /// @param signerAddress Address that should have signed the given hash.
-    /// @param signature Proof of signing.
-    /// @return Validity of order signature.
-    function isValidSignature(
-        bytes32 hash,
-        address signerAddress,
-        bytes signature
-    )
-        external
-        view
-        returns (bytes4 magicValue);
-}
-```
-
-A `Validator` contract's `isValidSignature` method must return the following magic value if successful:
+The `WalletBytes32` signature type allows a contract to trade on behalf of any other address(es) by defining its own signature validation function. When used with order signing, the `Wallet` contract *is* the signer of the meta-transaction. When using this signature type, the token contract makes a `STATICCALL` to the `Wallet`contract's `isValidSignature` method, which means that signature verification will fail and revert if the `Wallet` attempts to update state. This contract should have the following interface:
 
 ```solidity
-// 0x42b38674
-bytes4 VALIDATOR_MAGIC_VALUE = bytes4(keccak256("isValidValidatorSignature(address,bytes32,address,bytes)"));
-```
-
-The signature is validated by calling the `Validator` contract's `isValidSignature` method. When using this signature type, the [`Exchange`](#exchange) contract makes a `STATICCALL` to the `Validator` contract's `isValidSignature` method, which means that signature verifcation will fail and revert if the `Validator` attempts to update state.
-
-```
-// Pop last 20 bytes off of signature byte array.
-address validatorAddress = popAddress(signature);
-
-// Ensure signer has approved validator.
-if (!allowedValidators[signerAddress][validatorAddress]) {
-    return false;
-}
-
-magicValue = isValidValidatorSignature(
-    validatorAddress,
-    hash,
-    signerAddress,
-    signature
-);
-```
-
-### PreSigned
-
-Allows any address to sign a hash on-chain by calling the `preSign` method on the Exchange contract.
-
-```
-// Mapping of hash => signer => signed
-mapping (bytes32 => mapping(address => bool)) public preSigned;
-
-/// @dev Approves a hash on-chain using any valid signature type or `msg.sender`.
-///      After presigning a hash, the preSign signature type will become valid for that hash and signer.
-/// @param signerAddress Address that should have signed the given hash.
-/// @param signature Proof that the hash has been signed by signer.
-function preSign(
+contract IWallet {
+  /** 
+   * @notice Verifies that a signature is valid.
+   * @param hash      Hash that was signed
+   * @param signature Proof of signing.
+   */ @return Validity of signature for provided data.
+  function isValidSignature(
     bytes32 hash,
-    address signerAddress,
-    bytes signature
-)
-    external;
+    bytes calldata signature
+  ) external view returns (bytes4 magicValue);
+}
 ```
 
-The hash can then be validated with only a `PreSigned` signature byte by checking the state of the `preSigned` mapping when a transaction is submitted.
+A `Wallet` contract's `isValidSignature(bytes32,bytes)` method must return the following magic value if successful:
 
-```
-isValid = preSigned[hash][signerAddress];
-return isValid;
+```solidity
+bytes4 ERC1271_MAGICVALUE_BYTES32 = bytes4(keccak256("isValidSignature(bytes32,bytes)"));
 ```
 
 # Events
 
-## Exchange events
+### 
 
-### Fill
 
-A `Fill` event is emitted when an order is filled.
-
-```
-event Fill(
-    address indexed makerAddress,         // Address that created the order.
-    address indexed feeRecipientAddress,  // Address that received fees.
-    address takerAddress,                 // Address that filled the order.
-    address senderAddress,                // Address that called the Exchange contract (msg.sender).
-    uint256 makerAssetFilledAmount,       // Amount of makerAsset sold by maker and bought by taker.
-    uint256 takerAssetFilledAmount,       // Amount of takerAsset sold by taker and bought by maker.
-    uint256 makerFeePaid,                 // Amount of ZRX paid to feeRecipient by maker.
-    uint256 takerFeePaid,                 // Amount of ZRX paid to feeRecipient by taker.
-    bytes32 indexed orderHash,            // EIP712 hash of order (see LibOrder.getOrderHash).
-    bytes makerAssetData,                 // Encoded data specific to makerAsset.
-    bytes takerAssetData                  // Encoded data specific to takerAsset.
-);
-```
-
-### Cancel
-
-A `Cancel` event is emitted whenever an individual order is cancelled.
-
-```
-event Cancel(
-    address indexed makerAddress,         // Address that created the order.
-    address indexed feeRecipientAddress,  // Address that would have received fees if order was filled.
-    address senderAddress,                // Address that called the Exchange contract (msg.sender).
-    bytes32 indexed orderHash,            // EIP712 hash of order (see LibOrder.getOrderHash).
-    bytes makerAssetData,                 // Encoded data specific to makerAsset.
-    bytes takerAssetData                  // Encoded data specific to takerAsset.
-);
-```
-
-### CancelUpTo
-
-A `CancelUpTo` event is emitted whenever a [`cancelOrdersUpTo`](#cancelordersupto) call is successful.
-
-```
-event CancelUpTo(
-    address indexed makerAddress,         // Orders cancelled must have been created by this address.
-    address indexed senderAddress,        // Orders cancelled must have a `senderAddress` equal to this address.
-    uint256 orderEpoch                    // Orders with specified makerAddress and senderAddress with a salt less than this value are considered cancelled.
-);
-```
-
-### SignatureValidatorApproval
-
-A `SignatureValidatorApproval` event is emitted whenever a [`Validator`](#validator) contract is approved or disapproved to verify signatures created by a signer via `setSignatureValidatorApproval`.
-
-```
-event SignatureValidatorApproval(
-    address indexed signerAddress,     // Address that approves or disapproves a contract to verify signatures.
-    address indexed validatorAddress,  // Address of signature validator contract.
-    bool approved                      // Approval or disapproval of validator contract.
-);
-```
-
-### AssetProxyRegistered
-
-Whenever an [`AssetProxy`](#assetproxy) is registered the [`Exchange`](#exchange) contract, an `AssetProxyRegistered` is emitted.
-
-```
-event AssetProxyRegistered(
-    uint8 id,               // Id of new registered AssetProxy.
-    address assetProxy,     // Address of new registered AssetProxy.
-);
-```
-
-## AssetProxy events
-
-### AuthorizedAddressAdded
-
-An `AuthorizedAddressAdded` event is emitted when a new address becomes authorized to call an [`AssetProxy`](#assetproxy) contract's transfer functions.
-
-```
-event AuthorizedAddressAdded(
-    address indexed target,
-    address indexed caller
-);
-```
-
-### AuthorizedAddressRemoved
-
-An `AuthorizedAddressRemoved` event is emitted when an address becomes unauthorized to call an [`AssetProxy`](#assetproxy) contract's transfer functions.
-
-```
-event AuthorizedAddressRemoved(
-    address indexed target,
-    address indexed caller
-);
-```
-
-## AssetProxyOwner events
-
-The following events must precede the execution of any function called by [`AssetProxyOwner`](#assetproxyowner) (with the exception of `removeAuthorizedAddressAtIndex`).
-
-### Submission
-
-A `Submission` event is emitted when a new transaction is submitted to the [`AssetProxyOwner`](#assetproxyowner).
-
-```
-event Submission(uint256 indexed transactionId);
-```
-
-### Confirmation
-
-A `Confirmation` event is emitted when a transaction is confirmed by an individual owner of the [`AssetProxyOwner`](#assetproxyowner).
-
-```
-event Confirmation(
-    address indexed sender,
-    uint256 indexed transactionId
-);
-```
-
-### ConfirmationTimeSet
-
-A `ConfirmationTimeSet` event is emitted when a transaction has been fully confirmed. The 2 week timelock begins at this time, after which the transaction becomes executable.
-
-```
-event ConfirmationTimeSet(
-    uint256 indexed transactionId,
-    uint256 confirmationTime
-);
-```
-
-# Types
-
-## Order
-
-```
-struct Order {
-    address makerAddress;           // Address that created the order.
-    address takerAddress;           // Address that is allowed to fill the order. If set to 0, any address is allowed to fill the order.
-    address feeRecipientAddress;    // Address that will receive fees when order is filled.
-    address senderAddress;          // Address that is allowed to call Exchange contract methods that affect this order. If set to 0, any address is allowed to call these methods.
-    uint256 makerAssetAmount;       // Amount of makerAsset being offered by maker. Must be greater than 0.
-    uint256 takerAssetAmount;       // Amount of takerAsset being bid on by maker. Must be greater than 0.
-    uint256 makerFee;               // Amount of ZRX paid to feeRecipient by maker when order is filled. If set to 0, no transfer of ZRX from maker to feeRecipient will be attempted.
-    uint256 takerFee;               // Amount of ZRX paid to feeRecipient by taker when order is filled. If set to 0, no transfer of ZRX from taker to feeRecipient will be attempted.
-    uint256 expirationTimeSeconds;  // Timestamp in seconds at which order expires.
-    uint256 salt;                   // Arbitrary number to facilitate uniqueness of the order's hash.
-    bytes makerAssetData;           // Encoded data that can be decoded by a specified proxy contract when transferring makerAsset. The last byte references the id of this proxy.
-    bytes takerAssetData;           // Encoded data that can be decoded by a specified proxy contract when transferring takerAsset. The last byte references the id of this proxy.
-}
-```
-
-## FillResults
-
-Fill methods that return a value will return a FillResults instance if successful.
-
-```
-struct FillResults {
-    uint256 makerAssetFilledAmount;  // Total amount of makerAsset(s) filled.
-    uint256 takerAssetFilledAmount;  // Total amount of takerAsset(s) filled.
-    uint256 makerFeePaid;            // Total amount of ZRX paid by maker(s) to feeRecipient(s).
-    uint256 takerFeePaid;            // Total amount of ZRX paid by taker to feeRecipients(s).
-}
-```
-
-## MatchedFillResults
-
-The [`matchOrders`](#matchorders) method returns a MatchedFillResults instance if successful.
-
-```
-struct MatchedFillResults {
-    FillResults left;                    // Amounts filled and fees paid of left order.
-    FillResults right;                   // Amounts filled and fees paid of right order.
-    uint256 leftMakerAssetSpreadAmount;  // Spread between price of left and right order, denominated in the left order's makerAsset, paid to taker.
-}
-```
-
-## OrderInfo
-
-The [`getOrderInfo`](#getorderinfo) method returns an `OrderInfo` instance.
-
-```
-struct OrderInfo {
-    uint8 orderStatus;                    // Status that describes order's validity and fillability.
-    bytes32 orderHash;                    // EIP712 hash of the order (see LibOrder.getOrderHash).
-    uint256 orderTakerAssetFilledAmount;  // Amount of order that has already been filled.
-}
-```
-
-# Standard relayer API
-
-For a full specification of how orders are intended to be posted to and retrieved from relayers, see the [SRA v2 specification](https://github.com/0xProject/standard-relayer-api#sra-v2).
 
 # Miscellaneous
 
 ## EIP712 usage
 
-Hashes of orders and transactions are calculated according to the [EIP712 specification](https://github.com/ethereum/EIPs/pull/712/files).
+Hashes of ERC-1155 meta-transactions are calculated according to the [EIP712 specification](https://github.com/ethereum/EIPs/pull/712/files) as follow:
 
-The domain separator for the Exchange contract can be calculated with:
+The `EIP191_HEADER` and `EIP712_DOMAIN_HASH` constants are calculated as follow ; 
 
-```
-// EIP191 header for EIP712 prefix
+```solidity
+// EIP-191 Header
 string constant internal EIP191_HEADER = "\x19\x01";
 
 // Hash of the EIP712 Domain Separator Schema
-bytes32 constant internal EIP712_DOMAIN_SEPARATOR_SCHEMA_HASH = keccak256(abi.encodePacked(
-    "EIP712Domain(",
-    "string name,",
-    "string version,",
-    "address verifyingContract",
-    ")"
+bytes32 constant internal DOMAIN_SEPARATOR_TYPEHASH = keccak256(abi.encodePacked(
+    "EIP712Domain(address verifyingContract)"
 ));
 
-bytes32 EIP712_DOMAIN_HASH = keccak256(abi.encodePacked(
-    EIP712_DOMAIN_SEPARATOR_SCHEMA_HASH,
-    keccak256(bytes("0x Protocol")),
-    keccak256(bytes("2")),
-    bytes32(address(this))
+bytes32 constant internal EIP712_DOMAIN_HASH = keccak256(abi.encodePacked(
+	DOMAIN_SEPARATOR_TYPEHASH, 
+	uint256(address(this))
 ));
 ```
 
 For more information about how this is used, see [hashing an order](#hashing-an-order) and [hashing a transaction](#hash-of-a-transaction).
 
-## Optimizing calldata
-
-Calldata is expensive. As per Appendix G of the [Ethereum Yellowpaper](#https://ethereum.github.io/yellowpaper/paper.pdf), every non-zero byte of calldata costs 68 gas, and every zero byte costs 4 gas. There are certain off-chain optimizations that can be made in order to maximize the amount of zeroes included in calldata.
-
-### Filling remaining amounts
-
-When an order is filled, it will attempt to fill the minimum of the amount submitted and the amount remaining. Therefore, if a user attempts to fill a very large amount such as `0xF000000000000000000000000000000000000000000000000000000000000000`, then the order will almost always be maximally filled while using minimal extra calldata.
-
-### Filling orders that have already been partially filled
-
-When filling an order, the signature is only validated the first time the order is filled. Because of this, signatures should _not_ be resubmitted after an order has already been partially filled. For a standard 65 byte ECDSA signature, this can save well over 4000 gas.
-
-### Optimizing salt
-
-When creating an order, a full 32 byte salt is generally unecessary to facilitate uniqueness of the order's hash. Using a salt value with as many leading zeroes as possible will increase gas efficiency. It is recommended to use a timestamp or incrementing nonce for the salt value, which will generally be small enough to optimize gas while also working well with [`cancelOrdersUpTo`](#cancelordersupto).
-
-### Assuming order parameters
-
-The [`matchOrders`](#matchorders), [`marketSellOrders`](#marketsellorders), [`marketSellOrdersNoThrow`](#marketsellordersnothrow), [`marketBuyOrders`](#marketbuyorders), and [`marketBuyOrdersNoThrow`](#marketbuyordersnothrow) functions all require that certain parameters of the later passed in orders match the same parameters of the first passed in order. Rather than checking equality, these functions all assume that the parameters are equal. This means users may pass in zero values for those parameters and the functions will still execute as if the values had been passed in as calldata.
-
-### Vanity addresses
-
-If frequently trading from a single address, it may make sense to generate a vanity address with as many zero bytes as possible.
-
 ## ecrecover usage
 
 The `ecrecover` precompile available in Solidity expects `v` to always have a value of `27` or `28`. Some signers and clients assume that `v` will have a value of `0` or `1`, so it may be necessary to add `27` to `v` before submitting it to the `Exchange` contract.
-
-## Reentrancy protection
-
-The following functions within the `Exchange` contract contain a mutex that prevents them from called via [reentrancy](https://solidity.readthedocs.io/en/v0.4.24/security-considerations.html#re-entrancy):
-
-- [`fillOrder`](#fillorder)
-- [`fillOrKillOrder`](#fillorkillorder)
-- [`batchFillOrders`](#batchfillorders)
-- [`batchFillOrKillOrders`](#batchfillorkillorders)
-- [`marketBuyOrders`](#marketbuyorders)
-- [`marketSellOrders`](#marketsellorders)
-- [`matchOrders`](#matchorders)
-- [`cancelOrder`](#cancelorder)
-- [`batchCancelOrders`](#batchcancelorders)
-- [`cancelOrdersUpTo`](#cancelordersupto)
-- [`setSignatureValidatorApproval`](#validator)
-
-[`fillOrderNoThrow`](#fillordernothrow) and all of its variations do not explicitly have a mutex, but will fail gracefully if any reentrancy is attempted.
-
-The mutex is implemented with the following `nonReentrant` modifier:
-
-```
-contract ReentrancyGuard {
-
-    // Locked state of mutex
-    bool private locked = false;
-
-    /// @dev Functions with this modifer cannot be reentered. The mutex will be locked
-    ///      before function execution and unlocked after.
-    modifier nonReentrant() {
-        // Ensure mutex is unlocked
-        require(
-            !locked,
-            "REENTRANCY_ILLEGAL"
-        );
-
-        // Lock mutex before function call
-        locked = true;
-
-        // Perform function call
-        _;
-
-        // Unlock mutex after function call
-        locked = false;
-    }
-}
-```

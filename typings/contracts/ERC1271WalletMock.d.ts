@@ -11,11 +11,7 @@ import {
 } from ".";
 
 interface ERC1271WalletMockInterface extends Interface {
-  functions: {
-    setShouldReject: TypedFunctionDescription<{
-      encode([_value]: [boolean]): string;
-    }>;
-  };
+  functions: {};
 
   events: {};
 }
@@ -39,19 +35,13 @@ export class ERC1271WalletMock extends Contract {
   functions: {
     isValidSignature(_hash: Arrayish, _signature: Arrayish): Promise<string>;
 
-    setShouldReject(
-      _value: boolean,
-      overrides?: TransactionOverrides
-    ): Promise<ContractTransaction>;
-
     ERC1271_INVALID(): Promise<string>;
+    ERC1271_MAGICVALUE_BYTES32(): Promise<string>;
     ERC1271_MAGIC_VAL(): Promise<string>;
-    shouldReject(): Promise<boolean>;
+    owner(): Promise<string>;
   };
 
   filters: {};
 
-  estimate: {
-    setShouldReject(_value: boolean): Promise<BigNumber>;
-  };
+  estimate: {};
 }

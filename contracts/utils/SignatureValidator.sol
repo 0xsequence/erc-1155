@@ -17,17 +17,20 @@ contract SignatureValidator is LibEIP712 {
   |__________________________________*/
 
 
-  // bytes4(keccak256("isValidSignature(bytes,bytes)")
+  // bytes4(keccak256("isValidSignature(bytes,bytes)"))
   bytes4 constant internal ERC1271_MAGICVALUE = 0x20c13b0b;
+
+  // bytes4(keccak256("isValidSignature(bytes32,bytes)"))
+  bytes4 constant internal ERC1271_MAGICVALUE_BYTES32 = 0x1626ba7e;
 
   // Allowed signature types.
   enum SignatureType {
-      Illegal,         // 0x00, default value
-      EIP712,          // 0x01
-      EthSign,         // 0x02
-      WalletBytes,     // 0x03 To call isValidSignature(bytes, bytes) on wallet contract
-      WalletBytes32,   // 0x04 To call isValidSignature(bytes32, bytes) on wallet contract
-      NSignatureTypes  // 0x05, number of signature types. Always leave at end.
+    Illegal,         // 0x00, default value
+    EIP712,          // 0x01
+    EthSign,         // 0x02
+    WalletBytes,     // 0x03 To call isValidSignature(bytes, bytes) on wallet contract
+    WalletBytes32,   // 0x04 To call isValidSignature(bytes32, bytes) on wallet contract
+    NSignatureTypes  // 0x05, number of signature types. Always leave at end.
   }
 
 
@@ -131,7 +134,7 @@ contract SignatureValidator is LibEIP712 {
 
     // Signature verified by wallet contract without data validation.
     } else if (signatureType == SignatureType.WalletBytes32) {
-      isValid = ERC1271_MAGICVALUE == IERC1271Wallet(_signerAddress).isValidSignature(_hash, _sig);
+      isValid = ERC1271_MAGICVALUE_BYTES32 == IERC1271Wallet(_signerAddress).isValidSignature(_hash, _sig);
       return isValid;
     }
 

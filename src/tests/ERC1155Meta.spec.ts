@@ -174,7 +174,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           
           // Domain hash
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
-            ['bytes32', 'address'], 
+            ['bytes32', 'uint256'], 
             [DOMAIN_SEPARATOR_TYPEHASH, erc1155Contract.address]
           ))
 
@@ -198,7 +198,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
         it("should REVERT if contract address is incorrect", async () => {
           // Domain hash
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
-            ['bytes32', 'address'], 
+            ['bytes32', 'uint256'], 
             [DOMAIN_SEPARATOR_TYPEHASH, receiverContract.address]
           ))
           data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
@@ -538,6 +538,9 @@ contract('ERC1155Meta', (accounts: string[]) => {
               let feeTokenDataERC20 = ethers.utils.defaultAbiCoder.encode(
                 ['address', 'uint8'], [erc20Contract.address, 1]
               )
+              
+              console.log('feeTokenDataERC20')
+              console.log(feeTokenDataERC20)
     
               gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
@@ -608,6 +611,53 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 {gasLimit: 2000000}
               )
               await expect(tx).to.be.rejectedWith(RevertError())
+            })
+
+            it("should REVERT if FeeTokenType is not supported", async () => {
+              let erc20Abstract = await AbstractContract.fromArtifactName('ERC20Mock')
+              let erc20Contract = await erc20Abstract.deploy(ownerWallet) as ERC20Mock
+              await erc20Contract.functions.mockMint(ownerAddress, feeTokenInitBalance)
+              await erc20Contract.functions.approve(operatorERC1155Contract.address, feeTokenInitBalance)
+    
+              let feeTokenDataERC20 = ethers.utils.defaultAbiCoder.encode(
+                ['address', 'uint8'], [erc20Contract.address, 2]
+              )
+    
+              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+                feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
+              }
+    
+              // Check if gas receipt is included
+              gasReceipt = isGasReceipt ? gasReceipt : null
+    
+              // Data to pass in transfer method
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
+    
+              // @ts-ignore
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.rejectedWith(RevertError("ERC1155Meta#_transferGasFee: UNSUPPORTED_TOKEN"));
+
+              feeTokenDataERC20 = ethers.utils.defaultAbiCoder.encode(
+                ['address', 'uint8'], [erc20Contract.address, 3]
+              )
+    
+              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+                feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
+              }
+    
+              // Check if gas receipt is included
+              gasReceipt = isGasReceipt ? gasReceipt : null
+    
+              // Data to pass in transfer method
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
+    
+              // @ts-ignore
+              const tx2 = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
+                {gasLimit: 2000000}
+              )
+              await expect(tx2).to.be.rejectedWith(RevertError("ERC1155Meta#_transferGasFee: UNSUPPORTED_TOKEN"));
             })
 
             describe('When receiver is a contract', () => {
@@ -845,7 +895,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
           // Domain hash
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
-            ['bytes32', 'address'], 
+            ['bytes32', 'uint256'], 
             [DOMAIN_SEPARATOR_TYPEHASH, erc1155Contract.address]
           ))
 
@@ -855,7 +905,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
         it("should REVERT if contract address is incorrect", async () => {
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
-            ['bytes32', 'address'], 
+            ['bytes32', 'uint256'], 
             [DOMAIN_SEPARATOR_TYPEHASH, receiverContract.address]
           ))
           data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
@@ -1327,7 +1377,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
           // Domain hash
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
-            ['bytes32', 'address'], 
+            ['bytes32', 'uint256'], 
             [DOMAIN_SEPARATOR_TYPEHASH, erc1155Contract.address]
           ))
           // Data to pass in approval method
@@ -1364,7 +1414,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
         it("should REVERT if contract address is incorrect", async () => {
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
-            ['bytes32', 'address'], 
+            ['bytes32', 'uint256'], 
             [DOMAIN_SEPARATOR_TYPEHASH, receiverAddress]
           ))
           data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt)

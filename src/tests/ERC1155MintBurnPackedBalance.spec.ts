@@ -96,7 +96,7 @@ contract('ERC1155MintBurnPackedBalance', (accounts: string[]) => {
       it('should REVERT if amount is larger than limit', async () => {
         const maxVal = new BigNumber(2).pow(32)
         const tx = erc1155MintBurnContract.functions.mintMock(receiverAddress, tokenID, maxVal, [])
-        await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: OVERFLOW") )
+        await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW") )
       })
 
       it('should REVERT when sending to non-receiver contract', async () => {
@@ -353,7 +353,7 @@ contract('ERC1155MintBurnPackedBalance', (accounts: string[]) => {
       it('should REVERT if amount is hgher than balance', async () => {
         const invalidVal = initBalance + 1 
         const tx = erc1155MintBurnContract.functions.burnMock(receiverAddress, tokenID, invalidVal)
-        await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: UNDERFLOW") )
+        await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW") )
       })
 
       it('should emit a Transfer event', async () => {

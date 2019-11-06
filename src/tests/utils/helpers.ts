@@ -1,6 +1,6 @@
 import * as ethers from 'ethers'
 import { SigningKey } from 'ethers/utils/signing-key';
-import { joinSignature, toUtf8Bytes, defaultAbiCoder, BigNumber } from 'ethers/utils'
+import { joinSignature, toUtf8Bytes, toUtf8String, defaultAbiCoder } from 'ethers/utils'
 import { 
   GasReceipt,
   TransferSignature,
@@ -39,7 +39,7 @@ export async function ethSign(wallet: ethers.Wallet, message: string | Uint8Arra
 }
 
 export async function ethSignTypedData(wallet: ethers.Wallet, domainHash: string,  hashStruct: string | Uint8Array) {
-  const EIP191_HEADER = '0x1901000000000000000000000000000000000000000000000000000000000000'
+  const EIP191_HEADER = "0x1901"
   const preHash = ethers.utils.solidityPack(['bytes', 'bytes32'], [EIP191_HEADER, domainHash])
   const hash = ethers.utils.keccak256(ethers.utils.solidityPack(
       ['bytes', 'bytes32'], 
@@ -71,16 +71,16 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
 
   /** Three encoding scenario
    *  1. Gas receipt and transfer data:
-   *   txData: ( '0xebc71fa5', signature,  gasReceipt, transferData)
+   *   txData: ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g, bytes transferData))
    * 
    *  2. Gas receipt without transfer data:
-   *   txData: ('0xebc71fa5', signature,  gasReceipt)
+   *   txData: ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g))
    * 
    *  3. No gasReceipt with transferData 
-   *   txData: ('0x3fed7708', signature, transferData)
+   *   txData: ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (bytes transferData))
    * 
    *  4. No gasReceipt without transferData
-   *   txData: ('0x3fed7708', signature)
+   *   txData: ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType))
    */ 
 
   let sigData;     // Data to sign
@@ -90,12 +90,12 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
   // Struct Data type
   const sigArgTypes = [
     'bytes32', // META_TX_TYPEHASH
-    'address', // _from
-    'address', // _to
+    'uint256', // _from: uint256(address)
+    'uint256', // _to:   uint256(address)
     'uint256', // _id
     'uint256', // _amount
     'uint256', // nonce
-  // bytes32   // hash of signed data
+ // 'bytes32', // hash of transfer data (added below, if any)
     ];
   
   let signer = await s.signerWallet.getAddress()
@@ -168,16 +168,16 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
 
   /** Three encoding scenario
    *  1. Gas receipt and transfer data:
-   *   txData: ( '0xebc71fa5', signature,  gasReceipt, transferData)
+   *   txData: ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g, bytes transferData))
    * 
    *  2. Gas receipt without transfer data:
-   *   txData: ('0xebc71fa5', signature,  gasReceipt)
+   *   txData: ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g))
    * 
    *  3. No gasReceipt with transferData 
-   *   txData: ('0x3fed7708', signature, transferData)
+   *   txData: ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (bytes transferData))
    * 
    *  4. No gasReceipt without transferData
-   *   txData: ('0x3fed7708', signature)
+   *   txData: ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType))
    */  
 
 
@@ -189,12 +189,12 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
   // Struct Data type
   const sigArgTypes = [
     'bytes32', // META_TX_TYPEHASH
-    'address', // _from
-    'address', // _to
+    'uint256', // _from: uint256(address)
+    'uint256', // _to: uint256(address)
     'bytes32', // keccak256(_ids)
     'bytes32', // keccak256(_amounts)
     'uint256', // nonce
-  // bytes32   // hash of signed data
+ // 'bytes32', // hash of transfer data (added below, if any)
     ];
   
 
@@ -269,14 +269,15 @@ export async function encodeMetaApprovalData(a: ApprovalSignature, domainHash: s
   let txDataTypes: string[]; // Types of data to encode
   let sig: string; // Signature
 
+  let approved_hex = a.approved ? '0x1' : '0x0'
+
   // Struct Data type
   const sigArgTypes = [
-    'bytes32',   // META_TX_TYPEHASH
-    'address',   // _owner
-    'address',   // _operator
-    'bool',      // _approved
-    'uint256',   // nonce
-  // bytes32     // hash of signed data
+    'bytes32', // META_TX_TYPEHASH
+    'uint256', // _owner: uint256(address)
+    'uint256', // _operator: uint256(address)
+    'uint256', // _approved: uint256(bool)
+    'uint256', // nonce
   ];
   
   // Get signer
@@ -287,7 +288,7 @@ export async function encodeMetaApprovalData(a: ApprovalSignature, domainHash: s
     META_APPROVAL_TYPEHASH,
     signer,
     a.operator,
-    a.approved,
+    approved_hex,
     a.nonce,
   ])
 

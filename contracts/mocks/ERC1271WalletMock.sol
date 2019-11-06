@@ -6,6 +6,7 @@ import "../interfaces/IERC1271Wallet.sol";
 // Contract to test safe transfer behavior.
 contract ERC1271WalletMock is IERC1271Wallet {
   bytes4 constant public ERC1271_MAGIC_VAL = 0x20c13b0b;
+  bytes4 constant public ERC1271_MAGICVALUE_BYTES32 = 0x1626ba7e;
   bytes4 constant public ERC1271_INVALID = 0x0;
 
   // Keep values from last received contract.
@@ -27,12 +28,12 @@ contract ERC1271WalletMock is IERC1271Wallet {
    *
    * MUST return the bytes4 magic value 0x20c13b0b when function passes.
    * MUST NOT modify state (using STATICCALL for solc < 0.5, view modifier for solc > 0.5)
-   */ 
+   */
   function isValidSignature(
-    bytes calldata _data, 
+    bytes calldata _data,
     bytes calldata _signature)
     external
-    view 
+    view
     returns (bytes4 magicValue)
   {
     magicValue = shouldReject ? ERC1271_INVALID : ERC1271_MAGIC_VAL;
@@ -45,17 +46,17 @@ contract ERC1271WalletMock is IERC1271Wallet {
    * @param _hash keccak256 hash that was signed
    * @param _signature Signature byte array associated with _data
    *
-   * MUST return the bytes4 magic value 0x20c13b0b when function passes.
+   * MUST return the bytes4 magic value 0x1626ba7e when function passes.
    * MUST NOT modify state (using STATICCALL for solc < 0.5, view modifier for solc > 0.5)
-   */ 
+   */
   function isValidSignature(
-    bytes32 _hash, 
+    bytes32 _hash,
     bytes calldata _signature)
     external
-    view 
+    view
     returns (bytes4 magicValue)
-  { 
-    magicValue = shouldReject ? ERC1271_INVALID : ERC1271_MAGIC_VAL;
+  {
+    magicValue = shouldReject ? ERC1271_INVALID : ERC1271_MAGICVALUE_BYTES32;
     return magicValue;
   }
 
