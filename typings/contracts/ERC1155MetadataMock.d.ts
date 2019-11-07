@@ -19,10 +19,6 @@ interface ERC1155MetadataMockInterface extends Interface {
     logURIsMock: TypedFunctionDescription<{
       encode([_tokenIDs]: [(BigNumberish)[]]): string;
     }>;
-
-    logURIsMock2: TypedFunctionDescription<{
-      encode([_tokenIDs, _URIs]: [(BigNumberish)[], (string)[]]): string;
-    }>;
   };
 
   events: {
@@ -60,12 +56,6 @@ export class ERC1155MetadataMock extends Contract {
       _tokenIDs: (BigNumberish)[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
-
-    logURIsMock2(
-      _tokenIDs: (BigNumberish)[],
-      _URIs: (string)[],
-      overrides?: TransactionOverrides
-    ): Promise<ContractTransaction>;
   };
 
   filters: {
@@ -76,10 +66,5 @@ export class ERC1155MetadataMock extends Contract {
     setBaseMetadataURI(_newBaseMetadataURI: string): Promise<BigNumber>;
 
     logURIsMock(_tokenIDs: (BigNumberish)[]): Promise<BigNumber>;
-
-    logURIsMock2(
-      _tokenIDs: (BigNumberish)[],
-      _URIs: (string)[]
-    ): Promise<BigNumber>;
   };
 }

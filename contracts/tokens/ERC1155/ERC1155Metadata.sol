@@ -49,18 +49,6 @@ contract ERC1155Metadata {
   }
 
   /**
-   * @notice Will emit a specific URI log event for corresponding token
-   * @param _tokenIDs IDs of the token corresponding to the _uris logged
-   * @param _URIs    The URIs of the specified _tokenIDs
-   */
-  function _logURIs(uint256[] memory _tokenIDs, string[] memory _URIs) internal {
-    require(_tokenIDs.length == _URIs.length, "ERC1155Metadata#_logURIs: INVALID_ARRAYS_LENGTH");
-    for (uint256 i = 0; i < _tokenIDs.length; i++) {
-      emit URI(_URIs[i], _tokenIDs[i]);
-    }
-  }
-
-  /**
    * @notice Will update the base URL of token's URI
    * @param _newBaseMetadataURI New base URL of token's URI
    */

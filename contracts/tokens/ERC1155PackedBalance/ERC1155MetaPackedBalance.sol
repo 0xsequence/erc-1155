@@ -31,11 +31,11 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
    *     Last element should be a 0x0 if ERC-20 and 0x1 for ERC-1155
    */
   struct GasReceipt {
-    uint256 gasLimit;             // Max amount of gas that can be reimbursed
-    uint256 baseGas;              // Base gas cost (includes things like 21k, CALLDATA size, etc.)
-    uint256 gasPrice;             // Price denominated in token X per gas unit
-    address payable feeRecipient; // Address to send payment to
-    bytes feeTokenData;           // Data for token to pay for gas as `uint256(tokenAddress)`
+    uint256 gasLimit;     // Max amount of gas that can be reimbursed
+    uint256 baseGas;      // Base gas cost (includes things like 21k, CALLDATA size, etc.)
+    uint256 gasPrice;     // Price denominated in token X per gas unit
+    address feeRecipient; // Address to send payment to
+    bytes feeTokenData;   // Data for token to pay for gas as `uint256(tokenAddress)`
   }
 
   // Which token standard is used to pay gas fee
@@ -84,7 +84,13 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
     bytes memory signedData = _signatureValidation(
       _from,
       _data,
-      abi.encodePacked(META_TX_TYPEHASH, _from, _to, _id, _amount)
+      abi.encodePacked(
+        META_TX_TYPEHASH,
+        uint256(_from),  // Address as uint256
+        uint256(_to),    // Address as uint256
+        _id,
+        _amount
+      )
     );
 
     // If Gas is being reimbursed
@@ -143,8 +149,8 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
       _data,
       abi.encodePacked(
         META_BATCH_TX_TYPEHASH,
-        _from,
-        _to,
+        uint256(_from), // Address as uint256
+        uint256(_to),   // Address as uint256
         keccak256(abi.encodePacked(_ids)),
         keccak256(abi.encodePacked(_amounts))
       )
@@ -206,7 +212,12 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
     bytes memory signedData = _signatureValidation(
       _owner,
       _data,
-      abi.encodePacked(META_APPROVAL_TYPEHASH, _owner, _operator, _approved)
+      abi.encodePacked(
+        META_APPROVAL_TYPEHASH,
+        uint256(_owner),                    // Address as uint256
+        uint256(_operator),                 // Address as uint256
+        _approved ? uint256(1) : uint256(0) // Boolean as uint256
+      )
     );
 
     // Update operator status
@@ -245,10 +256,10 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
   /**
    * @notice Verifies signatures for this contract
    * @param _signer     Address of signer
-   * @param _sigData    Encodes signature and gas payment receipt
-   * @param _encMembers Encoded EIP-712 type members (except nonce and _data)
+   * @param _sigData    Encodes signature, gas payment receipt and transfer data (if any)
+   * @param _encMembers Encoded EIP-712 type members (except nonce and _data), all need to be 32 bytes size
    * @dev _data should be encoded as ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g, ?bytes transferData))
-   *   i.e. high level encoding should be (bytes, bytes), where the latter bytes array is a nested bytes array
+   *   i.e. high level encoding svhould be (bytes, bytes), where the latter bytes array is a nested bytes array
    */
   function _signatureValidation(
     address _signer,
@@ -316,7 +327,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
 
     // Declarations
     address tokenAddress;
-    address payable feeRecipient;
+    address feeRecipient;
     uint256 gasUsed;
     uint256 tokenID;
     uint256 fee;
@@ -351,9 +362,10 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
       tokenAddress = abi.decode(_g.feeTokenData, (address));
       require(
         IERC20(tokenAddress).transferFrom(_from, feeRecipient, fee),
-        "ERC1155Meta#_transferGasFee: ERC20_TRANSFER_FAILED"
+        "ERC1155MetaPackedBalance#_transferGasFee: ERC20_TRANSFER_FAILED"
       );
     }
+    
   }
 
 }

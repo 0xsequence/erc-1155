@@ -119,7 +119,7 @@ export class ERC1155MintBurnPackedBalance extends Contract {
     }>;
 
     getValueInBin(
-      _binAmount: BigNumberish,
+      _binValues: BigNumberish,
       _index: BigNumberish
     ): Promise<BigNumber>;
 

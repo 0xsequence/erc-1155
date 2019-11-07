@@ -31,15 +31,6 @@ contract ERC1155MetadataMock is ERC1155Metadata {
     super._logURIs(_tokenIDs);
   }
 
-  /**
-   * @notice Will emit a specific URI log event for corresponding token
-   * @param _tokenIDs IDs of the token corresponding to the _uris logged
-   * @param _URIs    The URIs of the specified _tokenIDs
-   */
-  function logURIsMock2(uint256[] memory _tokenIDs, string[] memory _URIs) public {
-    super._logURIs(_tokenIDs, _URIs);
-  }
-
 
   /***********************************|
   |       Unsupported Functions       |

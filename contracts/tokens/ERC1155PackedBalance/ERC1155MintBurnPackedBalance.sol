@@ -50,7 +50,7 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
     (uint256 bin, uint256 index) = getIDBinIndex(_ids[0]);
 
     // Balance for current bin in memory (initialized with first transfer)
-    uint256 balTo = _viewUpdateIDBalance(balances[_to][bin], index, _amounts[0], Operations.Add);
+    uint256 balTo = _viewUpdateBinValue(balances[_to][bin], index, _amounts[0], Operations.Add);
 
     // Number of transfer to execute
     uint256 nTransfer = _ids.length;
@@ -71,7 +71,7 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
       }
 
     //   // Update memory balance
-      balTo = _viewUpdateIDBalance(balTo, index, _amounts[i], Operations.Add);
+      balTo = _viewUpdateBinValue(balTo, index, _amounts[i], Operations.Add);
     }
 
     // Update storage of the last bin visited

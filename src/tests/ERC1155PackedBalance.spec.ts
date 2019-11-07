@@ -149,7 +149,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
 
     it('should REVERT if insufficient balance', async () => {
       const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, 0, 257, [])
-      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: UNDERFLOW") )
+      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW") )
     })
 
     it('should REVERT if sending to 0x0', async () => {
@@ -174,7 +174,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
     it('should REVERT if transfer leads to overflow', async () => {
       await erc1155Contract.functions.mintMock(receiverAddress, 0, new BigNumber(2).pow(32).sub(1), [])
       const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, receiverAddress, 0, 1, [])
-      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: OVERFLOW") )
+      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW") )
     })
 
     it('should REVERT when sending to non-receiver contract', async () => {
@@ -338,14 +338,14 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
     it('should REVERT if insufficient balance', async () => {
       let valuesPlusOne = values.map(value => value+1)
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, types, valuesPlusOne, [])
-      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: UNDERFLOW") )
+      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW") )
     })
 
     it('should REVERT if single insufficient balance', async () => {
       let valuesPlusOne = values.slice(0)
       valuesPlusOne[0] = valuesPlusOne[0] + 1
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, types, valuesPlusOne, [])
-      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: UNDERFLOW") )
+      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW") )
     })
 
     it('should REVERT if operator not approved', async () => {
@@ -377,7 +377,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
       await erc1155Contract.functions.mintMock(receiverAddress, types[0], new BigNumber(2).pow(32).sub(1), [])
       
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [types[0], types[2]], [1, 1], [])
-      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateIDBalance: OVERFLOW") )
+      await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW") )
     })
 
     it('should update balances of sender and receiver', async () => {
