@@ -1,6 +1,41 @@
 # Arcadeum's ERC-1155 Specification
 
-[TOC]
+# Table of Content
+- [Overview](#overview)
+- [Contracts](#contracts)
+    + [ERC1155.sol & ERC1155PackedBalance.sol](#erc1155sol---erc1155packedbalancesol)
+    + [ERC1155Meta.sol & ERC1155MetaPackedBalance.sol](#erc1155metasol---erc1155metapackedbalancesol)
+    + [ERC1155Metadata.sol](#erc1155metadatasol)
+    + [ERC1155MintBurn.sol & ERC1155MintBurnPackedBalance.sol](#erc1155mintburnsol---erc1155mintburnpackedbalancesol)
+- [Contract Interactions](#contract-interactions)
+  * [Transferring Tokens](#transferring-tokens)
+  * [Managing Approvals](#managing-approvals)
+  * [Managing Metadata](#managing-metadata)
+- [Packed Balance](#packed-balance)
+  * [Relevant Methods](#relevant-methods)
+    + [*getIDBinIndex(uint256 _id)*](#-getidbinindex-uint256--id--)
+    + [*getValueInBin(uint256 _binAmount, uint256 _index)*](#-getvalueinbin-uint256--binamount--uint256--index--)
+    + [*_viewUpdateBinValue(uint256 _binValues, uint256 _index, uint256 _amount, Operations _operation)*](#--viewupdatebinvalue-uint256--binvalues--uint256--index--uint256--amount--operations--operation--)
+    + [*_updateIDBalance(address _address, uint256 _id, uint256 _amount, Operations _operation)*](#--updateidbalance-address--address--uint256--id--uint256--amount--operations--operation--)
+    + [_safeBatchTransferFrom(...) and _batchMint(...)](#-safebatchtransferfrom---and--batchmint--)
+- [Meta-transactions](#meta-transactions)
+  * [Meta-Transaction for Asset Transfers](#meta-transaction-for-asset-transfers)
+    + [metaSafeTransferFrom() Meta-Transaction Hash](#metasafetransferfrom---meta-transaction-hash)
+    + [metaSafeBatchTransferFrom() Meta-Transaction Hash](#metasafebatchtransferfrom---meta-transaction-hash)
+  * [Meta-Transaction for Approvals](#meta-transaction-for-approvals)
+    + [metaSetApprovalForAll() Meta-Transaction Hash](#metasetapprovalforall---meta-transaction-hash)
+- [Gas Reimbursement](#gas-reimbursement)
+  * [Gas Receipt](#gas-receipt)
+- [Signature Types](#signature-types)
+    + [Illegal](#illegal)
+    + [EIP712](#eip712)
+    + [EthSign](#ethsign)
+    + [WalletBytes](#walletbytes)
+    + [WalletBytes32](#walletbytes32)
+- [Events](#events)
+- [Miscellaneous](#miscellaneous)
+  * [EIP712 usage](#eip712-usage)
+  * [ecrecover usage](#ecrecover-usage)
 
 # Overview
 
