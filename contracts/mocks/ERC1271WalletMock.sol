@@ -5,7 +5,7 @@ import "../interfaces/IERC1271Wallet.sol";
 
 // Contract to test safe transfer behavior.
 contract ERC1271WalletMock is IERC1271Wallet {
-  bytes4 constant public ERC1271_MAGIC_VAL = 0x20c13b0b;
+  bytes4 constant public ERC1271_MAGICVALUE = 0x20c13b0b;
   bytes4 constant public ERC1271_MAGICVALUE_BYTES32 = 0x1626ba7e;
   bytes4 constant public ERC1271_INVALID = 0x0;
 
@@ -36,7 +36,7 @@ contract ERC1271WalletMock is IERC1271Wallet {
     view
     returns (bytes4 magicValue)
   {
-    magicValue = shouldReject ? ERC1271_INVALID : ERC1271_MAGIC_VAL;
+    magicValue = shouldReject ? ERC1271_INVALID : ERC1271_MAGICVALUE;
     return magicValue;
   }
 

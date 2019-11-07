@@ -33,8 +33,6 @@ export class ERC1271WalletMock extends Contract {
   interface: ERC1271WalletMockInterface;
 
   functions: {
-    isValidSignature(_hash: Arrayish, _signature: Arrayish): Promise<string>;
-
     ERC1271_INVALID(): Promise<string>;
     ERC1271_MAGICVALUE_BYTES32(): Promise<string>;
     ERC1271_MAGIC_VAL(): Promise<string>;

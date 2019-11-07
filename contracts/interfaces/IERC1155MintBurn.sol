@@ -1,7 +1,7 @@
 pragma solidity ^0.5.12;
 
 /**
- * Recommended inferface for public facing minting and burning functions.
+ * Recommended interface for public facing minting and burning functions.
  * These public methods should have restricted access.
  */
 interface IERC1155MintBurn {
