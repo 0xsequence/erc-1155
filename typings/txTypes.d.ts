@@ -12,6 +12,7 @@ export type GasReceipt = {
 export type TransferSignature = {
   contractAddress: string;
   signerWallet: Wallet;
+  from?: string;
   receiver: string;
   id: number | string | BigNumber;
   amount: number | string | BigNumber;
@@ -22,6 +23,7 @@ export type TransferSignature = {
 export type BatchTransferSignature = {
   contractAddress: string;
   signerWallet: Wallet;
+  from?: string;
   receiver: string;
   ids: number[] | string[] | BigNumber[];
   amounts: number[] | string[] | BigNumber[];
@@ -33,6 +35,7 @@ export type BatchTransferSignature = {
 export type ApprovalSignature = {
   contractAddress: string;
   signerWallet: Wallet;
+  owner?: string;
   operator: string;
   approved: boolean;
   nonce: number | string | BigNumber;

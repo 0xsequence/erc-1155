@@ -4,7 +4,7 @@ import { AbstractContract, expect, RevertError, ethSign, eip712Sign } from './ut
 import * as utils from './utils'
 
 import { SignatureValidator } from 'typings/contracts/SignatureValidator'
-import { ERC1271WalletMock } from 'typings/contracts/ERC1271WalletMock'
+import { ERC1271WalletValidationMock } from 'typings/contracts/ERC1271WalletValidationMock'
 import { AddressZero } from 'ethers/constants';
 
 // init test wallets from package.json mnemonic
@@ -16,13 +16,19 @@ const {
   signer: signerSigner
 } = utils.createTestWallet(web3, 0)
 
+const {
+  wallet: randomSignerWallet,
+  provider: randomSignerProvider,
+  signer: randomSignerSigner
+} = utils.createTestWallet(web3, 1)
+
 contract('SignatureValidator Contract', (accounts: string[]) => {
 
   let signerAddress: string
   let signatureValidatorAbstract: AbstractContract
-  let ERC1271WalletMockAbstract: AbstractContract
+  let ERC1271WalletValidationMockAbstract: AbstractContract
   let signatureValidatorContract: SignatureValidator
-  let erc1271WalletMockContract: ERC1271WalletMock
+  let erc1271WalletValidationMockContract: ERC1271WalletValidationMock
 
   // load contract abi and deploy to test server
   before(async () => {
@@ -106,54 +112,50 @@ contract('SignatureValidator Contract', (accounts: string[]) => {
 
     })
 
-    // describe(`EIP-1271 (bytes) signatures (03)`, () => {
-    //   let erc1271WalletAddress;
+    describe(`EIP-1271 signatures`, () => {
+      let erc1271WalletAddress;
 
-    //   beforeEach( async () => {
-    //     ERC1271WalletMockAbstract = await AbstractContract.fromArtifactName('ERC1271WalletMock')
-    //     erc1271WalletMockContract = await ERC1271WalletMockAbstract.deploy(signerWallet) as ERC1271WalletMock
-    //     erc1271WalletAddress = erc1271WalletMockContract.address;
-    //   })
-      
-    //   it('should return FALSE if contract returns incorrect magic value', async () => {
-    //     // @ts-ignore
-    //     let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, dataHash, data, ethsig + '03')
-    //     expect(isValid).to.be.equal(false)
-    //   })
+      beforeEach( async () => {
+        ERC1271WalletValidationMockAbstract = await AbstractContract.fromArtifactName('ERC1271WalletValidationMock')
+        let randomDomain = 
+        erc1271WalletValidationMockContract = await ERC1271WalletValidationMockAbstract.deploy(signerWallet, [dataHash]) as ERC1271WalletValidationMock
+        erc1271WalletAddress = erc1271WalletValidationMockContract.address;
+      })
 
-    //   it('should return TRUE if contract returns correct magic value', async () => {
-    //     await erc1271WalletMockContract.functions.setShouldReject(false)
+      describe(`EIP-1271 (bytes) signatures (03)`, () => {
+        it('should return FALSE if signature is invalid', async () => {
+          let bad_eip712sig = await ethSign(randomSignerWallet, data)
+          bad_eip712sig = bad_eip712sig.slice(0, bad_eip712sig.length-2) + '03'
+          let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, dataHash, data, bad_eip712sig)
+          expect(isValid).to.be.equal(false)
+        })
 
-    //     // @ts-ignore
-    //     let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, dataHash, data, ethsig + '03')
-    //     await expect(isValid).to.be.equal(true);   
-    //   })
-    // })
+        it('should return TRUE if signature is valid', async () => {
+          let good_eip712sig = await ethSign(signerWallet, data)
+          good_eip712sig = good_eip712sig.slice(0, good_eip712sig.length-2) + '03'
+          let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, dataHash, data, good_eip712sig)
+          await expect(isValid).to.be.equal(true);   
+        })
 
-    // describe(`EIP-1271 (bytes32) signatures (04)`, () => {
-    //   let erc1271WalletAddress;
+      })
 
-    //   beforeEach( async () => {
-    //     ERC1271WalletMockAbstract = await AbstractContract.fromArtifactName('ERC1271WalletMock')
-    //     erc1271WalletMockContract = await ERC1271WalletMockAbstract.deploy(signerWallet) as ERC1271WalletMock
-    //     erc1271WalletAddress = erc1271WalletMockContract.address;
-    //   })
-      
-    //   it('should return FALSE if contract returns incorrect magic value', async () => {
-    //     // @ts-ignore
-    //     let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, dataHash, data, ethsig + '04')
-    //     expect(isValid).to.be.equal(false)
-    //   })
+      describe(`EIP-1271 (bytes32) signatures (04)`, () => {
+        it('should return FALSE if signature is invalid', async () => {
+          let bad_eip712sig = await ethSign(randomSignerWallet, data)
+          bad_eip712sig = bad_eip712sig.slice(0, bad_eip712sig.length-2) + '04'
+          let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, dataHash, data, bad_eip712sig)
+          expect(isValid).to.be.equal(false)
+        })
 
-    //   it('should return TRUE if contract returns correct magic value', async () => {
-    //     await erc1271WalletMockContract.functions.setShouldReject(false)
+        it('should return TRUE if signature is valid', async () => {
+          let good_eip712sig = await ethSign(signerWallet, data)
+          good_eip712sig = good_eip712sig.slice(0, good_eip712sig.length-2) + '04'
+          let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, dataHash, data, good_eip712sig)
+          await expect(isValid).to.be.equal(true);   
+        })
+      })
 
-    //     // @ts-ignore
-    //     let isValid = await signatureValidatorContract.functions.isValidSignature(erc1271WalletAddress, dataHash, data, ethsig + '04')
-    //     await expect(isValid).to.be.equal(true);   
-    //   })
-    // })
-
+    })
 
   })
 })  

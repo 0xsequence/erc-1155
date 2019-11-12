@@ -107,7 +107,7 @@ contract SignatureValidator is LibEIP712 {
       return isValid;
 
 
-    // Signed using web3.eth_sign
+    // Signed using web3.eth_sign() or Ethers wallet.signMessage()
     } else if (signatureType == SignatureType.EthSign) {
       require(
         _sig.length == 65,

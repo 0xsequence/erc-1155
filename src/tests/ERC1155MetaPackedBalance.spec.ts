@@ -15,6 +15,7 @@ import * as utils from './utils'
 import { toUtf8Bytes, BigNumber } from 'ethers/utils'
 
 import { ERC1155MetaMintBurnPackedBalanceMock } from 'typings/contracts/ERC1155MetaMintBurnPackedBalanceMock'
+import { ERC1271WalletValidationMock } from 'typings/contracts/ERC1271WalletValidationMock'
 import { ERC1155ReceiverMock } from 'typings/contracts/ERC1155ReceiverMock'
 import { ERC1155OperatorMock } from 'typings/contracts/ERC1155OperatorMock'
 import { ERC20Mock } from 'typings/contracts/ERC20Mock'
@@ -103,6 +104,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
     let feeTokenInitBalance = new BigNumber(100000000);
 
     let feeType = 0 //ERC-11555
+    let feeToken : BigNumber;
     let feeTokenAddress : string
     let feeTokenDataERC1155: string | Uint8Array
 
@@ -279,6 +281,89 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
           // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.fulfilled
+        })
+
+        describe('ERC-1271 Receiver', () => {
+          let erc1271WalletValidationMockContract: ERC1271WalletValidationMock
+          let ERC1271WalletValidationMockAbstract: AbstractContract
+
+          let erc1271WalletAddress;
+
+          beforeEach( async () => {
+            ERC1271WalletValidationMockAbstract = await AbstractContract.fromArtifactName('ERC1271WalletValidationMock')
+            erc1271WalletValidationMockContract = await ERC1271WalletValidationMockAbstract.deploy(ownerWallet, [domainHash]) as ERC1271WalletValidationMock
+            erc1271WalletAddress = erc1271WalletValidationMockContract.address;
+
+            await erc1155Contract.functions.mintMock(erc1271WalletAddress, id, initBalance, [])
+            await erc1155Contract.functions.mintMock(erc1271WalletAddress, feeTokenID, feeTokenInitBalance, [])        
+          })
+
+          describe(`EIP-1271 (bytes) signatures (03)`, () => {
+            it('should return REVERT if signature is invalid', async () => {
+              transferObj.from = erc1271WalletAddress;
+              transferObj.nonce = nonce + 999;
+
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '03')
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155MetaPackedBalance#_signatureValidation: INVALID_SIGNATURE") )
+            })
+
+            it('should REVERT if token ID is not 66', async () => {
+              let badID = 77
+              await erc1155Contract.functions.mintMock(erc1271WalletAddress, badID, initBalance, [])
+              transferObj.from = erc1271WalletAddress;
+              transferObj.id = badID
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '03')
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155MetaPackedBalance#_signatureValidation: INVALID_SIGNATURE") ) 
+            })
+
+            it('should REVERT if amount is more than 100', async () => {
+              await erc1155Contract.functions.mintMock(erc1271WalletAddress, id, 101, [])
+              transferObj.from = erc1271WalletAddress;
+              transferObj.amount = 101
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '03')
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155MetaPackedBalance#_signatureValidation: INVALID_SIGNATURE") ) 
+            })
+    
+            it('should PASS if signature is valid', async () => {
+              transferObj.from = erc1271WalletAddress;
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '03')
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.fulfilled  
+            })
+          })
+
+          describe(`EIP-1271 (bytes32) signatures (04)`, () => {
+            it('should return REVERT if signature is invalid', async () => {
+              transferObj.from = erc1271WalletAddress;
+              transferObj.nonce = nonce + 999;
+
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '04')
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155MetaPackedBalance#_signatureValidation: INVALID_SIGNATURE") )
+            })
+    
+            it('should PASS if signature is valid', async () => {
+              transferObj.from = erc1271WalletAddress;
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '04')
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.fulfilled  
+            })
+          })
         })
 
         describe('When signature is valid', () => {
@@ -786,6 +871,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
     let feeTokenInitBalance = new BigNumber(100000000);
 
     let feeType = 0
+    let feeToken: BigNumber;
     let feeTokenID = 666
     let feeTokenAddress: string;
     let feeTokenDataERC1155: string | Uint8Array
@@ -970,6 +1056,53 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
           const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.fulfilled
         })
+
+        describe('ERC-1271 Receiver', () => {
+          let erc1271WalletValidationMockContract: ERC1271WalletValidationMock
+          let ERC1271WalletValidationMockAbstract: AbstractContract
+
+          let erc1271WalletAddress;
+
+          beforeEach( async () => {
+            ERC1271WalletValidationMockAbstract = await AbstractContract.fromArtifactName('ERC1271WalletValidationMock')
+            erc1271WalletValidationMockContract = await ERC1271WalletValidationMockAbstract.deploy(ownerWallet, [domainHash]) as ERC1271WalletValidationMock
+            erc1271WalletAddress = erc1271WalletValidationMockContract.address;
+
+            await erc1155Contract.functions.batchMintMock(erc1271WalletAddress, ids, amounts, [])
+            await erc1155Contract.functions.mintMock(erc1271WalletAddress, feeTokenID, feeTokenInitBalance, [])        
+          })
+
+          describe(`EIP-1271 (bytes) signatures (03)`, () => {
+            it('should return REVERT if signature is invalid', async () => {
+              transferObj.from = erc1271WalletAddress;
+              transferObj.nonce = nonce + 999;
+
+              data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt, '03')
+              const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(erc1271WalletAddress, receiverAddress, ids, amounts, isGasReceipt, data)
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155MetaPackedBalance#_signatureValidation: INVALID_SIGNATURE") )
+            })
+          })
+
+          describe(`EIP-1271 (bytes32) signatures (04)`, () => {
+            it('should return REVERT if signature is invalid', async () => {
+              transferObj.from = erc1271WalletAddress;
+              transferObj.nonce = nonce + 999;
+
+              data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt, '04')
+              const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(erc1271WalletAddress, receiverAddress, ids, amounts, isGasReceipt, data)
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155MetaPackedBalance#_signatureValidation: INVALID_SIGNATURE") )
+            })
+    
+            it('should PASS if signature is valid', async () => {
+              transferObj.from = erc1271WalletAddress;
+              data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt, '04')
+              const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(erc1271WalletAddress, receiverAddress, ids, amounts, isGasReceipt, data)
+              await expect(tx).to.be.fulfilled  
+            })
+          })
+        })
+
+
 
         describe('When signature is valid', () => {
 
@@ -1354,6 +1487,50 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
           // @ts-ignore
           let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
           await expect(tx).to.be.fulfilled
+        })
+
+        describe('ERC-1271 Receiver', () => {
+          let erc1271WalletValidationMockContract: ERC1271WalletValidationMock
+          let ERC1271WalletValidationMockAbstract: AbstractContract
+
+          let erc1271WalletAddress;
+
+          beforeEach( async () => {
+            ERC1271WalletValidationMockAbstract = await AbstractContract.fromArtifactName('ERC1271WalletValidationMock')
+            erc1271WalletValidationMockContract = await ERC1271WalletValidationMockAbstract.deploy(ownerWallet, [domainHash]) as ERC1271WalletValidationMock
+            erc1271WalletAddress = erc1271WalletValidationMockContract.address;
+
+            await erc1155Contract.functions.mintMock(erc1271WalletAddress, feeTokenID, feeTokenInitBalance, [])        
+          })
+
+          describe(`EIP-1271 (bytes) signatures (03)`, () => {
+            it('should return REVERT if signature is invalid', async () => {
+              approvalObj.owner = erc1271WalletAddress;
+              approvalObj.nonce = nonce + 999;
+
+              data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt, '03')
+              let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(erc1271WalletAddress, operatorAddress, approved, isGasReimbursed, data)
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155MetaPackedBalance#_signatureValidation: INVALID_SIGNATURE") )
+            })
+          })
+
+          describe(`EIP-1271 (bytes32) signatures (04)`, () => {
+            it('should return REVERT if signature is invalid', async () => {
+              approvalObj.owner = erc1271WalletAddress;
+              approvalObj.nonce = nonce + 999;
+
+              data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt, '04')
+              let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(erc1271WalletAddress, operatorAddress, approved, isGasReimbursed, data)
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155MetaPackedBalance#_signatureValidation: INVALID_SIGNATURE") )
+            })
+    
+            it('should PASS if signature is valid', async () => {
+              approvalObj.owner = erc1271WalletAddress;
+              data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt, '04')
+              let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(erc1271WalletAddress, operatorAddress, approved, isGasReimbursed, data)
+              await expect(tx).to.be.fulfilled  
+            })
+          })
         })
 
         it("should PASS if gas received is passed, but not claimed", async () => {
