@@ -53,25 +53,21 @@ contract('SignatureValidator Contract', (accounts: string[]) => {
     })
 
     it('should REVERT if signature is of length 0', async () => {
-      // @ts-ignore
       const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, dataHash, data, [])
       await expect(tx).to.be.rejectedWith( RevertError("SignatureValidator#isValidSignature: LENGTH_GREATER_THAN_0_REQUIRED") )    
     })
 
     it('should REVERT if expected signer is 0x0', async () => {
-      // @ts-ignore
       const tx = signatureValidatorContract.functions.isValidSignature(AddressZero, dataHash, data, ethsig)
       await expect(tx).to.be.rejectedWith( RevertError("SignatureValidator#isValidSignature: INVALID_SIGNER") )    
     })
 
     it('should REVERT if signature is illigal (SignatureType: 0x0)', async () => {
-      // @ts-ignore
       const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, dataHash, data, ethsig.slice(0, -2) + '00')
       await expect(tx).to.be.rejectedWith( RevertError("SignatureValidator#isValidSignature: ILLEGAL_SIGNATURE") )    
     })
 
     it('should REVERT if signatureType is above 05', async () => {
-      // @ts-ignore
       const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, dataHash, data, ethsig.slice(0, -2) + '06')
       await expect(tx).to.be.rejectedWith( RevertError("SignatureValidator#isValidSignature: UNSUPPORTED_SIGNATURE") )    
     })
@@ -79,17 +75,16 @@ contract('SignatureValidator Contract', (accounts: string[]) => {
     describe(`EIP-712 signatures`, () => {
 
       beforeEach(async () => {
-        eip712sig = await eip712Sign(signerWallet, data)
+        let paddedNonce = ethers.utils.solidityPack(['uint256'], [new utils.BigNumber(0)]).slice(2)
+        eip712sig = (await eip712Sign(signerWallet, data)).slice(0, -2) + paddedNonce + '01'
       })
 
-      it('should REVERT if signature length is not 65', async () => {
-        // @ts-ignore
+      it('should REVERT if signature length is not 97', async () => {
         const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, dataHash, data, '0x1234' + eip712sig.slice(2) )
-        await expect(tx).to.be.rejectedWith( RevertError("SignatureValidator#isValidSignature: LENGTH_65_REQUIRED") )    
+        await expect(tx).to.be.rejectedWith( RevertError("SignatureValidator#isValidSignature: LENGTH_97_REQUIRED") )    
       })
 
       it('should return TRUE if signature is valid', async () => {
-        // @ts-ignore
         let isValid = await signatureValidatorContract.functions.isValidSignature(signerAddress, dataHash, data, eip712sig)
         await expect(isValid).to.be.equal(true);   
       })
@@ -97,15 +92,18 @@ contract('SignatureValidator Contract', (accounts: string[]) => {
     })
 
     describe(`ETH_SIGN signatures`, () => {
+
+      beforeEach(async () => {
+        let paddedNonce = ethers.utils.solidityPack(['uint256'], [new utils.BigNumber(0)]).slice(2)
+        ethsig = (await ethSign(signerWallet, data)).slice(0, -2) + paddedNonce + '02'
+      })
       
-      it('should REVERT if signature length is not 65', async () => {
-        // @ts-ignore
+      it('should REVERT if signature length is not 97', async () => {
         const tx = signatureValidatorContract.functions.isValidSignature(signerAddress, dataHash, data, '0x1234' + ethsig.slice(2))
-        await expect(tx).to.be.rejectedWith( RevertError("SignatureValidator#isValidSignature: LENGTH_65_REQUIRED") )    
+        await expect(tx).to.be.rejectedWith( RevertError("SignatureValidator#isValidSignature: LENGTH_97_REQUIRED") )    
       })
 
       it('should return TRUE if signature is valid', async () => {
-        // @ts-ignore
         let isValid = await signatureValidatorContract.functions.isValidSignature(signerAddress, dataHash, data, ethsig)
         expect(isValid).to.be.equal(true);   
       })
@@ -117,7 +115,6 @@ contract('SignatureValidator Contract', (accounts: string[]) => {
 
       beforeEach( async () => {
         ERC1271WalletValidationMockAbstract = await AbstractContract.fromArtifactName('ERC1271WalletValidationMock')
-        let randomDomain = 
         erc1271WalletValidationMockContract = await ERC1271WalletValidationMockAbstract.deploy(signerWallet, [dataHash]) as ERC1271WalletValidationMock
         erc1271WalletAddress = erc1271WalletValidationMockContract.address;
       })

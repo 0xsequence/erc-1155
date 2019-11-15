@@ -44,6 +44,8 @@ contract SignatureValidator is LibEIP712 {
    * @param _hash           Hash of the EIP-712 encoded data
    * @param _data           Full EIP-712 data structure that was hashed and signed
    * @param _sig            Proof that the hash has been signed by signer.
+   *      For non wallet signatures, _sig is expected to be an array tightly encoded as
+   *      (bytes32 r, bytes32 s, uint8 v, uint256 nonce, SignatureType sigType)
    * @return True if the address recovered from the provided signature matches the input signer address.
    */
   function isValidSignature(
@@ -96,8 +98,8 @@ contract SignatureValidator is LibEIP712 {
     // Signature using EIP712
     } else if (signatureType == SignatureType.EIP712) {
       require(
-        _sig.length == 65,
-        "SignatureValidator#isValidSignature: LENGTH_65_REQUIRED"
+        _sig.length == 97,
+        "SignatureValidator#isValidSignature: LENGTH_97_REQUIRED"
       );
       r = _sig.readBytes32(0);
       s = _sig.readBytes32(32);
@@ -110,8 +112,8 @@ contract SignatureValidator is LibEIP712 {
     // Signed using web3.eth_sign() or Ethers wallet.signMessage()
     } else if (signatureType == SignatureType.EthSign) {
       require(
-        _sig.length == 65,
-        "SignatureValidator#isValidSignature: LENGTH_65_REQUIRED"
+        _sig.length == 97,
+        "SignatureValidator#isValidSignature: LENGTH_97_REQUIRED"
       );
       r = _sig.readBytes32(0);
       s = _sig.readBytes32(32);
