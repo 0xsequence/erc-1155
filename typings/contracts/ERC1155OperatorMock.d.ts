@@ -143,6 +143,58 @@ export class ERC1155OperatorMock extends Contract {
     ): Promise<ContractTransaction>;
   };
 
+  safeTransferFrom(
+    _tokenAddress: string,
+    _from: string,
+    _to: string,
+    _id: BigNumberish,
+    _amount: BigNumberish,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  safeBatchTransferFrom(
+    _tokenAddress: string,
+    _from: string,
+    _to: string,
+    _ids: (BigNumberish)[],
+    _amounts: (BigNumberish)[],
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  metaSafeTransferFrom(
+    _tokenAddress: string,
+    _from: string,
+    _to: string,
+    _id: BigNumberish,
+    _amount: BigNumberish,
+    _isGasFee: boolean,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  metaSafeBatchTransferFrom(
+    _tokenAddress: string,
+    _from: string,
+    _to: string,
+    _ids: (BigNumberish)[],
+    _amounts: (BigNumberish)[],
+    _isGasFee: boolean,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  metaSetApprovalForAll(
+    _tokenAddress: string,
+    _owner: string,
+    _operator: string,
+    _approved: boolean,
+    _isGasFee: boolean,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
   filters: {};
 
   estimate: {

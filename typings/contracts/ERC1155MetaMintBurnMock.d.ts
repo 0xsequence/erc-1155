@@ -12,6 +12,29 @@ import {
 
 interface ERC1155MetaMintBurnMockInterface extends Interface {
   functions: {
+    balanceOf: TypedFunctionDescription<{
+      encode([_owner, _id]: [string, BigNumberish]): string;
+    }>;
+
+    balanceOfBatch: TypedFunctionDescription<{
+      encode([_owners, _ids]: [(string)[], (BigNumberish)[]]): string;
+    }>;
+
+    getNonce: TypedFunctionDescription<{ encode([_signer]: [string]): string }>;
+
+    isApprovedForAll: TypedFunctionDescription<{
+      encode([_owner, _operator]: [string, string]): string;
+    }>;
+
+    isValidSignature: TypedFunctionDescription<{
+      encode([_signerAddress, _hash, _data, _sig]: [
+        string,
+        Arrayish,
+        Arrayish,
+        Arrayish
+      ]): string;
+    }>;
+
     metaSafeBatchTransferFrom: TypedFunctionDescription<{
       encode([_from, _to, _ids, _amounts, _isGasFee, _data]: [
         string,
@@ -67,6 +90,12 @@ interface ERC1155MetaMintBurnMockInterface extends Interface {
     setApprovalForAll: TypedFunctionDescription<{
       encode([_operator, _approved]: [string, boolean]): string;
     }>;
+
+    supportsInterface: TypedFunctionDescription<{
+      encode([_interfaceID]: [Arrayish]): string;
+    }>;
+
+    uri: TypedFunctionDescription<{ encode([_id]: [BigNumberish]): string }>;
 
     mintMock: TypedFunctionDescription<{
       encode([_to, _id, _value, _data]: [
@@ -178,10 +207,6 @@ export class ERC1155MetaMintBurnMock extends Contract {
       _sig: Arrayish
     ): Promise<boolean>;
 
-    supportsInterface(_interfaceID: Arrayish): Promise<boolean>;
-
-    uri(_id: BigNumberish): Promise<string>;
-
     metaSafeBatchTransferFrom(
       _from: string,
       _to: string,
@@ -235,6 +260,10 @@ export class ERC1155MetaMintBurnMock extends Contract {
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
+    supportsInterface(_interfaceID: Arrayish): Promise<boolean>;
+
+    uri(_id: BigNumberish): Promise<string>;
+
     mintMock(
       _to: string,
       _id: BigNumberish,
@@ -266,6 +295,111 @@ export class ERC1155MetaMintBurnMock extends Contract {
     ): Promise<ContractTransaction>;
   };
 
+  balanceOf(_owner: string, _id: BigNumberish): Promise<BigNumber>;
+
+  balanceOfBatch(
+    _owners: (string)[],
+    _ids: (BigNumberish)[]
+  ): Promise<(BigNumber)[]>;
+
+  getNonce(_signer: string): Promise<BigNumber>;
+
+  isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
+
+  isValidSignature(
+    _signerAddress: string,
+    _hash: Arrayish,
+    _data: Arrayish,
+    _sig: Arrayish
+  ): Promise<boolean>;
+
+  metaSafeBatchTransferFrom(
+    _from: string,
+    _to: string,
+    _ids: (BigNumberish)[],
+    _amounts: (BigNumberish)[],
+    _isGasFee: boolean,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  metaSafeTransferFrom(
+    _from: string,
+    _to: string,
+    _id: BigNumberish,
+    _amount: BigNumberish,
+    _isGasFee: boolean,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  metaSetApprovalForAll(
+    _owner: string,
+    _operator: string,
+    _approved: boolean,
+    _isGasFee: boolean,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  safeBatchTransferFrom(
+    _from: string,
+    _to: string,
+    _ids: (BigNumberish)[],
+    _amounts: (BigNumberish)[],
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  safeTransferFrom(
+    _from: string,
+    _to: string,
+    _id: BigNumberish,
+    _amount: BigNumberish,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  setApprovalForAll(
+    _operator: string,
+    _approved: boolean,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  supportsInterface(_interfaceID: Arrayish): Promise<boolean>;
+
+  uri(_id: BigNumberish): Promise<string>;
+
+  mintMock(
+    _to: string,
+    _id: BigNumberish,
+    _value: BigNumberish,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  batchMintMock(
+    _to: string,
+    _ids: (BigNumberish)[],
+    _values: (BigNumberish)[],
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  burnMock(
+    _from: string,
+    _id: BigNumberish,
+    _value: BigNumberish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  batchBurnMock(
+    _from: string,
+    _ids: (BigNumberish)[],
+    _values: (BigNumberish)[],
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
   filters: {
     ApprovalForAll(
       _owner: string | null,
@@ -293,6 +427,24 @@ export class ERC1155MetaMintBurnMock extends Contract {
   };
 
   estimate: {
+    balanceOf(_owner: string, _id: BigNumberish): Promise<BigNumber>;
+
+    balanceOfBatch(
+      _owners: (string)[],
+      _ids: (BigNumberish)[]
+    ): Promise<BigNumber>;
+
+    getNonce(_signer: string): Promise<BigNumber>;
+
+    isApprovedForAll(_owner: string, _operator: string): Promise<BigNumber>;
+
+    isValidSignature(
+      _signerAddress: string,
+      _hash: Arrayish,
+      _data: Arrayish,
+      _sig: Arrayish
+    ): Promise<BigNumber>;
+
     metaSafeBatchTransferFrom(
       _from: string,
       _to: string,
@@ -339,6 +491,10 @@ export class ERC1155MetaMintBurnMock extends Contract {
       _operator: string,
       _approved: boolean
     ): Promise<BigNumber>;
+
+    supportsInterface(_interfaceID: Arrayish): Promise<BigNumber>;
+
+    uri(_id: BigNumberish): Promise<BigNumber>;
 
     mintMock(
       _to: string,

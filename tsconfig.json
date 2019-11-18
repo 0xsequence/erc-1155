@@ -35,11 +35,12 @@
   },
 
   "include": [
-    "typings", "src"
+    "typings","src"
   ],
 
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "typings/contracts/*/**"
   ]
 }
