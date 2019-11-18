@@ -14,10 +14,7 @@ import "../../utils/SignatureValidator.sol";
  *
  * TO DO:
  *  - Correct EIP-712 encoding [x]
- *  - Real EIP-1271 mock contract that decodes and read data
  *  - Bytes32 EIP-1271 for EIP-2126
- *  - 100 nonce window
- *  - Push nonce verification to wallet contracts, not app
  */
 contract ERC1155Meta is ERC1155, SignatureValidator {
   using LibBytes for bytes;
