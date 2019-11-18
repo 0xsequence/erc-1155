@@ -27,8 +27,8 @@ interface IERC1155MetaInterface extends Interface {
       encode([_from, _to, _ids, _amounts, _isGasFee, _data]: [
         string,
         string,
-        (BigNumberish)[],
-        (BigNumberish)[],
+        BigNumberish[],
+        BigNumberish[],
         boolean,
         Arrayish
       ]): string;
@@ -78,8 +78,8 @@ export class IERC1155Meta extends Contract {
     metaSafeBatchTransferFrom(
       _from: string,
       _to: string,
-      _ids: (BigNumberish)[],
-      _amounts: (BigNumberish)[],
+      _ids: BigNumberish[],
+      _amounts: BigNumberish[],
       _isGasFee: boolean,
       _data: Arrayish,
       overrides?: TransactionOverrides
@@ -94,35 +94,6 @@ export class IERC1155Meta extends Contract {
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
   };
-
-  metaSafeTransferFrom(
-    _from: string,
-    _to: string,
-    _id: BigNumberish,
-    _amount: BigNumberish,
-    _isGasFee: boolean,
-    _data: Arrayish,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
-
-  metaSafeBatchTransferFrom(
-    _from: string,
-    _to: string,
-    _ids: (BigNumberish)[],
-    _amounts: (BigNumberish)[],
-    _isGasFee: boolean,
-    _data: Arrayish,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
-
-  metaSetApprovalForAll(
-    _owner: string,
-    _operator: string,
-    _approved: boolean,
-    _isGasFee: boolean,
-    _data: Arrayish,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
 
   filters: {};
 
@@ -139,8 +110,8 @@ export class IERC1155Meta extends Contract {
     metaSafeBatchTransferFrom(
       _from: string,
       _to: string,
-      _ids: (BigNumberish)[],
-      _amounts: (BigNumberish)[],
+      _ids: BigNumberish[],
+      _amounts: BigNumberish[],
       _isGasFee: boolean,
       _data: Arrayish
     ): Promise<BigNumber>;

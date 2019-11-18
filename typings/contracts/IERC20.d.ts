@@ -23,14 +23,6 @@ interface IERC20Interface extends Interface {
     transferFrom: TypedFunctionDescription<{
       encode([from, to, value]: [string, string, BigNumberish]): string;
     }>;
-
-    totalSupply: TypedFunctionDescription<{ encode([]: []): string }>;
-
-    balanceOf: TypedFunctionDescription<{ encode([who]: [string]): string }>;
-
-    allowance: TypedFunctionDescription<{
-      encode([owner, spender]: [string, string]): string;
-    }>;
   };
 
   events: {
@@ -66,6 +58,10 @@ export class IERC20 extends Contract {
   interface: IERC20Interface;
 
   functions: {
+    balanceOf(who: string): Promise<BigNumber>;
+
+    allowance(owner: string, spender: string): Promise<BigNumber>;
+
     transfer(
       to: string,
       value: BigNumberish,
@@ -86,36 +82,7 @@ export class IERC20 extends Contract {
     ): Promise<ContractTransaction>;
 
     totalSupply(): Promise<BigNumber>;
-
-    balanceOf(who: string): Promise<BigNumber>;
-
-    allowance(owner: string, spender: string): Promise<BigNumber>;
   };
-
-  transfer(
-    to: string,
-    value: BigNumberish,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
-
-  approve(
-    spender: string,
-    value: BigNumberish,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
-
-  transferFrom(
-    from: string,
-    to: string,
-    value: BigNumberish,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
-
-  totalSupply(): Promise<BigNumber>;
-
-  balanceOf(who: string): Promise<BigNumber>;
-
-  allowance(owner: string, spender: string): Promise<BigNumber>;
 
   filters: {
     Approval(
@@ -137,11 +104,5 @@ export class IERC20 extends Contract {
       to: string,
       value: BigNumberish
     ): Promise<BigNumber>;
-
-    totalSupply(): Promise<BigNumber>;
-
-    balanceOf(who: string): Promise<BigNumber>;
-
-    allowance(owner: string, spender: string): Promise<BigNumber>;
   };
 }

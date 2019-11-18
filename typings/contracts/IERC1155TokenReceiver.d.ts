@@ -26,14 +26,10 @@ interface IERC1155TokenReceiverInterface extends Interface {
       encode([_operator, _from, _ids, _amounts, _data]: [
         string,
         string,
-        (BigNumberish)[],
-        (BigNumberish)[],
+        BigNumberish[],
+        BigNumberish[],
         Arrayish
       ]): string;
-    }>;
-
-    supportsInterface: TypedFunctionDescription<{
-      encode([interfaceID]: [Arrayish]): string;
     }>;
   };
 
@@ -57,6 +53,8 @@ export class IERC1155TokenReceiver extends Contract {
   interface: IERC1155TokenReceiverInterface;
 
   functions: {
+    supportsInterface(interfaceID: Arrayish): Promise<boolean>;
+
     onERC1155Received(
       _operator: string,
       _from: string,
@@ -69,34 +67,12 @@ export class IERC1155TokenReceiver extends Contract {
     onERC1155BatchReceived(
       _operator: string,
       _from: string,
-      _ids: (BigNumberish)[],
-      _amounts: (BigNumberish)[],
+      _ids: BigNumberish[],
+      _amounts: BigNumberish[],
       _data: Arrayish,
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
-
-    supportsInterface(interfaceID: Arrayish): Promise<boolean>;
   };
-
-  onERC1155Received(
-    _operator: string,
-    _from: string,
-    _id: BigNumberish,
-    _amount: BigNumberish,
-    _data: Arrayish,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
-
-  onERC1155BatchReceived(
-    _operator: string,
-    _from: string,
-    _ids: (BigNumberish)[],
-    _amounts: (BigNumberish)[],
-    _data: Arrayish,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
-
-  supportsInterface(interfaceID: Arrayish): Promise<boolean>;
 
   filters: {};
 
@@ -112,11 +88,9 @@ export class IERC1155TokenReceiver extends Contract {
     onERC1155BatchReceived(
       _operator: string,
       _from: string,
-      _ids: (BigNumberish)[],
-      _amounts: (BigNumberish)[],
+      _ids: BigNumberish[],
+      _amounts: BigNumberish[],
       _data: Arrayish
     ): Promise<BigNumber>;
-
-    supportsInterface(interfaceID: Arrayish): Promise<BigNumber>;
   };
 }

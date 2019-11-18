@@ -11,9 +11,7 @@ import {
 } from ".";
 
 interface ERC1155MetadataInterface extends Interface {
-  functions: {
-    uri: TypedFunctionDescription<{ encode([_id]: [BigNumberish]): string }>;
-  };
+  functions: {};
 
   events: {
     URI: TypedEventDescription<{
@@ -42,13 +40,9 @@ export class ERC1155Metadata extends Contract {
     uri(_id: BigNumberish): Promise<string>;
   };
 
-  uri(_id: BigNumberish): Promise<string>;
-
   filters: {
     URI(_uri: null, _id: BigNumberish | null): EventFilter;
   };
 
-  estimate: {
-    uri(_id: BigNumberish): Promise<BigNumber>;
-  };
+  estimate: {};
 }

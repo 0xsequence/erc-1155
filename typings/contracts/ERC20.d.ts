@@ -12,14 +12,6 @@ import {
 
 interface ERC20Interface extends Interface {
   functions: {
-    totalSupply: TypedFunctionDescription<{ encode([]: []): string }>;
-
-    balanceOf: TypedFunctionDescription<{ encode([owner]: [string]): string }>;
-
-    allowance: TypedFunctionDescription<{
-      encode([owner, spender]: [string, string]): string;
-    }>;
-
     transfer: TypedFunctionDescription<{
       encode([to, value]: [string, BigNumberish]): string;
     }>;
@@ -74,8 +66,6 @@ export class ERC20 extends Contract {
   interface: ERC20Interface;
 
   functions: {
-    totalSupply(): Promise<BigNumber>;
-
     balanceOf(owner: string): Promise<BigNumber>;
 
     allowance(owner: string, spender: string): Promise<BigNumber>;
@@ -110,44 +100,9 @@ export class ERC20 extends Contract {
       subtractedValue: BigNumberish,
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
+
+    totalSupply(): Promise<BigNumber>;
   };
-
-  totalSupply(): Promise<BigNumber>;
-
-  balanceOf(owner: string): Promise<BigNumber>;
-
-  allowance(owner: string, spender: string): Promise<BigNumber>;
-
-  transfer(
-    to: string,
-    value: BigNumberish,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
-
-  approve(
-    spender: string,
-    value: BigNumberish,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
-
-  transferFrom(
-    from: string,
-    to: string,
-    value: BigNumberish,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
-
-  increaseAllowance(
-    spender: string,
-    addedValue: BigNumberish,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
-
-  decreaseAllowance(
-    spender: string,
-    subtractedValue: BigNumberish,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
 
   filters: {
     Approval(
@@ -160,12 +115,6 @@ export class ERC20 extends Contract {
   };
 
   estimate: {
-    totalSupply(): Promise<BigNumber>;
-
-    balanceOf(owner: string): Promise<BigNumber>;
-
-    allowance(owner: string, spender: string): Promise<BigNumber>;
-
     transfer(to: string, value: BigNumberish): Promise<BigNumber>;
 
     approve(spender: string, value: BigNumberish): Promise<BigNumber>;

@@ -12,8 +12,6 @@ import {
 
 interface OwnableMockInterface extends Interface {
   functions: {
-    getOwner: TypedFunctionDescription<{ encode([]: []): string }>;
-
     transferOwnership: TypedFunctionDescription<{
       encode([_newOwner]: [string]): string;
     }>;
@@ -47,8 +45,6 @@ export class OwnableMock extends Contract {
   interface: OwnableMockInterface;
 
   functions: {
-    getOwner(): Promise<string>;
-
     transferOwnership(
       _newOwner: string,
       overrides?: TransactionOverrides
@@ -59,18 +55,9 @@ export class OwnableMock extends Contract {
     nonOwnerCall(
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
+
+    getOwner(): Promise<string>;
   };
-
-  getOwner(): Promise<string>;
-
-  transferOwnership(
-    _newOwner: string,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
-
-  ownerCall(overrides?: TransactionOverrides): Promise<ContractTransaction>;
-
-  nonOwnerCall(overrides?: TransactionOverrides): Promise<ContractTransaction>;
 
   filters: {
     OwnershipTransferred(
@@ -80,8 +67,6 @@ export class OwnableMock extends Contract {
   };
 
   estimate: {
-    getOwner(): Promise<BigNumber>;
-
     transferOwnership(_newOwner: string): Promise<BigNumber>;
 
     ownerCall(): Promise<BigNumber>;

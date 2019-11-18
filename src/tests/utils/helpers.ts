@@ -35,7 +35,7 @@ export async function ethSign(wallet: ethers.Wallet, message: string | Uint8Arra
   let hash = ethers.utils.keccak256(message)
   let hashArray = ethers.utils.arrayify(hash) 
   let ethsigNoType = await wallet.signMessage(hashArray)
-  return ethsigNoType + '02'
+  return ethsigNoType + '02' 
 }
 
 export async function ethSignTypedData(

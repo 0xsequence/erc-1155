@@ -11,11 +11,7 @@ import {
 } from ".";
 
 interface IERC165Interface extends Interface {
-  functions: {
-    supportsInterface: TypedFunctionDescription<{
-      encode([_interfaceId]: [Arrayish]): string;
-    }>;
-  };
+  functions: {};
 
   events: {};
 }
@@ -37,11 +33,7 @@ export class IERC165 extends Contract {
     supportsInterface(_interfaceId: Arrayish): Promise<boolean>;
   };
 
-  supportsInterface(_interfaceId: Arrayish): Promise<boolean>;
-
   filters: {};
 
-  estimate: {
-    supportsInterface(_interfaceId: Arrayish): Promise<BigNumber>;
-  };
+  estimate: {};
 }
