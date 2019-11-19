@@ -1,4 +1,4 @@
-pragma solidity ^0.5.12;
+pragma solidity ^0.5.13;
 
 
 interface IERC1155 {
@@ -37,39 +37,39 @@ interface IERC1155 {
   event URI(string _amount, uint256 indexed _id);
 
   /**
-   * @notice Transfers amount of an _id from the _from address to the _to address specified
-   * @dev MUST emit TransferSingle event on success
-   * Caller must be approved to manage the _from account's tokens (see isApprovedForAll)
-   * MUST throw if `_to` is the zero address
-   * MUST throw if balance of sender for token `_id` is lower than the `_amount` sent
-   * MUST throw on any other error
-   * When transfer is complete, this function MUST check if `_to` is a smart contract (code size > 0). If so, it MUST call `onERC1155Received` on `_to` and revert if the return amount is not `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`
-   * @param _from    Source address
-   * @param _to      Target address
-   * @param _id      ID of the token type
-   * @param _amount  Transfered amount
-   * @param _data    Additional data with no specified format, sent in call to `_to`
-   */
+    * @notice Transfers amount of an _id from the _from address to the _to address specified
+    * @dev MUST emit TransferSingle event on success
+    * Caller must be approved to manage the _from account's tokens (see isApprovedForAll)
+    * MUST throw if `_to` is the zero address
+    * MUST throw if balance of sender for token `_id` is lower than the `_amount` sent
+    * MUST throw on any other error
+    * When transfer is complete, this function MUST check if `_to` is a smart contract (code size > 0). If so, it MUST call `onERC1155Received` on `_to` and revert if the return amount is not `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`
+    * @param _from    Source address
+    * @param _to      Target address
+    * @param _id      ID of the token type
+    * @param _amount  Transfered amount
+    * @param _data    Additional data with no specified format, sent in call to `_to`
+    */
   function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _amount, bytes calldata _data) external;
 
   /**
-   * @notice Send multiple types of Tokens from the _from address to the _to address (with safety call)
-   * @dev MUST emit TransferBatch event on success
-   * Caller must be approved to manage the _from account's tokens (see isApprovedForAll)
-   * MUST throw if `_to` is the zero address
-   * MUST throw if length of `_ids` is not the same as length of `_amounts`
-   * MUST throw if any of the balance of sender for token `_ids` is lower than the respective `_amounts` sent
-   * MUST throw on any other error
-   * When transfer is complete, this function MUST check if `_to` is a smart contract (code size > 0). If so, it MUST call `onERC1155BatchReceived` on `_to` and revert if the return amount is not `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`
-   * Transfers and events MUST occur in the array order they were submitted (_ids[0] before _ids[1], etc)
-   * @param _from     Source addresses
-   * @param _to       Target addresses
-   * @param _ids      IDs of each token type
-   * @param _amounts  Transfer amounts per token type
-   * @param _data     Additional data with no specified format, sent in call to `_to`
+    * @notice Send multiple types of Tokens from the _from address to the _to address (with safety call)
+    * @dev MUST emit TransferBatch event on success
+    * Caller must be approved to manage the _from account's tokens (see isApprovedForAll)
+    * MUST throw if `_to` is the zero address
+    * MUST throw if length of `_ids` is not the same as length of `_amounts`
+    * MUST throw if any of the balance of sender for token `_ids` is lower than the respective `_amounts` sent
+    * MUST throw on any other error
+    * When transfer is complete, this function MUST check if `_to` is a smart contract (code size > 0). If so, it MUST call `onERC1155BatchReceived` on `_to` and revert if the return amount is not `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`
+    * Transfers and events MUST occur in the array order they were submitted (_ids[0] before _ids[1], etc)
+    * @param _from     Source addresses
+    * @param _to       Target addresses
+    * @param _ids      IDs of each token type
+    * @param _amounts  Transfer amounts per token type
+    * @param _data     Additional data with no specified format, sent in call to `_to`
   */
   function safeBatchTransferFrom(address _from, address _to, uint256[] calldata _ids, uint256[] calldata _amounts, bytes calldata _data) external;
-  
+
   /**
    * @notice Get the balance of an account's Tokens
    * @param _owner  The address of the token holder

@@ -4,17 +4,11 @@ module.exports = {
 
   networks: {
     ganache: {
+      hardfork: "instanbul",
       network_id: 127001,
       host: "127.0.0.1",
       port: 8545
-    },
-    coverage: {
-      host: "localhost",
-      network_id: "*",
-      port: 8545,         // <-- If you change this, also set the port option in .solcover.js.
-      gas: 0xfffffffffff, // <-- Use this high gas value
-      gasPrice: 0x0000000000000001      // <-- Use this low gas price
-    },
+    }
   },
 
   compilers: {
