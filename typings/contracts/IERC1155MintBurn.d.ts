@@ -98,6 +98,36 @@ export class IERC1155MintBurn extends Contract {
     ): Promise<ContractTransaction>;
   };
 
+  mint(
+    _to: string,
+    _id: BigNumberish,
+    _amount: BigNumberish,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  batchMint(
+    _to: string,
+    _ids: BigNumberish[],
+    _amounts: BigNumberish[],
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  burn(
+    _from: string,
+    _id: BigNumberish,
+    _amount: BigNumberish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  batchBurn(
+    _from: string,
+    _ids: BigNumberish[],
+    _amounts: BigNumberish[],
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
   filters: {};
 
   estimate: {

@@ -35,6 +35,30 @@ interface ERC1155PackedBalanceInterface extends Interface {
     setApprovalForAll: TypedFunctionDescription<{
       encode([_operator, _approved]: [string, boolean]): string;
     }>;
+
+    isApprovedForAll: TypedFunctionDescription<{
+      encode([_owner, _operator]: [string, string]): string;
+    }>;
+
+    balanceOf: TypedFunctionDescription<{
+      encode([_owner, _id]: [string, BigNumberish]): string;
+    }>;
+
+    balanceOfBatch: TypedFunctionDescription<{
+      encode([_owners, _ids]: [string[], BigNumberish[]]): string;
+    }>;
+
+    getIDBinIndex: TypedFunctionDescription<{
+      encode([_id]: [BigNumberish]): string;
+    }>;
+
+    getValueInBin: TypedFunctionDescription<{
+      encode([_binValues, _index]: [BigNumberish, BigNumberish]): string;
+    }>;
+
+    supportsInterface: TypedFunctionDescription<{
+      encode([_interfaceID]: [Arrayish]): string;
+    }>;
   };
 
   events: {
@@ -89,6 +113,30 @@ export class ERC1155PackedBalance extends Contract {
   interface: ERC1155PackedBalanceInterface;
 
   functions: {
+    safeTransferFrom(
+      _from: string,
+      _to: string,
+      _id: BigNumberish,
+      _amount: BigNumberish,
+      _data: Arrayish,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
+    safeBatchTransferFrom(
+      _from: string,
+      _to: string,
+      _ids: BigNumberish[],
+      _amounts: BigNumberish[],
+      _data: Arrayish,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
+    setApprovalForAll(
+      _operator: string,
+      _approved: boolean,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
+
     isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
 
     balanceOf(_owner: string, _id: BigNumberish): Promise<BigNumber>;
@@ -113,31 +161,53 @@ export class ERC1155PackedBalance extends Contract {
     ): Promise<BigNumber>;
 
     supportsInterface(_interfaceID: Arrayish): Promise<boolean>;
-
-    safeTransferFrom(
-      _from: string,
-      _to: string,
-      _id: BigNumberish,
-      _amount: BigNumberish,
-      _data: Arrayish,
-      overrides?: TransactionOverrides
-    ): Promise<ContractTransaction>;
-
-    safeBatchTransferFrom(
-      _from: string,
-      _to: string,
-      _ids: BigNumberish[],
-      _amounts: BigNumberish[],
-      _data: Arrayish,
-      overrides?: TransactionOverrides
-    ): Promise<ContractTransaction>;
-
-    setApprovalForAll(
-      _operator: string,
-      _approved: boolean,
-      overrides?: TransactionOverrides
-    ): Promise<ContractTransaction>;
   };
+
+  safeTransferFrom(
+    _from: string,
+    _to: string,
+    _id: BigNumberish,
+    _amount: BigNumberish,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  safeBatchTransferFrom(
+    _from: string,
+    _to: string,
+    _ids: BigNumberish[],
+    _amounts: BigNumberish[],
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  setApprovalForAll(
+    _operator: string,
+    _approved: boolean,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  isApprovedForAll(_owner: string, _operator: string): Promise<boolean>;
+
+  balanceOf(_owner: string, _id: BigNumberish): Promise<BigNumber>;
+
+  balanceOfBatch(_owners: string[], _ids: BigNumberish[]): Promise<BigNumber[]>;
+
+  getIDBinIndex(
+    _id: BigNumberish
+  ): Promise<{
+    bin: BigNumber;
+    index: BigNumber;
+    0: BigNumber;
+    1: BigNumber;
+  }>;
+
+  getValueInBin(
+    _binValues: BigNumberish,
+    _index: BigNumberish
+  ): Promise<BigNumber>;
+
+  supportsInterface(_interfaceID: Arrayish): Promise<boolean>;
 
   filters: {
     ApprovalForAll(
@@ -186,5 +256,20 @@ export class ERC1155PackedBalance extends Contract {
       _operator: string,
       _approved: boolean
     ): Promise<BigNumber>;
+
+    isApprovedForAll(_owner: string, _operator: string): Promise<BigNumber>;
+
+    balanceOf(_owner: string, _id: BigNumberish): Promise<BigNumber>;
+
+    balanceOfBatch(_owners: string[], _ids: BigNumberish[]): Promise<BigNumber>;
+
+    getIDBinIndex(_id: BigNumberish): Promise<BigNumber>;
+
+    getValueInBin(
+      _binValues: BigNumberish,
+      _index: BigNumberish
+    ): Promise<BigNumber>;
+
+    supportsInterface(_interfaceID: Arrayish): Promise<BigNumber>;
   };
 }

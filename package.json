@@ -1,6 +1,6 @@
 {
   "name": "multi-token-standard",
-  "version": "0.8.6",
+  "version": "0.8.7",
   "description": "ERC1155 Multi-Token Standard implementation for Ethereum",
   "repository": "https://github.com/horizon-games/multi-token-standard",
   "license": "MIT",
@@ -27,7 +27,6 @@
     "migrate:rinkeby": "truffle migrate --network rinkeby",
     "test": "tsc -b && truffle test --network ganache build/*.spec.js",
     "test:benchmark": "tsc -b && truffle test --network ganache build/*.bench.js",
-    "test:coverage": "solidity-coverage",
     "gen:contract-typings": "typechain --target ethers --outDir typings/contracts './build/contracts/*.json'",
     "lint": "yarn lint:ts && yarn lint:sol",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
@@ -60,18 +59,19 @@
     "dotenv": "^8.0.0",
     "eth-gas-reporter": "^0.2.1",
     "ethers": "^4.0.31",
-    "ganache-cli": "^6.4.4",
-    "ganache-core": "^2.5.6",
-    "solc": "0.5.12",
-    "solidity-coverage": "^0.5.11",
+    "ganache-cli": "6.4.4",
+    "ganache-core": "2.5.6",
+    "solc": "0.5.13",
     "solium": "^1.2.4",
     "truffle": "^5.0.25",
     "truffle-contract": "^4.0.22",
-    "truffle-hdwallet-provider": "1.0.12",
+    "truffle-hdwallet-provider": "1.0.17",
     "tslint": "^5.18.0",
-    "typechain": "^0.3.17",
-    "typescript": "3.5.2",
+    "typechain": "^1.0.3",
+    "typescript": "3.7.2",
     "zos-lib": "^2.4.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "typechain-target-ethers": "^1.0.2"
+  }
 }

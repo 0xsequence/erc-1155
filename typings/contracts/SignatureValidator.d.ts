@@ -11,7 +11,16 @@ import {
 } from ".";
 
 interface SignatureValidatorInterface extends Interface {
-  functions: {};
+  functions: {
+    isValidSignature: TypedFunctionDescription<{
+      encode([_signerAddress, _hash, _data, _sig]: [
+        string,
+        Arrayish,
+        Arrayish,
+        Arrayish
+      ]): string;
+    }>;
+  };
 
   events: {};
 }
@@ -41,7 +50,21 @@ export class SignatureValidator extends Contract {
     ): Promise<boolean>;
   };
 
+  isValidSignature(
+    _signerAddress: string,
+    _hash: Arrayish,
+    _data: Arrayish,
+    _sig: Arrayish
+  ): Promise<boolean>;
+
   filters: {};
 
-  estimate: {};
+  estimate: {
+    isValidSignature(
+      _signerAddress: string,
+      _hash: Arrayish,
+      _data: Arrayish,
+      _sig: Arrayish
+    ): Promise<BigNumber>;
+  };
 }
