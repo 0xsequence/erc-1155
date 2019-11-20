@@ -28,8 +28,8 @@ interface ERC1155OperatorMockInterface extends Interface {
         string,
         string,
         string,
-        (BigNumberish)[],
-        (BigNumberish)[],
+        BigNumberish[],
+        BigNumberish[],
         Arrayish
       ]): string;
     }>;
@@ -51,8 +51,8 @@ interface ERC1155OperatorMockInterface extends Interface {
         string,
         string,
         string,
-        (BigNumberish)[],
-        (BigNumberish)[],
+        BigNumberish[],
+        BigNumberish[],
         boolean,
         Arrayish
       ]): string;
@@ -104,8 +104,8 @@ export class ERC1155OperatorMock extends Contract {
       _tokenAddress: string,
       _from: string,
       _to: string,
-      _ids: (BigNumberish)[],
-      _amounts: (BigNumberish)[],
+      _ids: BigNumberish[],
+      _amounts: BigNumberish[],
       _data: Arrayish,
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
@@ -125,8 +125,8 @@ export class ERC1155OperatorMock extends Contract {
       _tokenAddress: string,
       _from: string,
       _to: string,
-      _ids: (BigNumberish)[],
-      _amounts: (BigNumberish)[],
+      _ids: BigNumberish[],
+      _amounts: BigNumberish[],
       _isGasFee: boolean,
       _data: Arrayish,
       overrides?: TransactionOverrides
@@ -142,6 +142,58 @@ export class ERC1155OperatorMock extends Contract {
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
   };
+
+  safeTransferFrom(
+    _tokenAddress: string,
+    _from: string,
+    _to: string,
+    _id: BigNumberish,
+    _amount: BigNumberish,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  safeBatchTransferFrom(
+    _tokenAddress: string,
+    _from: string,
+    _to: string,
+    _ids: BigNumberish[],
+    _amounts: BigNumberish[],
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  metaSafeTransferFrom(
+    _tokenAddress: string,
+    _from: string,
+    _to: string,
+    _id: BigNumberish,
+    _amount: BigNumberish,
+    _isGasFee: boolean,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  metaSafeBatchTransferFrom(
+    _tokenAddress: string,
+    _from: string,
+    _to: string,
+    _ids: BigNumberish[],
+    _amounts: BigNumberish[],
+    _isGasFee: boolean,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  metaSetApprovalForAll(
+    _tokenAddress: string,
+    _owner: string,
+    _operator: string,
+    _approved: boolean,
+    _isGasFee: boolean,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
 
   filters: {};
 
@@ -159,8 +211,8 @@ export class ERC1155OperatorMock extends Contract {
       _tokenAddress: string,
       _from: string,
       _to: string,
-      _ids: (BigNumberish)[],
-      _amounts: (BigNumberish)[],
+      _ids: BigNumberish[],
+      _amounts: BigNumberish[],
       _data: Arrayish
     ): Promise<BigNumber>;
 
@@ -178,8 +230,8 @@ export class ERC1155OperatorMock extends Contract {
       _tokenAddress: string,
       _from: string,
       _to: string,
-      _ids: (BigNumberish)[],
-      _amounts: (BigNumberish)[],
+      _ids: BigNumberish[],
+      _amounts: BigNumberish[],
       _isGasFee: boolean,
       _data: Arrayish
     ): Promise<BigNumber>;

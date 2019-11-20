@@ -12,9 +12,15 @@ import {
 
 interface ERC20MockInterface extends Interface {
   functions: {
+    allowance: TypedFunctionDescription<{
+      encode([owner, spender]: [string, string]): string;
+    }>;
+
     approve: TypedFunctionDescription<{
       encode([spender, value]: [string, BigNumberish]): string;
     }>;
+
+    balanceOf: TypedFunctionDescription<{ encode([owner]: [string]): string }>;
 
     decreaseAllowance: TypedFunctionDescription<{
       encode([spender, subtractedValue]: [string, BigNumberish]): string;
@@ -23,6 +29,8 @@ interface ERC20MockInterface extends Interface {
     increaseAllowance: TypedFunctionDescription<{
       encode([spender, addedValue]: [string, BigNumberish]): string;
     }>;
+
+    totalSupply: TypedFunctionDescription<{ encode([]: []): string }>;
 
     transfer: TypedFunctionDescription<{
       encode([to, value]: [string, BigNumberish]): string;
@@ -38,9 +46,9 @@ interface ERC20MockInterface extends Interface {
 
     batchTransfer: TypedFunctionDescription<{
       encode([_tokens, _to, _amounts]: [
-        (string)[],
+        string[],
         string,
-        (BigNumberish)[]
+        BigNumberish[]
       ]): string;
     }>;
   };
@@ -80,13 +88,13 @@ export class ERC20Mock extends Contract {
   functions: {
     allowance(owner: string, spender: string): Promise<BigNumber>;
 
-    balanceOf(owner: string): Promise<BigNumber>;
-
     approve(
       spender: string,
       value: BigNumberish,
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
+
+    balanceOf(owner: string): Promise<BigNumber>;
 
     decreaseAllowance(
       spender: string,
@@ -99,6 +107,8 @@ export class ERC20Mock extends Contract {
       addedValue: BigNumberish,
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
+
+    totalSupply(): Promise<BigNumber>;
 
     transfer(
       to: string,
@@ -120,14 +130,62 @@ export class ERC20Mock extends Contract {
     ): Promise<ContractTransaction>;
 
     batchTransfer(
-      _tokens: (string)[],
+      _tokens: string[],
       _to: string,
-      _amounts: (BigNumberish)[],
+      _amounts: BigNumberish[],
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
-
-    totalSupply(): Promise<BigNumber>;
   };
+
+  allowance(owner: string, spender: string): Promise<BigNumber>;
+
+  approve(
+    spender: string,
+    value: BigNumberish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  balanceOf(owner: string): Promise<BigNumber>;
+
+  decreaseAllowance(
+    spender: string,
+    subtractedValue: BigNumberish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  increaseAllowance(
+    spender: string,
+    addedValue: BigNumberish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  totalSupply(): Promise<BigNumber>;
+
+  transfer(
+    to: string,
+    value: BigNumberish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  transferFrom(
+    from: string,
+    to: string,
+    value: BigNumberish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  mockMint(
+    _address: string,
+    _amount: BigNumberish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  batchTransfer(
+    _tokens: string[],
+    _to: string,
+    _amounts: BigNumberish[],
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
 
   filters: {
     Approval(
@@ -140,7 +198,11 @@ export class ERC20Mock extends Contract {
   };
 
   estimate: {
+    allowance(owner: string, spender: string): Promise<BigNumber>;
+
     approve(spender: string, value: BigNumberish): Promise<BigNumber>;
+
+    balanceOf(owner: string): Promise<BigNumber>;
 
     decreaseAllowance(
       spender: string,
@@ -151,6 +213,8 @@ export class ERC20Mock extends Contract {
       spender: string,
       addedValue: BigNumberish
     ): Promise<BigNumber>;
+
+    totalSupply(): Promise<BigNumber>;
 
     transfer(to: string, value: BigNumberish): Promise<BigNumber>;
 
@@ -163,9 +227,9 @@ export class ERC20Mock extends Contract {
     mockMint(_address: string, _amount: BigNumberish): Promise<BigNumber>;
 
     batchTransfer(
-      _tokens: (string)[],
+      _tokens: string[],
       _to: string,
-      _amounts: (BigNumberish)[]
+      _amounts: BigNumberish[]
     ): Promise<BigNumber>;
   };
 }

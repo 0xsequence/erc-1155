@@ -96,7 +96,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
     let transferData: string | null = 'Hello from the other side'
     let initBalance = 100;
     let amount = 10;
-    let nonce = 0;
+    let nonce = new BigNumber(0);
     let id = 66;
 
     let feeTokenID = 666   
@@ -274,10 +274,12 @@ contract('ERC1155Meta', (accounts: string[]) => {
           sigData = ethers.utils.solidityPack(['bytes', 'bytes'], [sigData, goodGasAndTransferData])
         
           // Get signature
-          let sig = await ethSign(transferObj.signerWallet, sigData)
+          let sig = (await ethSign(transferObj.signerWallet, sigData)).slice(0, -2)
+          let paddedNonce = ethers.utils.solidityPack(['uint256'], [transferObj.nonce])
+          let ethsig_nonce = sig + paddedNonce.slice(2) + '02' // encode packed the nonce
         
           // PASS BAD DATA
-          data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [sig, badGasAndTransferData])
+          data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [ethsig_nonce, badGasAndTransferData])
 
           // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
@@ -285,17 +287,111 @@ contract('ERC1155Meta', (accounts: string[]) => {
         })
 
         it("should REVERT if nonce is incorrect", async () => {
-          transferObj.nonce = nonce + 1;
+          transferObj.nonce = nonce.add(101);
           data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
 
-          // @ts-ignore
+          // Nonce higher
           const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
-          await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )  
+          await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_NONCE") )
+          
+          // Correct nonce
+          transferObj.nonce = nonce
+          data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
+          await operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
+          
+          // Nonce lower
+          const tx2 = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
+          await expect(tx2).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_NONCE") ) 
+
         })
 
         it("should PASS if signature is valid", async () => {
+
           const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.fulfilled
+        })
+
+        describe('ERC-1271 Receiver', () => {
+          let erc1271WalletValidationMockContract: ERC1271WalletValidationMock
+          let ERC1271WalletValidationMockAbstract: AbstractContract
+
+          let erc1271WalletAddress;
+
+          beforeEach( async () => {
+            ERC1271WalletValidationMockAbstract = await AbstractContract.fromArtifactName('ERC1271WalletValidationMock')
+            erc1271WalletValidationMockContract = await ERC1271WalletValidationMockAbstract.deploy(ownerWallet, [domainHash]) as ERC1271WalletValidationMock
+            erc1271WalletAddress = erc1271WalletValidationMockContract.address;
+
+            await erc1155Contract.functions.mintMock(erc1271WalletAddress, id, initBalance, [])
+            await erc1155Contract.functions.mintMock(erc1271WalletAddress, feeToken, feeTokenInitBalance, [])        
+          })
+
+          describe(`EIP-1271 (bytes) signatures (03)`, () => {
+            it('should return REVERT if signature is invalid', async () => {
+              transferObj.from = erc1271WalletAddress;
+              transferObj.signerWallet = receiverWallet;
+
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '03')
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )
+            })
+
+            it('should REVERT if token ID is not 66', async () => {
+              let badID = 77
+              await erc1155Contract.functions.mintMock(erc1271WalletAddress, badID, initBalance, [])
+              transferObj.from = erc1271WalletAddress;
+              transferObj.id = badID
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '03')
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") ) 
+            })
+
+            it('should REVERT if amount is more than 100', async () => {
+              await erc1155Contract.functions.mintMock(erc1271WalletAddress, id, 101, [])
+              transferObj.from = erc1271WalletAddress;
+              transferObj.amount = 101
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '03')
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") ) 
+            })
+    
+            it('should PASS if signature is valid', async () => {
+              transferObj.from = erc1271WalletAddress;
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '03')
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.fulfilled  
+            })
+          })
+
+          describe(`EIP-1271 (bytes32) signatures (04)`, () => {
+            it('should return REVERT if signature is invalid', async () => {
+              transferObj.from = erc1271WalletAddress;
+              transferObj.signerWallet = receiverWallet;
+
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '04')
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )
+            })
+    
+            it('should PASS if signature is valid', async () => {
+              transferObj.from = erc1271WalletAddress;
+              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '04')
+              const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
+                {gasLimit: 2000000}
+              )
+              await expect(tx).to.be.fulfilled  
+            })
+          })
         })
 
         describe('When signature is valid', () => {
@@ -367,88 +463,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
             await expect(tx).to.be.fulfilled
           })
 
-          describe('ERC-1271 Receiver', () => {
-            let erc1271WalletValidationMockContract: ERC1271WalletValidationMock
-            let ERC1271WalletValidationMockAbstract: AbstractContract
-
-            let erc1271WalletAddress;
-
-            beforeEach( async () => {
-              ERC1271WalletValidationMockAbstract = await AbstractContract.fromArtifactName('ERC1271WalletValidationMock')
-              erc1271WalletValidationMockContract = await ERC1271WalletValidationMockAbstract.deploy(ownerWallet, [domainHash]) as ERC1271WalletValidationMock
-              erc1271WalletAddress = erc1271WalletValidationMockContract.address;
-
-              await erc1155Contract.functions.mintMock(erc1271WalletAddress, id, initBalance, [])
-              await erc1155Contract.functions.mintMock(erc1271WalletAddress, feeToken, feeTokenInitBalance, [])        
-            })
-
-            describe(`EIP-1271 (bytes) signatures (03)`, () => {
-              it('should return REVERT if signature is invalid', async () => {
-                transferObj.from = erc1271WalletAddress;
-                transferObj.nonce = nonce + 999;
-
-                data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '03')
-                const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
-                  {gasLimit: 2000000}
-                )
-                await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )
-              })
-
-              it('should REVERT if token ID is not 66', async () => {
-                let badID = 77
-                await erc1155Contract.functions.mintMock(erc1271WalletAddress, badID, initBalance, [])
-                transferObj.from = erc1271WalletAddress;
-                transferObj.id = badID
-                data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '03')
-                const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
-                  {gasLimit: 2000000}
-                )
-                await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") ) 
-              })
-
-              it('should REVERT if amount is more than 100', async () => {
-                await erc1155Contract.functions.mintMock(erc1271WalletAddress, id, 101, [])
-                transferObj.from = erc1271WalletAddress;
-                transferObj.amount = 101
-                data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '03')
-                const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
-                  {gasLimit: 2000000}
-                )
-                await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") ) 
-              })
-      
-              it('should PASS if signature is valid', async () => {
-                transferObj.from = erc1271WalletAddress;
-                data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '03')
-                const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
-                  {gasLimit: 2000000}
-                )
-                await expect(tx).to.be.fulfilled  
-              })
-            })
-
-            describe(`EIP-1271 (bytes32) signatures (04)`, () => {
-              it('should return REVERT if signature is invalid', async () => {
-                transferObj.from = erc1271WalletAddress;
-                transferObj.nonce = nonce + 999;
-
-                data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '04')
-                const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
-                  {gasLimit: 2000000}
-                )
-                await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )
-              })
-      
-              it('should PASS if signature is valid', async () => {
-                transferObj.from = erc1271WalletAddress;
-                data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, '04')
-                const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(erc1271WalletAddress, receiverAddress, id, amount, isGasReceipt, data,
-                  {gasLimit: 2000000}
-                )
-                await expect(tx).to.be.fulfilled  
-              })
-            })
-          })
 
           describe('When gas is reimbursed', () => {
 
@@ -523,10 +537,12 @@ contract('ERC1155Meta', (accounts: string[]) => {
               sigData = ethers.utils.solidityPack(['bytes', 'bytes'], [sigData, goodGasAndTransferData])
             
               // Get signature
-              let sig = await ethSign(transferObj.signerWallet, sigData)
+              let sig = (await ethSign(transferObj.signerWallet, sigData)).slice(0, -2)
+              let paddedNonce = ethers.utils.solidityPack(['uint256'], [transferObj.nonce])
+              let ethsig_nonce = sig + paddedNonce.slice(2) + '02' // encode packed the nonce
             
               // PASS BAD DATA
-              data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [sig, badGasAndTransferData])
+              data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [ethsig_nonce, badGasAndTransferData])
   
               // @ts-ignore
               const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
@@ -850,7 +866,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 filterFromOperatorContract = erc1155Contract.filters.TransferSingle(operatorContract.address, null, null, null, null);
 
                 // Increment nonce because it's the second transfer
-                transferObj.nonce = nonce + 1;
+                transferObj.nonce = nonce.add(1);
                 data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
 
                 // Execute transfer from operator contract
@@ -887,7 +903,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
     let transferData: string | null = 'Hello from the other side'
     let initBalance = 100;
     let amount = 10;
-    let nonce = 0;
+    let nonce = new BigNumber(0);
     
     let isGasReceipt: boolean = true;
     let feeTokenInitBalance = new BigNumber(100000000);
@@ -1061,10 +1077,12 @@ contract('ERC1155Meta', (accounts: string[]) => {
           sigData = ethers.utils.solidityPack(['bytes', 'bytes'], [sigData, goodGasAndTransferData])
         
           // Get signature
-          let sig = await ethSign(transferObj.signerWallet, sigData)
+          let sig = (await ethSign(transferObj.signerWallet, sigData)).slice(0, -2)
+          let paddedNonce = ethers.utils.solidityPack(['uint256'], [transferObj.nonce])
+          let ethsig_nonce = sig + paddedNonce.slice(2) + '02' // encode packed the nonce
         
           // PASS BAD DATA
-          data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [sig, badGasAndTransferData])
+          data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [ethsig_nonce, badGasAndTransferData])
 
           // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
@@ -1072,12 +1090,21 @@ contract('ERC1155Meta', (accounts: string[]) => {
         })
 
         it("should REVERT if nonce is incorrect", async () => {
-          transferObj.nonce = nonce + 1;
+          transferObj.nonce = nonce.add(101);
           data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
 
           // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
-          await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )  
+          await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_NONCE") ) 
+
+          // Correct nonce
+          transferObj.nonce = nonce
+          data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
+          await operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
+          
+          // Nonce lower
+          const tx2 = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
+          await expect(tx2).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_NONCE") ) 
         })
 
         it("should PASS if signature is valid", async () => {
@@ -1103,7 +1130,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           describe(`EIP-1271 (bytes) signatures (03)`, () => {
             it('should return REVERT if signature is invalid', async () => {
               transferObj.from = erc1271WalletAddress;
-              transferObj.nonce = nonce + 999;
+              transferObj.signerWallet = receiverWallet;
 
               data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt, '03')
               const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(erc1271WalletAddress, receiverAddress, ids, amounts, isGasReceipt, data)
@@ -1114,7 +1141,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           describe(`EIP-1271 (bytes32) signatures (04)`, () => {
             it('should return REVERT if signature is invalid', async () => {
               transferObj.from = erc1271WalletAddress;
-              transferObj.nonce = nonce + 999;
+              transferObj.signerWallet = receiverWallet;
 
               data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt, '04')
               const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(erc1271WalletAddress, receiverAddress, ids, amounts, isGasReceipt, data)
@@ -1268,10 +1295,12 @@ contract('ERC1155Meta', (accounts: string[]) => {
               sigData = ethers.utils.solidityPack(['bytes', 'bytes'], [sigData, goodGasAndTransferData])
             
               // Get signature
-              let sig = await ethSign(transferObj.signerWallet, sigData)
+              let sig = (await ethSign(transferObj.signerWallet, sigData)).slice(0, -2)
+              let paddedNonce = ethers.utils.solidityPack(['uint256'], [transferObj.nonce])
+              let ethsig_nonce = sig + paddedNonce.slice(2) + '02' // encode packed the nonce
             
               // PASS BAD DATA
-              data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [sig, badGasAndTransferData])
+              data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [ethsig_nonce, badGasAndTransferData])
   
               // @ts-ignore
               const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
@@ -1398,7 +1427,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 filterFromOperatorContract = erc1155Contract.filters.TransferBatch(operatorContract.address, null, null, null, null);
 
                 //Increment nonce because it's the second transfer
-                transferObj.nonce = nonce + 1;
+                transferObj.nonce = nonce.add(1);
                 data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
   
         
@@ -1435,7 +1464,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
     let initBalance = 100;
     let approved = true;
-    let nonce = 0;
+    let nonce = new BigNumber(0);
     let id = 66;
     
     let isGasReceipt = true;
@@ -1532,7 +1561,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           describe(`EIP-1271 (bytes) signatures (03)`, () => {
             it('should return REVERT if signature is invalid', async () => {
               approvalObj.owner = erc1271WalletAddress;
-              approvalObj.nonce = nonce + 999;
+              approvalObj.signerWallet = receiverWallet;
 
               data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt, '03')
               let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(erc1271WalletAddress, operatorAddress, approved, isGasReimbursed, data)
@@ -1543,7 +1572,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           describe(`EIP-1271 (bytes32) signatures (04)`, () => {
             it('should return REVERT if signature is invalid', async () => {
               approvalObj.owner = erc1271WalletAddress;
-              approvalObj.nonce = nonce + 999;
+              approvalObj.signerWallet = receiverWallet;
 
               data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt, '04')
               let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(erc1271WalletAddress, operatorAddress, approved, isGasReimbursed, data)
@@ -1612,12 +1641,21 @@ contract('ERC1155Meta', (accounts: string[]) => {
         })
 
         it("should REVERT if nonce is incorrect", async () => {
-          approvalObj.nonce = nonce+1;
+          approvalObj.nonce = nonce.add(101);
           data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt)
 
-          // @ts-ignore
+          // Nonce higher
           let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
-          await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )    
+          await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_NONCE") )   
+          
+          // Correct nonce
+          approvalObj.nonce = nonce
+          data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt)
+          await operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
+
+          // Nonce lower
+          const tx2 = operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
+          await expect(tx2).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_NONCE") ) 
         })
 
 
@@ -1644,7 +1682,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             let tx = await operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
 
             // Update nonce of approval signature object for subsequent tests
-            approvalObj.nonce = nonce + 1;
+            approvalObj.nonce = nonce.add(1);
           })
 
           it('should leave the operator status to set to true again', async () => {

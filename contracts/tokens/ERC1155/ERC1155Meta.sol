@@ -1,4 +1,4 @@
-pragma solidity ^0.5.12;
+pragma solidity ^0.5.13;
 pragma experimental ABIEncoderV2;
 
 import "./ERC1155.sol";
@@ -14,7 +14,6 @@ import "../../utils/SignatureValidator.sol";
  *
  * TO DO:
  *  - Correct EIP-712 encoding [x]
- *  - Real EIP-1271 mock contract that decodes and read data
  *  - Bytes32 EIP-1271 for EIP-2126
  */
 contract ERC1155Meta is ERC1155, SignatureValidator {
@@ -63,7 +62,10 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
    * @param _amount   Transfered amount
    * @param _isGasFee Whether gas is reimbursed to executor or not
    * @param _data     Encodes a meta transfer indicator, signature, gas payment receipt and extra transfer data
-   *   _data should be encoded as ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g, bytes data))
+   *   _data should be encoded as (
+   *   (bytes32 r, bytes32 s, uint8 v, uint256 nonce, SignatureType sigType),
+   *   (GasReceipt g, ?bytes transferData)
+   * )
    *   i.e. high level encoding should be (bytes, bytes), where the latter bytes array is a nested bytes array
    */
   function metaSafeTransferFrom(
@@ -126,7 +128,10 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
    * @param _ids      IDs of each token type
    * @param _amounts  Transfer amounts per token type
    * @param _data     Encodes a meta transfer indicator, signature, gas payment receipt and extra transfer data
-   *   _data should be encoded as ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g, bytes data))
+   *   _data should be encoded as (
+   *   (bytes32 r, bytes32 s, uint8 v, uint256 nonce, SignatureType sigType),
+   *   (GasReceipt g, ?bytes transferData)
+   * )
    *   i.e. high level encoding should be (bytes, bytes), where the latter bytes array is a nested bytes array
    */
   function metaSafeBatchTransferFrom(
@@ -196,7 +201,10 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
    * @param _approved  True if the operator is approved, false to revoke approval
    * @param _isGasFee  Whether gas will be reimbursed or not, with vlid signature
    * @param _data      Encodes signature and gas payment receipt
-   *   _data should be encoded as ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g))
+   *   _data should be encoded as (
+   *     (bytes32 r, bytes32 s, uint8 v, uint256 nonce, SignatureType sigType),
+   *     (GasReceipt g)
+   *   )
    *   i.e. high level encoding should be (bytes, bytes), where the latter bytes array is a nested bytes array
    */
   function metaSetApprovalForAll(
@@ -260,7 +268,10 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
    * @param _signer     Address of signer
    * @param _sigData    Encodes signature, gas payment receipt and transfer data (if any)
    * @param _encMembers Encoded EIP-712 type members (except nonce and _data), all need to be 32 bytes size
-   * @dev _data should be encoded as ((bytes32 r, bytes32 s, uint8 v, SignatureType sigType), (GasReceipt g, ?bytes transferData))
+   * @dev _data should be encoded as (
+   *   (bytes32 r, bytes32 s, uint8 v, uint256 nonce, SignatureType sigType),
+   *   (GasReceipt g, ?bytes transferData)
+   * )
    *   i.e. high level encoding svhould be (bytes, bytes), where the latter bytes array is a nested bytes array
    */
   function _signatureValidation(
@@ -269,11 +280,20 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     bytes memory _encMembers)
     internal returns (bytes memory signedData)
   {
-    uint256 nonce = nonces[_signer];
     bytes memory sig;
 
     // Get signature and data to sign
     (sig, signedData) = abi.decode(_sigData, (bytes, bytes));
+
+    // Get current nonce and nonce used for signature
+    uint256 currentNonce = nonces[_signer];        // Lowest valid nonce for signer
+    uint256 nonce = uint256(sig.readBytes32(65));  // Nonce passed in the signature object
+
+    // Verify if nonce is valid
+    require(
+      (nonce >= currentNonce) && (nonce < (currentNonce + 100)),
+      "ERC1155Meta#_signatureValidation: INVALID_NONCE"
+    );
 
     // Take hash of bytes arrays
     bytes32 hash = hashEIP712Message(keccak256(abi.encodePacked(_encMembers, nonce, keccak256(signedData))));

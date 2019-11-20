@@ -17,7 +17,7 @@ export type TransferSignature = {
   id: number | string | BigNumber;
   amount: number | string | BigNumber;
   transferData: Uint8Array | null;
-  nonce: number | string | BigNumber;
+  nonce: BigNumber;
 }
 
 export type BatchTransferSignature = {
@@ -28,7 +28,7 @@ export type BatchTransferSignature = {
   ids: number[] | string[] | BigNumber[];
   amounts: number[] | string[] | BigNumber[];
   transferData: Uint8Array | null;
-  nonce: number | string | BigNumber;
+  nonce: BigNumber;
 }
 
 
@@ -38,5 +38,5 @@ export type ApprovalSignature = {
   owner?: string;
   operator: string;
   approved: boolean;
-  nonce: number | string | BigNumber;
+  nonce: BigNumber;
 }

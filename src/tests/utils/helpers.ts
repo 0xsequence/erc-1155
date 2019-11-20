@@ -1,6 +1,6 @@
 import * as ethers from 'ethers'
 import { SigningKey } from 'ethers/utils/signing-key';
-import { joinSignature, toUtf8Bytes, toUtf8String, defaultAbiCoder } from 'ethers/utils'
+import { BigNumber, joinSignature, toUtf8Bytes, defaultAbiCoder } from 'ethers/utils'
 import { 
   GasReceipt,
   TransferSignature,
@@ -35,10 +35,16 @@ export async function ethSign(wallet: ethers.Wallet, message: string | Uint8Arra
   let hash = ethers.utils.keccak256(message)
   let hashArray = ethers.utils.arrayify(hash) 
   let ethsigNoType = await wallet.signMessage(hashArray)
-  return ethsigNoType + '02'
+  return ethsigNoType + '02' 
 }
 
-export async function ethSignTypedData(wallet: ethers.Wallet, domainHash: string,  hashStruct: string | Uint8Array, sigType?: string) {
+export async function ethSignTypedData(
+  wallet: ethers.Wallet, 
+  domainHash: string,  
+  hashStruct: string | Uint8Array, 
+  nonce: BigNumber, 
+  sigType?: string) 
+{
   const EIP191_HEADER = "0x1901"
   const preHash = ethers.utils.solidityPack(['bytes', 'bytes32'], [EIP191_HEADER, domainHash])
   const hash = ethers.utils.keccak256(ethers.utils.solidityPack(
@@ -48,8 +54,9 @@ export async function ethSignTypedData(wallet: ethers.Wallet, domainHash: string
 
   const hashArray = ethers.utils.arrayify(hash) 
   let ethsigNoType = await wallet.signMessage(hashArray)
-
-  return sigType ? ethsigNoType + sigType : ethsigNoType + '02'
+  let paddedNonce = ethers.utils.solidityPack(['uint256'], [nonce])
+  let ethsigNoType_nonce = ethsigNoType + paddedNonce.slice(2) // encode packed the nonce
+  return sigType ? ethsigNoType_nonce + sigType : ethsigNoType_nonce + '02'
 }
 
 export const GasReceiptType = `tuple(
@@ -123,7 +130,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(gasAndTransferData)] //Hash of _data
       ))
-      sig = await ethSignTypedData(s.signerWallet, domainHash, sigData, sigType)
+      sig = await ethSignTypedData(s.signerWallet, domainHash, sigData, s.nonce, sigType)
       return defaultAbiCoder.encode(txDataTypes, [sig, gasAndTransferData])
     
     // 2.
@@ -133,7 +140,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(gasAndTransferData)] //Hash of _data
       ))
-      sig = await ethSignTypedData(s.signerWallet, domainHash, sigData, sigType)
+      sig = await ethSignTypedData(s.signerWallet, domainHash,  sigData, s.nonce, sigType)
       return  defaultAbiCoder.encode(txDataTypes, [sig, gasAndTransferData])
     }
 
@@ -145,7 +152,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(s.transferData)] //Hash of _data
       ))
-      sig = await ethSignTypedData(s.signerWallet, domainHash, sigData, sigType)
+      sig = await ethSignTypedData(s.signerWallet, domainHash,  sigData, s.nonce, sigType)
       return  defaultAbiCoder.encode(txDataTypes, [sig, s.transferData])
     
     // 4.
@@ -155,7 +162,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(emptyTransferData)] //Hash of _data
       ))
-      sig = await ethSignTypedData(s.signerWallet, domainHash, sigData, sigType)
+      sig = await ethSignTypedData(s.signerWallet, domainHash,  sigData, s.nonce, sigType)
       return  defaultAbiCoder.encode(txDataTypes, [sig, emptyTransferData])
     }
 
@@ -223,7 +230,7 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(gasAndTransferData)] //Hash of _data
       ))
-      sig = await ethSignTypedData(s.signerWallet, domainHash, sigData, sigType)
+      sig = await ethSignTypedData(s.signerWallet, domainHash,  sigData, s.nonce, sigType)
       return defaultAbiCoder.encode(txDataTypes, [sig, gasAndTransferData])
 
     // 2.
@@ -233,7 +240,7 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(gasAndTransferData)] //Hash of _data
       ))
-      sig = await ethSignTypedData(s.signerWallet, domainHash, sigData, sigType)
+      sig = await ethSignTypedData(s.signerWallet, domainHash,  sigData, s.nonce, sigType)
       return  defaultAbiCoder.encode(txDataTypes, [sig, gasAndTransferData])
     }
 
@@ -245,7 +252,7 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(s.transferData)] //Hash of _data
       ))
-      sig = await ethSignTypedData(s.signerWallet, domainHash, sigData, sigType)
+      sig = await ethSignTypedData(s.signerWallet, domainHash,  sigData, s.nonce, sigType)
       return  defaultAbiCoder.encode(txDataTypes, [sig, s.transferData])
 
     // 4.
@@ -255,7 +262,7 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(emptyTransferData)] //Hash of _data
       ))
-      sig = await ethSignTypedData(s.signerWallet, domainHash, sigData, sigType)
+      sig = await ethSignTypedData(s.signerWallet, domainHash,  sigData, s.nonce, sigType)
       return  defaultAbiCoder.encode(txDataTypes, [sig, emptyTransferData])
     }
   }
@@ -302,7 +309,7 @@ export async function encodeMetaApprovalData(a: ApprovalSignature, domainHash: s
       ['bytes', 'bytes32'], 
       [sigData, ethers.utils.keccak256(gasData)] //Hash of _data
     ))
-    sig = await ethSignTypedData(a.signerWallet, domainHash, sigData, sigType)
+    sig = await ethSignTypedData(a.signerWallet, domainHash,  sigData, a.nonce, sigType)
     return  defaultAbiCoder.encode(txDataTypes, [sig, gasData])
     
   } else { 
@@ -311,7 +318,7 @@ export async function encodeMetaApprovalData(a: ApprovalSignature, domainHash: s
       ['bytes', 'bytes32'], 
       [sigData, ethers.utils.keccak256(emptyTransferData)] //Hash of _data
     ))
-    sig = await ethSignTypedData(a.signerWallet, domainHash, sigData, sigType)
+    sig = await ethSignTypedData(a.signerWallet, domainHash,  sigData, a.nonce, sigType)
     return  defaultAbiCoder.encode(txDataTypes, [sig, emptyTransferData])
   }
 

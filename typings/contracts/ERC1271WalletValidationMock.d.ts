@@ -12,6 +12,20 @@ import {
 
 interface ERC1271WalletValidationMockInterface extends Interface {
   functions: {
+    ERC1271_INVALID: TypedFunctionDescription<{ encode([]: []): string }>;
+
+    ERC1271_MAGICVALUE_BYTES32: TypedFunctionDescription<{
+      encode([]: []): string;
+    }>;
+
+    ERC1271_MAGIC_VAL: TypedFunctionDescription<{ encode([]: []): string }>;
+
+    owner: TypedFunctionDescription<{ encode([]: []): string }>;
+
+    isValidSignature: TypedFunctionDescription<{
+      encode([_hash, _signature]: [Arrayish, Arrayish]): string;
+    }>;
+
     onERC1155Received: TypedFunctionDescription<{
       encode([_operator, _from, _id, _value, _data]: [
         string,
@@ -26,8 +40,8 @@ interface ERC1271WalletValidationMockInterface extends Interface {
       encode([_operator, _from, _ids, _values, _data]: [
         string,
         string,
-        (BigNumberish)[],
-        (BigNumberish)[],
+        BigNumberish[],
+        BigNumberish[],
         Arrayish
       ]): string;
     }>;
@@ -66,6 +80,14 @@ export class ERC1271WalletValidationMock extends Contract {
   interface: ERC1271WalletValidationMockInterface;
 
   functions: {
+    ERC1271_INVALID(): Promise<string>;
+
+    ERC1271_MAGICVALUE_BYTES32(): Promise<string>;
+
+    ERC1271_MAGIC_VAL(): Promise<string>;
+
+    owner(): Promise<string>;
+
     isValidSignature(_hash: Arrayish, _signature: Arrayish): Promise<string>;
 
     onERC1155Received(
@@ -80,21 +102,54 @@ export class ERC1271WalletValidationMock extends Contract {
     onERC1155BatchReceived(
       _operator: string,
       _from: string,
-      _ids: (BigNumberish)[],
-      _values: (BigNumberish)[],
+      _ids: BigNumberish[],
+      _values: BigNumberish[],
       _data: Arrayish,
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
-
-    ERC1271_INVALID(): Promise<string>;
-    ERC1271_MAGICVALUE_BYTES32(): Promise<string>;
-    ERC1271_MAGIC_VAL(): Promise<string>;
-    owner(): Promise<string>;
   };
+
+  ERC1271_INVALID(): Promise<string>;
+
+  ERC1271_MAGICVALUE_BYTES32(): Promise<string>;
+
+  ERC1271_MAGIC_VAL(): Promise<string>;
+
+  owner(): Promise<string>;
+
+  isValidSignature(_hash: Arrayish, _signature: Arrayish): Promise<string>;
+
+  onERC1155Received(
+    _operator: string,
+    _from: string,
+    _id: BigNumberish,
+    _value: BigNumberish,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  onERC1155BatchReceived(
+    _operator: string,
+    _from: string,
+    _ids: BigNumberish[],
+    _values: BigNumberish[],
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
 
   filters: {};
 
   estimate: {
+    ERC1271_INVALID(): Promise<BigNumber>;
+
+    ERC1271_MAGICVALUE_BYTES32(): Promise<BigNumber>;
+
+    ERC1271_MAGIC_VAL(): Promise<BigNumber>;
+
+    owner(): Promise<BigNumber>;
+
+    isValidSignature(_hash: Arrayish, _signature: Arrayish): Promise<BigNumber>;
+
     onERC1155Received(
       _operator: string,
       _from: string,
@@ -106,8 +161,8 @@ export class ERC1271WalletValidationMock extends Contract {
     onERC1155BatchReceived(
       _operator: string,
       _from: string,
-      _ids: (BigNumberish)[],
-      _values: (BigNumberish)[],
+      _ids: BigNumberish[],
+      _values: BigNumberish[],
       _data: Arrayish
     ): Promise<BigNumber>;
   };

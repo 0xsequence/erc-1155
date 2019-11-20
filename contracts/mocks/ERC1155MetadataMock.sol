@@ -1,4 +1,4 @@
-pragma solidity ^0.5.12;
+pragma solidity ^0.5.13;
 pragma experimental ABIEncoderV2;
 
 import "../tokens/ERC1155/ERC1155Metadata.sol";

@@ -11,7 +11,11 @@ import {
 } from ".";
 
 interface IERC1271WalletInterface extends Interface {
-  functions: {};
+  functions: {
+    isValidSignature: TypedFunctionDescription<{
+      encode([_hash, _signature]: [Arrayish, Arrayish]): string;
+    }>;
+  };
 
   events: {};
 }
@@ -36,7 +40,11 @@ export class IERC1271Wallet extends Contract {
     isValidSignature(_hash: Arrayish, _signature: Arrayish): Promise<string>;
   };
 
+  isValidSignature(_hash: Arrayish, _signature: Arrayish): Promise<string>;
+
   filters: {};
 
-  estimate: {};
+  estimate: {
+    isValidSignature(_hash: Arrayish, _signature: Arrayish): Promise<BigNumber>;
+  };
 }

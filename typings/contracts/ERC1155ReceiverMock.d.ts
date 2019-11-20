@@ -12,6 +12,16 @@ import {
 
 interface ERC1155ReceiverMockInterface extends Interface {
   functions: {
+    lastData: TypedFunctionDescription<{ encode([]: []): string }>;
+
+    lastId: TypedFunctionDescription<{ encode([]: []): string }>;
+
+    lastOperator: TypedFunctionDescription<{ encode([]: []): string }>;
+
+    lastValue: TypedFunctionDescription<{ encode([]: []): string }>;
+
+    shouldReject: TypedFunctionDescription<{ encode([]: []): string }>;
+
     setShouldReject: TypedFunctionDescription<{
       encode([_value]: [boolean]): string;
     }>;
@@ -30,10 +40,14 @@ interface ERC1155ReceiverMockInterface extends Interface {
       encode([_operator, _from, _ids, _values, _data]: [
         string,
         string,
-        (BigNumberish)[],
-        (BigNumberish)[],
+        BigNumberish[],
+        BigNumberish[],
         Arrayish
       ]): string;
+    }>;
+
+    supportsInterface: TypedFunctionDescription<{
+      encode([interfaceID]: [Arrayish]): string;
     }>;
   };
 
@@ -75,7 +89,15 @@ export class ERC1155ReceiverMock extends Contract {
   interface: ERC1155ReceiverMockInterface;
 
   functions: {
-    supportsInterface(interfaceID: Arrayish): Promise<boolean>;
+    lastData(): Promise<string>;
+
+    lastId(): Promise<BigNumber>;
+
+    lastOperator(): Promise<string>;
+
+    lastValue(): Promise<BigNumber>;
+
+    shouldReject(): Promise<boolean>;
 
     setShouldReject(
       _value: boolean,
@@ -94,18 +116,49 @@ export class ERC1155ReceiverMock extends Contract {
     onERC1155BatchReceived(
       _operator: string,
       _from: string,
-      _ids: (BigNumberish)[],
-      _values: (BigNumberish)[],
+      _ids: BigNumberish[],
+      _values: BigNumberish[],
       _data: Arrayish,
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
-    lastData(): Promise<string>;
-    lastId(): Promise<BigNumber>;
-    lastOperator(): Promise<string>;
-    lastValue(): Promise<BigNumber>;
-    shouldReject(): Promise<boolean>;
+    supportsInterface(interfaceID: Arrayish): Promise<boolean>;
   };
+
+  lastData(): Promise<string>;
+
+  lastId(): Promise<BigNumber>;
+
+  lastOperator(): Promise<string>;
+
+  lastValue(): Promise<BigNumber>;
+
+  shouldReject(): Promise<boolean>;
+
+  setShouldReject(
+    _value: boolean,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  onERC1155Received(
+    _operator: string,
+    _from: string,
+    _id: BigNumberish,
+    _value: BigNumberish,
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  onERC1155BatchReceived(
+    _operator: string,
+    _from: string,
+    _ids: BigNumberish[],
+    _values: BigNumberish[],
+    _data: Arrayish,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
+
+  supportsInterface(interfaceID: Arrayish): Promise<boolean>;
 
   filters: {
     TransferBatchReceiver(
@@ -124,6 +177,16 @@ export class ERC1155ReceiverMock extends Contract {
   };
 
   estimate: {
+    lastData(): Promise<BigNumber>;
+
+    lastId(): Promise<BigNumber>;
+
+    lastOperator(): Promise<BigNumber>;
+
+    lastValue(): Promise<BigNumber>;
+
+    shouldReject(): Promise<BigNumber>;
+
     setShouldReject(_value: boolean): Promise<BigNumber>;
 
     onERC1155Received(
@@ -137,9 +200,11 @@ export class ERC1155ReceiverMock extends Contract {
     onERC1155BatchReceived(
       _operator: string,
       _from: string,
-      _ids: (BigNumberish)[],
-      _values: (BigNumberish)[],
+      _ids: BigNumberish[],
+      _values: BigNumberish[],
       _data: Arrayish
     ): Promise<BigNumber>;
+
+    supportsInterface(interfaceID: Arrayish): Promise<BigNumber>;
   };
 }
