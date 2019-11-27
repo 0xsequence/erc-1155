@@ -2,7 +2,10 @@ pragma solidity ^0.5.13;
 
 
 interface IERC1155 {
-  // Events
+
+  /****************************************|
+  |                 Events                 |
+  |_______________________________________*/
 
   /**
    * @dev Either TransferSingle or TransferBatch MUST emit when tokens are transferred, including zero amount transfers as well as minting or burning
@@ -35,6 +38,11 @@ interface IERC1155 {
    *   The URI MUST point a JSON file that conforms to the "ERC-1155 Metadata JSON Schema"
    */
   event URI(string _amount, uint256 indexed _id);
+
+
+  /****************************************|
+  |                Functions               |
+  |_______________________________________*/
 
   /**
     * @notice Transfers amount of an _id from the _from address to the _to address specified

@@ -3,6 +3,14 @@ pragma solidity ^0.5.13;
 interface IERC1155Meta {
 
   /****************************************|
+  |                 Events                 |
+  |_______________________________________*/
+
+  // Will be emitted when the nonce of a user is changed
+  event NonceChange(address indexed signer, uint256 newNonce);
+
+
+  /****************************************|
   |     Public Meta Transfer Functions     |
   |_______________________________________*/
 
