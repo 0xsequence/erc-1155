@@ -7,9 +7,9 @@ import "../tokens/ERC1155PackedBalance/ERC1155MintBurnPackedBalance.sol";
 
 contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, ERC1155MetaPackedBalance {
 
-  constructor() public {}
-
-  // ---- Minting functions
+  /***********************************|
+  |         Minting Functions         |
+  |__________________________________*/
 
   /**
    * @dev Mint _value of tokens of a given id
@@ -37,7 +37,10 @@ contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, E
     _batchMint(_to, _ids, _values, _data);
   }
 
-  // ---- Burning functions
+
+  /***********************************|
+  |         Burning Functions         |
+  |__________________________________*/
 
   /**
    * @dev burn _value of tokens of a given token id
@@ -63,12 +66,12 @@ contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, E
     _batchBurn(_from, _ids, _values);
   }
 
+
   /***********************************|
   |       Unsupported Functions       |
   |__________________________________*/
 
   function () external {
-    revert('ERC1155MetaMintBurnPackedBalanceMock: INVALID_METHOD');
+    revert("ERC1155MetaMintBurnPackedBalanceMock: INVALID_METHOD");
   }
-
 }

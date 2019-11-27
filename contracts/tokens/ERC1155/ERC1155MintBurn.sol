@@ -9,7 +9,6 @@ import "./ERC1155.sol";
  */
 contract ERC1155MintBurn is ERC1155 {
 
-
   /****************************************|
   |            Minting Functions           |
   |_______________________________________*/
@@ -106,6 +105,5 @@ contract ERC1155MintBurn is ERC1155 {
     // Emit batch mint event
     emit TransferBatch(msg.sender, _from, address(0x0), _ids, _amounts);
   }
-
 }
 

@@ -18,7 +18,6 @@ import "../../utils/SignatureValidator.sol";
 contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
   using LibBytes for bytes;
 
-
   /***********************************|
   |       Variables and Structs       |
   |__________________________________*/
@@ -47,6 +46,13 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
 
   // Signature nonce per address
   mapping (address => uint256) internal nonces;
+
+
+  /***********************************|
+  |               Events              |
+  |__________________________________*/
+
+  event NonceChange(address indexed signer, uint256 newNonce);
 
 
   /****************************************|
@@ -305,6 +311,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
 
     //Update signature nonce
     nonces[_signer] = nonce + 1;
+    emit NonceChange(_signer, nonce + 1);
 
     return signedData;
   }

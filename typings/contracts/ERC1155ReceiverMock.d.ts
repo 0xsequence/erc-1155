@@ -22,10 +22,6 @@ interface ERC1155ReceiverMockInterface extends Interface {
 
     shouldReject: TypedFunctionDescription<{ encode([]: []): string }>;
 
-    setShouldReject: TypedFunctionDescription<{
-      encode([_value]: [boolean]): string;
-    }>;
-
     onERC1155Received: TypedFunctionDescription<{
       encode([_operator, _from, _id, _value, _data]: [
         string,
@@ -48,6 +44,10 @@ interface ERC1155ReceiverMockInterface extends Interface {
 
     supportsInterface: TypedFunctionDescription<{
       encode([interfaceID]: [Arrayish]): string;
+    }>;
+
+    setShouldReject: TypedFunctionDescription<{
+      encode([_value]: [boolean]): string;
     }>;
   };
 
@@ -99,11 +99,6 @@ export class ERC1155ReceiverMock extends Contract {
 
     shouldReject(): Promise<boolean>;
 
-    setShouldReject(
-      _value: boolean,
-      overrides?: TransactionOverrides
-    ): Promise<ContractTransaction>;
-
     onERC1155Received(
       _operator: string,
       _from: string,
@@ -123,6 +118,11 @@ export class ERC1155ReceiverMock extends Contract {
     ): Promise<ContractTransaction>;
 
     supportsInterface(interfaceID: Arrayish): Promise<boolean>;
+
+    setShouldReject(
+      _value: boolean,
+      overrides?: TransactionOverrides
+    ): Promise<ContractTransaction>;
   };
 
   lastData(): Promise<string>;
@@ -134,11 +134,6 @@ export class ERC1155ReceiverMock extends Contract {
   lastValue(): Promise<BigNumber>;
 
   shouldReject(): Promise<boolean>;
-
-  setShouldReject(
-    _value: boolean,
-    overrides?: TransactionOverrides
-  ): Promise<ContractTransaction>;
 
   onERC1155Received(
     _operator: string,
@@ -159,6 +154,11 @@ export class ERC1155ReceiverMock extends Contract {
   ): Promise<ContractTransaction>;
 
   supportsInterface(interfaceID: Arrayish): Promise<boolean>;
+
+  setShouldReject(
+    _value: boolean,
+    overrides?: TransactionOverrides
+  ): Promise<ContractTransaction>;
 
   filters: {
     TransferBatchReceiver(
@@ -187,8 +187,6 @@ export class ERC1155ReceiverMock extends Contract {
 
     shouldReject(): Promise<BigNumber>;
 
-    setShouldReject(_value: boolean): Promise<BigNumber>;
-
     onERC1155Received(
       _operator: string,
       _from: string,
@@ -206,5 +204,7 @@ export class ERC1155ReceiverMock extends Contract {
     ): Promise<BigNumber>;
 
     supportsInterface(interfaceID: Arrayish): Promise<BigNumber>;
+
+    setShouldReject(_value: boolean): Promise<BigNumber>;
   };
 }

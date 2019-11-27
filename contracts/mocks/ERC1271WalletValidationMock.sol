@@ -6,6 +6,10 @@ import "../utils/LibBytes.sol";
 // Constructor of this LibEIP712 takes domain hash of mock ERC-1155
 contract LibEIP712 {
 
+  /***********************************|
+  |             Variables             |
+  |__________________________________*/
+
   // keccak256(
   //   "EIP712Domain(address verifyingContract)"
   // );
@@ -23,6 +27,11 @@ contract LibEIP712 {
   {
     EIP712_DOMAIN_HASH = domain_hash_1155;
   }
+
+
+  /***********************************|
+  |              EIP-712              |
+  |__________________________________*/
 
   /**
    * @dev Calculates EIP712 encoding for a hash struct in this EIP712 Domain.
@@ -49,6 +58,10 @@ contract LibEIP712 {
 contract ERC1271WalletValidationMock is LibEIP712 {
   using LibBytes for bytes;
 
+  /***********************************|
+  |             Variables             |
+  |__________________________________*/
+
   bytes4 constant public ERC1271_MAGIC_VAL = 0x20c13b0b;
   bytes4 constant public ERC1271_MAGICVALUE_BYTES32 = 0x1626ba7e;
   bytes4 constant public ERC1271_INVALID = 0xdeadbeef;
@@ -60,10 +73,20 @@ contract ERC1271WalletValidationMock is LibEIP712 {
   // );
   bytes32 internal constant META_TX_TYPEHASH = 0xda41aee141786e5a994acb21bcafccf68ed6e07786cb44008c785a06f2819038;
 
+
+  /***********************************|
+  |            Constructor            |
+  |__________________________________*/
+
   // Set rejection to true by default
   constructor (bytes32 domain_hash_1155) public LibEIP712(domain_hash_1155) {
     owner = msg.sender;
   }
+
+
+  /***********************************|
+  |        Signature Validation       |
+  |__________________________________*/
 
   /**
    * @dev Should return whether the signature provided is valid for the provided data

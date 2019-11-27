@@ -8,11 +8,9 @@ import "../../interfaces/IERC1155.sol";
  *      Methods also assume that URI uses hex representation of token IDs.
  */
 contract ERC1155Metadata {
-
   // URI's default URI prefix
   string internal baseMetadataURI;
   event URI(string _uri, uint256 indexed _id);
-
 
   /***********************************|
   |     Metadata Public Function s    |
@@ -92,5 +90,4 @@ contract ERC1155Metadata {
     // Convert to string
     return string(bstr);
   }
-
 }

@@ -18,7 +18,6 @@ pragma solidity ^0.5.13;
 library LibBytes {
   using LibBytes for bytes;
 
-
   /***********************************|
   |        Pop Bytes Functions        |
   |__________________________________*/
@@ -82,5 +81,4 @@ library LibBytes {
     }
     return result;
   }
-
 }

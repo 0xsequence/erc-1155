@@ -14,7 +14,6 @@ contract ERC1155 is IERC165 {
   using SafeMath for uint256;
   using Address for address;
 
-
   /***********************************|
   |        Variables and Events       |
   |__________________________________*/
@@ -255,5 +254,4 @@ contract ERC1155 is IERC165 {
     }
     return false;
   }
-
 }

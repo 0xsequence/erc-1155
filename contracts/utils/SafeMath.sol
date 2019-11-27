@@ -64,5 +64,4 @@ library SafeMath {
     require(b != 0, "SafeMath#mod: DIVISION_BY_ZERO");
     return a % b;
   }
-
 }

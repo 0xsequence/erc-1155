@@ -8,9 +8,9 @@ import "../tokens/ERC1155/ERC1155Metadata.sol";
 
 contract ERC1155MetaMintBurnMock is ERC1155Meta, ERC1155MintBurn, ERC1155Metadata {
 
-  constructor() public { }
-
-  // ---- Minting functions
+  /***********************************|
+  |         Minting Functions         |
+  |__________________________________*/
 
   /**
    * @dev Mint _value of tokens of a given id
@@ -38,7 +38,10 @@ contract ERC1155MetaMintBurnMock is ERC1155Meta, ERC1155MintBurn, ERC1155Metadat
     super._batchMint(_to, _ids, _values, _data);
   }
 
-  // ---- Burning functions
+
+  /***********************************|
+  |         Burning Functions         |
+  |__________________________________*/
 
   /**
    * @dev burn _value of tokens of a given token id
@@ -48,7 +51,7 @@ contract ERC1155MetaMintBurnMock is ERC1155Meta, ERC1155MintBurn, ERC1155Metadat
    */
   function burnMock(address _from, uint256 _id, uint256 _value)
     public
-  { 
+  {
     super._burn(_from, _id, _value);
   }
 

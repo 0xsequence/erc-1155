@@ -8,7 +8,7 @@ pragma solidity ^0.5.13;
  */
 contract Ownable {
   address private owner;
-  
+
   event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
   /**
@@ -44,5 +44,4 @@ contract Ownable {
   function getOwner() public view returns (address) {
     return owner;
   }
-
 }

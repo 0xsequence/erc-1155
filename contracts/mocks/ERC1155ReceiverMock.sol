@@ -1,10 +1,15 @@
 pragma solidity ^0.5.13;
 
-import '../interfaces/IERC1155.sol';
+import "../interfaces/IERC1155.sol";
 
 
 // Contract to test safe transfer behavior.
 contract ERC1155ReceiverMock {
+
+  /***********************************|
+  |        Variables and Events       |
+  |__________________________________*/
+
   bytes4 constant internal ERC1155_RECEIVED_SIG = 0xf23a6e61;
   bytes4 constant internal ERC1155_BATCH_RECEIVED_SIG = 0xbc197c81;
   bytes4 constant internal ERC1155_RECEIVED_INVALID = 0xdeadbeef;
@@ -22,9 +27,10 @@ contract ERC1155ReceiverMock {
   event TransferSingleReceiver(address _from, address _to, uint256 _fromBalance, uint256 _toBalance);
   event TransferBatchReceiver(address _from, address _to, uint256[] _fromBalances, uint256[] _toBalances);
 
-  function setShouldReject(bool _value) public {
-    shouldReject = _value;
-  }
+
+  /***********************************|
+  |         OnReceive Functions       |
+  |__________________________________*/
 
   /**
    * @notice Handle the receipt of a single ERC1155 token type.
@@ -92,6 +98,11 @@ contract ERC1155ReceiverMock {
     }
   }
 
+
+  /***********************************|
+  |          ERC165 Functions         |
+  |__________________________________*/
+
   /**
    * @notice Indicates whether a contract implements the `ERC1155TokenReceiver` functions and so can accept ERC1155 token types.
    * @param  interfaceID The ERC-165 interface ID that is queried for support.s
@@ -101,7 +112,10 @@ contract ERC1155ReceiverMock {
    */
   function supportsInterface(bytes4 interfaceID) external view returns (bool) {
     return  interfaceID == 0x01ffc9a7 || // ERC-165 support (i.e. `bytes4(keccak256('supportsInterface(bytes4)'))`).
-      interfaceID == 0x4e2312e0;         // ERC-1155 `ERC1155TokenReceiver` support (i.e. `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)")) ^ bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`).
+      interfaceID == 0x4e2312e0;         // ERC-1155 `ERC1155TokenReceiver` support
   }
 
+  function setShouldReject(bool _value) public {
+    shouldReject = _value;
+  }
 }

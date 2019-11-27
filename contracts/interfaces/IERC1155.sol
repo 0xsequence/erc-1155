@@ -101,5 +101,4 @@ interface IERC1155 {
    * @return           True if the operator is approved, false if not
    */
   function isApprovedForAll(address _owner, address _operator) external view returns (bool isOperator);
-
 }

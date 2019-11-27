@@ -137,5 +137,4 @@ contract ERC1155OperatorMock {
   {
     IERC1155Meta(_tokenAddress).metaSetApprovalForAll(_owner, _operator, _approved, _isGasFee, _data);
   }
-
 }

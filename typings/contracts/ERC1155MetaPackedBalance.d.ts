@@ -113,6 +113,10 @@ interface ERC1155MetaPackedBalanceInterface extends Interface {
       ]): string[];
     }>;
 
+    NonceChange: TypedEventDescription<{
+      encodeTopics([signer, newNonce]: [string | null, null]): string[];
+    }>;
+
     TransferBatch: TypedEventDescription<{
       encodeTopics([_operator, _from, _to, _ids, _amounts]: [
         string | null,
@@ -339,6 +343,8 @@ export class ERC1155MetaPackedBalance extends Contract {
       _operator: string | null,
       _approved: null
     ): EventFilter;
+
+    NonceChange(signer: string | null, newNonce: null): EventFilter;
 
     TransferBatch(
       _operator: string | null,

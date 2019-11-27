@@ -148,7 +148,7 @@ function metaSafeBatchTransferFrom(address _from, address _to, uint256[] calldat
 
 For how the data must be encoded in the `_data` byte arrays, see the [Meta-Transaction for Asset Transfers](meta--transaction-for-asset-transfers) section. 
 
-For what constitutes a valid signature, see [???](???).
+For what constitutes a valid signature, see [Signature Types](#signature-types).
 
 ---
 
@@ -270,7 +270,7 @@ Since each of these balance values are limited to IDS_BITS_SIZE bits per token I
 
 ## Relevant Methods
 
-Most important methods that handle the balance packing logic can be found in the [ERC1155PackedBalance.sol](???) contract.
+Most important methods that handle the balance packing logic can be found in the [ERC1155PackedBalance.sol](https://github.com/arcadeum/multi-token-standard/blob/master/contracts/tokens/ERC1155PackedBalance/ERC1155PackedBalance.sol) contract.
 
 ### *getIDBinIndex(uint256 _id)*
 
@@ -308,7 +308,7 @@ This method will directly update the corresponding storage slot where `_id` is r
 
 ### _safeBatchTransferFrom(...) and _batchMint(...)
 
-These method in the [ERC1155PackedBalance](???)  and [ERC1155MintBurnPackedBalance.sol](???) contracts (respectively) take advantage of the packed balances by trying to only read and write once per storage slot when transferring or minting multiple assets. To achieve this, the methods assume the `_ids` provided as argument are sorted in such a way that ids in the same storage slots are consecutive. 
+These method in the [ERC1155PackedBalance](https://github.com/arcadeum/multi-token-standard/blob/master/contracts/tokens/ERC1155PackedBalance/ERC1155PackedBalance.sol)  and [ERC1155MintBurnPackedBalance.sol](https://github.com/arcadeum/multi-token-standard/blob/master/contracts/tokens/ERC1155PackedBalance/ERC1155MintBurnPackedBalance.sol) contracts (respectively) take advantage of the packed balances by trying to only read and write once per storage slot when transferring or minting multiple assets. To achieve this, the methods assume the `_ids` provided as argument are sorted in such a way that ids in the same storage slots are consecutive. 
 
 ```solidity
 for (uint256 i = 1; i < nTransfer; i++) {
@@ -335,7 +335,7 @@ for (uint256 i = 1; i < nTransfer; i++) {
 
 # Meta-transactions
 
-The three meta-transactions methods in these ERC-1155 implementations ([metaSafeTransferFrom()](???), [metaSafeBatchTransferFrom()](???) & [metaSetApprovalForAll()](???)) follow a similar structure. These three methods share two meta-transaction relevant arguments, `_isGasFee` and `_data`.
+The three meta-transactions methods in these ERC-1155 implementations ([metaSafeTransferFrom()](#metasafetransferfrom()-meta-transaction-hash), [metaSafeBatchTransferFrom()](#metasafebatchtransferfrom()-meta-transaction-hash) & [metaSetApprovalForAll()](#metasetapprovalforall()-meta-transaction-hash)) follow a similar structure. These three methods share two meta-transaction relevant arguments, `_isGasFee` and `_data`.
 
 `_isGasFee` : *Boolean* specifying whether gas is reimbursed by user to operator (address executing the transaction), in which case a [Gas Receipt](#gas-receipt) struct must be provided in the `_data` argument.
 
@@ -352,11 +352,12 @@ For the `metaSafeTransferFrom(_from, _to, _id, _amount, _isGasFee, _data)` and `
 | 0x00   | 32     | r                                 |
 | 0x20   | 32     | s                                 |
 | 0x40   | 1      | v (always 27 or 28)               |
-| 0x41   | 1      | [SignatureType](#signature-types) |
+| 0x41   | 32     | [nonce](#nonce)                   |
+| 0x61   | 1      | [SignatureType](#signature-types) |
 
 and where `GasReceiptAndTansferData = abi.encode(?GasReceipt, tansferData)` if `_isGasFee` is `true`, else `GasReceiptAndTansferData` is simply `tansferData`.  `tansferData` is a byte array that will be passed to the recipient contract, if any.
 
-### metaSafeTransferFrom() Meta-Transaction Hash
+#### metaSafeTransferFrom() Meta-Transaction Hash
 
 The hash of a meta `safeTransferFrom()` transaction is hashed according to the [EIP712 specification](#https://github.com/ethereum/EIPs/pull/712/files). See the [EIP712 Usage](#eip712-usage) section for information on how to calculate the required domain separator for hashing a `metaSafeTransferFrom()` meta-transaction.
 
@@ -381,7 +382,7 @@ bytes32 metaSafeTransferFromHash = keccak256(abi.encodePacked(
 ));
 ```
 
-### metaSafeBatchTransferFrom() Meta-Transaction Hash
+#### metaSafeBatchTransferFrom() Meta-Transaction Hash
 
 The hash of a meta `batchSafeTransferFrom()` transaction is hashed according to the [EIP712 specification](#https://github.com/ethereum/EIPs/pull/712/files). See the [EIP712 Usage](#eip712-usage) section for information on how to calculate the required domain separator for hashing a `metaSafeBatchTransferFrom()` meta-transaction.
 
@@ -410,16 +411,17 @@ bytes32 metaSafeBatchTransferFromHash = keccak256(abi.encodePacked(
 
 For the `metaSetApprovalForAll(_owner, _operator, _approved, _isGasFee, _data)` method the `_data` provided must be encoded as `abi.encode(Signature, ?GasReceipt)` where `Signature` is tightly encoded as:
 
-| Offset | Length | Contents            |
-| ------ | ------ | ------------------- |
-| 0x00   | 32     | r                   |
-| 0x20   | 32     | s                   |
-| 0x40   | 1      | v (always 27 or 28) |
-| 0x41   | 1      | SignatureType       |
+| Offset | Length | Contents                          |
+| ------ | ------ | --------------------------------- |
+| 0x00   | 32     | r                                 |
+| 0x20   | 32     | s                                 |
+| 0x40   | 1      | v (always 27 or 28)               |
+| 0x41   | 32     | [nonce](#nonce)                   |
+| 0x61   | 1      | [SignatureType](#signature-types) |
 
 and where `GasReceipt` is passed if `_isGasFee` is `true`.
 
-### metaSetApprovalForAll() Meta-Transaction Hash
+#### metaSetApprovalForAll() Meta-Transaction Hash
 
 The hash of a meta `setApprovalForAll()` transaction is hashed according to the [EIP712 specification](#https://github.com/ethereum/EIPs/pull/712/files). See the [EIP712 Usage](#eip712-usage) section for information on how to calculate the required domain separator for hashing a `metaSetApprovalForAll()` meta-transaction.
 
@@ -443,7 +445,7 @@ bytes32 metaSetApprovalForAllHash = keccak256(abi.encodePacked(
 ));
 ```
 
-# Gas Reimbursement
+## Gas Reimbursement
 
 Meta-transaction operators can charge a fee to the signer of the meta-transaction in exchange of paying for the gas in ETH. All three [meta-transaction methods](#meta-transactions) have an`_isGasFee` argument, which indicates whether a [Gas Receipt](#gas-receipt) is expected to be encoded in the `_data` argument. This receipts will determine what the fee will be and in which asset it must be paid. 
 
@@ -505,27 +507,27 @@ The `feeTokenData` should be structured as followed when the token used for gas 
 
 Any `FeeTokenType` other than these two MUST revert if used in a transaction. 
 
-# Signature Types
+## Signature Types
 
 All signatures submitted to the ERC-1155 contract are represented as a byte array of arbitrary length, where the last byte (the "signature byte") specifies the signatures type. The signature type is popped from the signature byte array before validation. The following signature types are supported:
 
-| Signature byte | Signature type       |
-| -------------- | -------------------- |
-| 0x00           | [Illegal](???)       |
-| 0x01           | [EIP712](???)        |
-| 0x02           | [EthSign](???)       |
-| 0x03           | [WalletBytes](???)   |
-| 0x04           | [WalletBytes32](???) |
+| Signature byte | Signature type                  |
+| -------------- | ------------------------------- |
+| 0x00           | [Illegal](#illegal)             |
+| 0x01           | [EIP712](#eip712)               |
+| 0x02           | [EthSign](#ethsign)             |
+| 0x03           | [WalletBytes](#walletbytes)     |
+| 0x04           | [WalletBytes32](#walletbytes32) |
 
 The data being signed is always encoded and hashed according to [EIP-712](<https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md>). The only notable exception is for when the signature type is [WalletBytes](#walletbytes), as described in the corresponding section.
 
-### Illegal
+#### Illegal
 
 This is the default value of the signature byte. A transaction that includes an Illegal signature will be reverted. Therefore, users must explicitly specify a valid signature type.
 
-### EIP712
+#### EIP712
 
-An `EIP712` signature is considered valid if the address recovered from calling [`ecrecover`](???) with the given hash and decoded `v`, `r`, `s` values is the same as the specified signer. In this case, the signature is encoded in the following way:
+An `EIP712` signature is considered valid if the address recovered from calling [`ecrecover`](#ecrecover-usage) with the given hash and decoded `v`, `r`, `s` values is the same as the specified signer. In this case, the signature is encoded in the following way:
 
 | Offset | Length | Contents            |
 | ------ | ------ | ------------------- |
@@ -533,7 +535,7 @@ An `EIP712` signature is considered valid if the address recovered from calling 
 | 0x20   | 32     | s                   |
 | 0x40   | 1      | v (always 27 or 28) |
 
-### EthSign
+#### EthSign
 
 An `EthSign` signature is considered valid if the address recovered from calling [`ecrecover`](https://github.com/0xProject/0x-protocol-specification/blob/master/v2/v2-specification.md#ecrecover-usage) with the an EthSign-prefixed hash and decoded `v`, `r`, `s` values is the same as the specified signer.
 
@@ -544,9 +546,9 @@ string constant ETH_PERSONAL_MESSAGE = "\x19Ethereum Signed Message:\n32";
 bytes32 msgHash = keccak256(abi.encodePacked(ETH_PERSONAL_MESSAGE, hash));
 ```
 
-`v`, `r`, and `s` are encoded in the signature byte array using the same scheme as [EIP712 signatures](???).
+`v`, `r`, and `s` are encoded in the signature byte array using the same scheme as [EIP712 signatures](#eip712-usage).
 
-### WalletBytes
+#### WalletBytes
 
 The `WalletBytes` signature type allows a contract to interact with the ERC-1155 token contract on behalf of any other address(es) by defining its own signature validation function. When used with meta-transaction signing, the `Wallet` contract *is* the signer of the meta-transaction. When using this signature type, the token contract makes a `STATICCALL` to the `Wallet`contract's `isValidSignature` method, which means that signature verification will fail and revert if the `Wallet` attempts to update state. This contract should have the following interface:
 
@@ -570,7 +572,7 @@ The `data` passed to the `Wallet` signer is the encoded data according to EIP-71
 bytes4 ERC1271_MAGICVALUE = bytes4(keccak256("isValidSignature(bytes,bytes)"));
 ```
 
-### WalletBytes32
+#### WalletBytes32
 
 The `WalletBytes32` signature type allows a contract to trade on behalf of any other address(es) by defining its own signature validation function. When used with order signing, the `Wallet` contract *is* the signer of the meta-transaction. When using this signature type, the token contract makes a `STATICCALL` to the `Wallet`contract's `isValidSignature` method, which means that signature verification will fail and revert if the `Wallet` attempts to update state. This contract should have the following interface:
 
@@ -593,6 +595,24 @@ A `Wallet` contract's `isValidSignature(bytes32,bytes)` method must return the f
 ```solidity
 bytes4 ERC1271_MAGICVALUE_BYTES32 = bytes4(keccak256("isValidSignature(bytes32,bytes)"));
 ```
+
+## Nonce
+
+Meta-transactions nonces are used to protect users against replay attacks, where the same signed message could be used multiple times. The ERC-1155 contract keeps track of the next available nonce for each signer    and will reject signed messages with nonces that are smaller than it. In addition, the next nonce accepted can be within a 100 value range with respect to the next available nonce.
+
+```solidity
+// Get current nonce and nonce used for signature
+uint256 currentNonce = nonces[_signer];        // Lowest valid nonce for signer
+uint256 nonce = uint256(sig.readBytes32(65));  // Nonce passed in the signature object
+
+// Verify if nonce is valid
+require(
+  (nonce >= currentNonce) && (nonce < (currentNonce + 100)),
+  "ERC1155Meta#_signatureValidation: INVALID_NONCE"
+);
+```
+
+Upon a valid meta-transaction, the next available nonce (referred to as `currentNonce` in the contracts) is stored as `nonce +1`.
 
 # Events
 

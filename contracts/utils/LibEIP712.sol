@@ -15,6 +15,10 @@ pragma solidity ^0.5.13;
 
 contract LibEIP712 {
 
+  /***********************************|
+  |             Constants             |
+  |__________________________________*/
+
   // keccak256(
   //   "EIP712Domain(address verifyingContract)"
   // );
@@ -26,12 +30,21 @@ contract LibEIP712 {
   // Domain seperator created in constructor
   bytes32 internal EIP712_DOMAIN_HASH;
 
+
+  /***********************************|
+  |            Constructor            |
+  |__________________________________*/
+
   // Instantiate EIP712_DOMAIN_HASH
-  constructor ()
-    public
+  constructor () public
   {
     EIP712_DOMAIN_HASH = keccak256(abi.encodePacked(DOMAIN_SEPARATOR_TYPEHASH, uint256(address(this))));
   }
+
+
+  /***********************************|
+  |          Hashing Function         |
+  |__________________________________*/
 
   /**
    * @dev Calculates EIP712 encoding for a hash struct in this EIP712 Domain.

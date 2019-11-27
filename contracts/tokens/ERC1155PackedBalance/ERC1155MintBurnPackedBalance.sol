@@ -9,7 +9,6 @@ import "./ERC1155PackedBalance.sol";
  */
 contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
 
-
   /****************************************|
   |            Minting Functions           |
   |_______________________________________*/
@@ -131,6 +130,5 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
     // Emit batch mint event
     emit TransferBatch(msg.sender, _from, address(0x0), _ids, _amounts);
   }
-
 }
 

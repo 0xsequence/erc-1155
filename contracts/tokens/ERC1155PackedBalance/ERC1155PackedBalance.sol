@@ -18,7 +18,6 @@ contract ERC1155PackedBalance is IERC165 {
   using SafeMath for uint256;
   using Address for address;
 
-
   /***********************************|
   |        Variables and Events       |
   |__________________________________*/
@@ -45,6 +44,7 @@ contract ERC1155PackedBalance is IERC165 {
   event TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _amounts);
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
   event URI(string _uri, uint256 indexed _id);
+
 
   /***********************************|
   |     Public Transfer Functions     |
@@ -392,5 +392,4 @@ contract ERC1155PackedBalance is IERC165 {
     }
     return false;
   }
-
 }

@@ -856,6 +856,28 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
                 // operator arg should be equal to msg.sender, not tx.origin
                 expect(args._operator).to.be.eql(operatorContract.address)
               })
+
+              it('should emit NonceChange event', async () => {
+                const receipt = await tx.wait(1)
+                const ev = receipt.events![0]
+                expect(ev.event).to.be.eql('NonceChange')
+              })
+
+              it('should have `_signer` as `signer` in NonceChange', async () => {
+                const receipt = await tx.wait(1)
+                const ev = receipt.events![0]
+
+                const args = ev.args! as any
+                expect(args.signer).to.be.eql(ownerWallet.address)
+              })
+
+              it('should have `nonce` as `nonce + 1` in NonceChange', async () => {
+                const receipt = await tx.wait(1)
+                const ev = receipt.events![0]
+
+                const args = ev.args! as any
+                expect(args.newNonce).to.be.eql(nonce.add(1))
+              })
             })
           })
         })
@@ -1379,7 +1401,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
         
               it('should emit 1 TransferBatch events of N transfers', async () => {
                 const receipt = await tx.wait(1)
-                const ev = receipt.events![0]
+                const ev = receipt.events![1]
                 expect(ev.event).to.be.eql('TransferBatch')
         
                 const args = ev.args! as any
@@ -1419,6 +1441,28 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
         
                 // operator arg should be equal to msg.sender, not tx.origin
                 expect(args._operator).to.be.eql(operatorContract.address)
+              })
+
+              it('should emit NonceChange event', async () => {
+                const receipt = await tx.wait(1)
+                const ev = receipt.events![0]
+                expect(ev.event).to.be.eql('NonceChange')
+              })
+
+              it('should have `_signer` as `signer` in NonceChange', async () => {
+                const receipt = await tx.wait(1)
+                const ev = receipt.events![0]
+
+                const args = ev.args! as any
+                expect(args.signer).to.be.eql(ownerWallet.address)
+              })
+
+              it('should have `nonce` as `nonce + 1` in NonceChange', async () => {
+                const receipt = await tx.wait(1)
+                const ev = receipt.events![0]
+
+                const args = ev.args! as any
+                expect(args.newNonce).to.be.eql(nonce.add(1))
               })
             })
           })
@@ -1635,7 +1679,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
           let tx = await operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
           const receipt = await tx.wait(1)
 
-          expect(receipt.events![0].event).to.be.eql('ApprovalForAll')
+          expect(receipt.events![1].event).to.be.eql('ApprovalForAll')
         })
 
         it('should set the operator status to _status argument', async () => {
@@ -1645,6 +1689,32 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
 
           const status = await erc1155Contract.functions.isApprovedForAll(ownerAddress, operatorAddress)
           expect(status).to.be.eql(true)
+        })
+
+        it('should emit NonceChange event', async () => {
+          let tx = await operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
+          const receipt = await tx.wait(1)
+          const ev = receipt.events![0]
+          expect(ev.event).to.be.eql('NonceChange')
+        })
+
+        it('should have `_signer` as `signer` in NonceChange', async () => {
+          let tx = await operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
+
+          const receipt = await tx.wait(1)
+          const ev = receipt.events![0]
+
+          const args = ev.args! as any
+          expect(args.signer).to.be.eql(ownerWallet.address)
+        })
+
+        it('should have `nonce` as `nonce + 1` in NonceChange', async () => {
+          let tx = await operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
+          const receipt = await tx.wait(1)
+          const ev = receipt.events![0]
+
+          const args = ev.args! as any
+          expect(args.newNonce).to.be.eql(nonce.add(1))
         })
 
         context('When the operator was already an operator', () => {

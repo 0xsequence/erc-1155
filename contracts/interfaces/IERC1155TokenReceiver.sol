@@ -43,5 +43,4 @@ interface IERC1155TokenReceiver {
    * @return Whether ERC-165 or ERC1155TokenReceiver interfaces are supported.
    */
   function supportsInterface(bytes4 interfaceID) external view returns (bool);
-
 }

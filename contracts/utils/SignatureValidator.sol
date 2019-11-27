@@ -16,7 +16,6 @@ contract SignatureValidator is LibEIP712 {
   |             Variables             |
   |__________________________________*/
 
-
   // bytes4(keccak256("isValidSignature(bytes,bytes)"))
   bytes4 constant internal ERC1271_MAGICVALUE = 0x20c13b0b;
 
@@ -147,5 +146,4 @@ contract SignatureValidator is LibEIP712 {
     // signature was invalid.)
     revert("SignatureValidator#isValidSignature: UNSUPPORTED_SIGNATURE");
   }
-
 }

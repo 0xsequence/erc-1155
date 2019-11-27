@@ -48,6 +48,5 @@ interface IERC1155MintBurn {
    * @param _amounts  Array of the amount to be burned
    */
   function batchBurn(address _from, uint256[] calldata _ids, uint256[] calldata _amounts) external;
-
 }
 
