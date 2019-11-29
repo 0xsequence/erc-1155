@@ -65,8 +65,6 @@ This contract handles metadata related methods, which are not mandatory with res
 
 This contract is an extension of the previous contract, [ERC1155](#erc1155). This contract implements minting and burning related methods, which are not mandated by the ERC-1155 standard. The minting and burning methods are `internal` and a parent contract must invoke them. This design choice was made to let developers  set their own authentication gates. The ERC1155MintBurnPackedBalance.sol contract uses a packed balance approach. 
 
-
-
 # Contract Interactions
 
 All methods should be free of arithmetic overflows and underflows.
@@ -509,7 +507,7 @@ Any `FeeTokenType` other than these two MUST revert if used in a transaction.
 
 ## Signature Types
 
-All signatures submitted to the ERC-1155 contract are represented as a byte array of arbitrary length, where the last byte (the "signature byte") specifies the signatures type. The signature type is popped from the signature byte array before validation. The following signature types are supported:
+All signatures submitted to the ERC-1155 contract are represented as a byte array of arbitrary length, where the last byte (the "signature byte") specifies the signatures type. The signature type is popped from the signature byte array before validation. The signature types tentatively follows [ERC-2126](https://github.com/ethereum/EIPs/blob/202d578acb76bb4b8d0f46630eff4965ca61c092/EIPS/eip-2126.md) as it's not finalized yet. The following signature types are supported:
 
 | Signature byte | Signature type                  |
 | -------------- | ------------------------------- |
@@ -550,7 +548,7 @@ bytes32 msgHash = keccak256(abi.encodePacked(ETH_PERSONAL_MESSAGE, hash));
 
 #### WalletBytes
 
-The `WalletBytes` signature type allows a contract to interact with the ERC-1155 token contract on behalf of any other address(es) by defining its own signature validation function. When used with meta-transaction signing, the `Wallet` contract *is* the signer of the meta-transaction. When using this signature type, the token contract makes a `STATICCALL` to the `Wallet`contract's `isValidSignature` method, which means that signature verification will fail and revert if the `Wallet` attempts to update state. This contract should have the following interface:
+The `WalletBytes` signature type allows a contract to interact with the ERC-1155 token contract on behalf of any other address(es) by defining its own signature validation function. This method should follow [ERC-1271](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1271.md). When used with meta-transaction signing, the `Wallet` contract *is* the signer of the meta-transaction. When using this signature type, the token contract makes a `STATICCALL` to the `Wallet`contract's `isValidSignature` method, which means that signature verification will fail and revert if the `Wallet` attempts to update state. This contract should have the following interface:
 
 ```solidity
 contract IWallet {
@@ -558,7 +556,8 @@ contract IWallet {
    * @notice Verifies that a signature is valid.
    * @param data      Data that was hashed and signed
    * @param signature Proof of signing.
-   */ @return Validity of signature for provided data.
+   * @return Validity of signature for provided data.
+   */ 
   function isValidSignature(
     bytes calldata data,
     bytes calldata signature
@@ -566,7 +565,7 @@ contract IWallet {
 }
 ```
 
-The `data` passed to the `Wallet` signer is the encoded data according to EIP-712, expect that the ***byte arrays are not hashed***. For that matter, the recipient contract is expected to know how the received data is structured, which is facilitated by the fact that the first 32 bytes of the byte array received is the `typeHash` (see [EIP-712#rationale-for-typehash](<https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md#rationale-for-typehash>)). This signature type distinguishes itself from the `WalletBytes32` as it permits the signer `Wallet` to verify the data itself that was signed. A `Wallet` contract's `isValidSignature(bytes,bytes)` method must return the following magic value if successful:
+The `data` passed to the `Wallet` signer is the encoded data according to EIP-712, expect that the ***byte arrays are not hashed***. For that matter, the recipient contract is expected to know how the received data is structured, which is facilitated by the fact that the first 32 bytes of the byte array received is the `typeHash` (see [EIP-712](<https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md#rationale-for-typehash>)). This signature type distinguishes itself from the `WalletBytes32` as it permits the signer `Wallet` to verify the data itself that was signed. A `Wallet` contract's `isValidSignature(bytes,bytes)` method must return the following magic value if successful:
 
 ```solidity
 bytes4 ERC1271_MAGICVALUE = bytes4(keccak256("isValidSignature(bytes,bytes)"));
@@ -574,7 +573,7 @@ bytes4 ERC1271_MAGICVALUE = bytes4(keccak256("isValidSignature(bytes,bytes)"));
 
 #### WalletBytes32
 
-The `WalletBytes32` signature type allows a contract to trade on behalf of any other address(es) by defining its own signature validation function. When used with order signing, the `Wallet` contract *is* the signer of the meta-transaction. When using this signature type, the token contract makes a `STATICCALL` to the `Wallet`contract's `isValidSignature` method, which means that signature verification will fail and revert if the `Wallet` attempts to update state. This contract should have the following interface:
+The `WalletBytes32` signature type allows a contract to trade on behalf of any other address(es) by defining its own signature validation function. This method should follow [ERC-1654](https://github.com/ethereum/EIPs/issues/1654). When used with order signing, the `Wallet` contract *is* the signer of the meta-transaction. When using this signature type, the token contract makes a `STATICCALL` to the `Wallet`contract's `isValidSignature` method, which means that signature verification will fail and revert if the `Wallet` attempts to update state. This contract should have the following interface:
 
 ```solidity
 contract IWallet {
@@ -582,7 +581,8 @@ contract IWallet {
    * @notice Verifies that a signature is valid.
    * @param hash      Hash that was signed
    * @param signature Proof of signing.
-   */ @return Validity of signature for provided data.
+   * @return Validity of signature for provided data.
+   */ 
   function isValidSignature(
     bytes32 hash,
     bytes calldata signature
