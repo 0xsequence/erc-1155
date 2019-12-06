@@ -612,7 +612,13 @@ require(
 );
 ```
 
-Upon a valid meta-transaction, the next available nonce (referred to as `currentNonce` in the contracts) is stored as `nonce +1`.
+Upon a valid meta-transaction, the next available nonce (referred to as `currentNonce` in the contracts) is stored as `nonce +1`. Every time a nonce is modified, the following event will be emitted ; 
+
+```solidity
+event NonceChange(address indexed signer, uint256 newNonce);
+```
+
+
 
 # Events
 
