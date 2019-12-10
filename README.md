@@ -15,7 +15,7 @@ Run `npm install multi-token-standard` or `yarn add multi-token-standard`
 To write your custom contracts, import ours and extend them through inheritance.
 
 ```solidity
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.14;
 
 import 'multi-token-standard/contracts/tokens/ERC1155/ERC1155.sol';
 
