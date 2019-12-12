@@ -530,6 +530,48 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
       })
     })
 
+    describe('self-transfers', async () => {
+      let selfID = 918273123
+      let selfAmount = new BigNumber(1000);
+      let tx;
+
+      beforeEach(async () => {
+        await erc1155Contract.functions.mintMock(ownerAddress, selfID, selfAmount, [])
+        tx = await erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, ownerAddress, [selfID, selfID], [0, selfAmount], [])
+      })
+
+      it('should not inflate supply when transfering to self', async () => {
+        const balance = await erc1155Contract.functions.balanceOf(ownerAddress, selfID);
+        expect(balance).to.be.eql(selfAmount)
+      })
+
+      it('should REVERT if insufficient funds', async () => {
+        let tx1 = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, ownerAddress, [selfID, selfID], [0, selfAmount.add(1)], [])
+        await expect(tx1).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_safeBatchTransferFrom: UNDERFLOW") )
+
+        let tx2 = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, ownerAddress, [selfID, selfID + 1], [selfAmount, 1], [])
+        await expect(tx2).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_safeBatchTransferFrom: UNDERFLOW") )
+      })
+
+      it('should emit 1 TransferBatch events of N transfers', async () => {
+        const receipt = await tx.wait(1)
+        const ev = receipt.events!.pop()!
+        expect(ev.event).to.be.eql('TransferBatch')
+
+        const args = ev.args! as any
+        expect(args._ids.length).to.be.eql(2)
+      })
+
+      it('should emit 1 TransferBatch events of N transfers of same ID', async () => {
+        const receipt = await tx.wait(1)
+        const ev = receipt.events!.pop()!
+        expect(ev.event).to.be.eql('TransferBatch')
+
+        const args = ev.args! as any
+        expect(args._ids.length).to.be.eql(2)
+      })
+
+    })
   })
 
 

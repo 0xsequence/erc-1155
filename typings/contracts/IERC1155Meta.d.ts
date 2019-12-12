@@ -45,7 +45,11 @@ interface IERC1155MetaInterface extends Interface {
     }>;
   };
 
-  events: {};
+  events: {
+    NonceChange: TypedEventDescription<{
+      encodeTopics([signer, newNonce]: [string | null, null]): string[];
+    }>;
+  };
 }
 
 export class IERC1155Meta extends Contract {
@@ -124,7 +128,9 @@ export class IERC1155Meta extends Contract {
     overrides?: TransactionOverrides
   ): Promise<ContractTransaction>;
 
-  filters: {};
+  filters: {
+    NonceChange(signer: string | null, newNonce: null): EventFilter;
+  };
 
   estimate: {
     metaSafeTransferFrom(

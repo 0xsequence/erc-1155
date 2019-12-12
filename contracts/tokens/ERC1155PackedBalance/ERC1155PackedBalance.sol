@@ -1,4 +1,4 @@
-pragma solidity ^0.5.13;
+pragma solidity ^0.5.14;
 
 import "../../utils/SafeMath.sol";
 import "../../interfaces/IERC1155TokenReceiver.sol";
@@ -137,47 +137,53 @@ contract ERC1155PackedBalance is IERC165 {
   function _safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts)
     internal
   {
-    require(_ids.length == _amounts.length, "ERC1155PackedBalance#_safeBatchTransferFrom: INVALID_ARRAYS_LENGTH");
+    uint256 nTransfer = _ids.length; // Number of transfer to execute
+    require(nTransfer == _amounts.length, "ERC1155PackedBalance#_safeBatchTransferFrom: INVALID_ARRAYS_LENGTH");
 
-    // Load first bin and index where the token ID balance exists
-    (uint256 bin, uint256 index) = getIDBinIndex(_ids[0]);
+    if (_from != _to) {
+      // Load first bin and index where the token ID balance exists
+      (uint256 bin, uint256 index) = getIDBinIndex(_ids[0]);
 
-    // Balance for current bin in memory (initialized with first transfer)
-    uint256 balFrom = _viewUpdateBinValue(balances[_from][bin], index, _amounts[0], Operations.Sub);
-    uint256 balTo = _viewUpdateBinValue(balances[_to][bin], index, _amounts[0], Operations.Add);
+      // Balance for current bin in memory (initialized with first transfer)
+      uint256 balFrom = _viewUpdateBinValue(balances[_from][bin], index, _amounts[0], Operations.Sub);
+      uint256 balTo = _viewUpdateBinValue(balances[_to][bin], index, _amounts[0], Operations.Add);
 
-    // Number of transfer to execute
-    uint256 nTransfer = _ids.length;
+      // Last bin updated
+      uint256 lastBin = bin;
 
-    // Last bin updated
-    uint256 lastBin = bin;
+      for (uint256 i = 1; i < nTransfer; i++) {
+        (bin, index) = getIDBinIndex(_ids[i]);
 
-    for (uint256 i = 1; i < nTransfer; i++) {
-      (bin, index) = getIDBinIndex(_ids[i]);
+        // If new bin
+        if (bin != lastBin) {
+          // Update storage balance of previous bin
+          balances[_from][lastBin] = balFrom;
+          balances[_to][lastBin] = balTo;
 
-      // If new bin
-      if (bin != lastBin) {
-        // Update storage balance of previous bin
-        balances[_from][lastBin] = balFrom;
-        balances[_to][lastBin] = balTo;
+          balFrom = balances[_from][bin];
+          balTo = balances[_to][bin];
 
-        balFrom = balances[_from][bin];
-        balTo = balances[_to][bin];
+          // Bin will be the most recent bin
+          lastBin = bin;
+        }
 
-        // Bin will be the most recent bin
-        lastBin = bin;
+        // Update memory balance
+        balFrom = _viewUpdateBinValue(balFrom, index, _amounts[i], Operations.Sub);
+        balTo = _viewUpdateBinValue(balTo, index, _amounts[i], Operations.Add);
       }
 
-      // Update memory balance
-      balFrom = _viewUpdateBinValue(balFrom, index, _amounts[i], Operations.Sub);
-      balTo = _viewUpdateBinValue(balTo, index, _amounts[i], Operations.Add);
+      // Update storage of the last bin visited
+      balances[_from][bin] = balFrom;
+      balances[_to][bin] = balTo;
+
+    // If transfer to self, just make sure all amounts are valid
+    } else {
+      for (uint256 i = 1; i < nTransfer; i++) {
+        require(balanceOf(_from, _ids[i]) >= _amounts[i], "ERC1155PackedBalance#_safeBatchTransferFrom: UNDERFLOW");
+      }
     }
 
-    // Update storage of the last bin visited
-    balances[_from][bin] = balFrom;
-    balances[_to][bin] = balTo;
-
-    // //Emit event
+    //Emit event
     emit TransferBatch(msg.sender, _from, _to, _ids, _amounts);
   }
 
