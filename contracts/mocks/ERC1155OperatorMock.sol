@@ -1,4 +1,4 @@
-pragma solidity ^0.5.14;
+pragma solidity ^0.5.16;
 
 import "../interfaces/IERC1155.sol";
 import "../interfaces/IERC1155Meta.sol";

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.14;
+pragma solidity ^0.5.16;
 
 import "../../utils/SafeMath.sol";
 import "../../interfaces/IERC1155TokenReceiver.sol";
@@ -254,24 +254,36 @@ contract ERC1155PackedBalance is IERC165 {
 
   /**
    * @notice Get the balance of multiple account/token pairs
-   * @param _owners The addresses of the token holders
-   * @param _ids    ID of the Tokens
+   * @param _owners The addresses of the token holders (sorted owners will lead to less gas usage)
+   * @param _ids    ID of the Tokens (sorted ids will lead to less gas usage
    * @return The _owner's balance of the Token types requested (i.e. balance for each (owner, id) pair)
     */
   function balanceOfBatch(address[] memory _owners, uint256[] memory _ids)
     public view returns (uint256[] memory)
   {
-    require(_owners.length == _ids.length, "ERC1155PackedBalance#balanceOfBatch: INVALID_ARRAY_LENGTH");
+    uint256 n_owners = _owners.length;
+    require(n_owners == _ids.length, "ERC1155PackedBalance#balanceOfBatch: INVALID_ARRAY_LENGTH");
 
-    // Variables
-    uint256[] memory batchBalances = new uint256[](_owners.length);
-    uint256 bin;
-    uint256 index;
+    // First values
+    (uint256 bin, uint256 index) = getIDBinIndex(_ids[0]);
+    uint256 balance_bin = balances[_owners[0]][bin];
+    uint256 last_bin = bin;
+
+    // Initialization
+    uint256[] memory batchBalances = new uint256[](n_owners);
+    batchBalances[0] = getValueInBin(balance_bin, index);
 
     // Iterate over each owner and token ID
-    for (uint256 i = 0; i < _owners.length; i++) {
+    for (uint256 i = 1; i < n_owners; i++) {
       (bin, index) = getIDBinIndex(_ids[i]);
-      batchBalances[i] = getValueInBin(balances[_owners[i]][bin], index);
+
+      // SSTORE if user changed or if bin changed for the same user
+      if (bin != last_bin || _owners[i-1] != _owners[i]) {
+        balance_bin = balances[_owners[i]][bin];
+        last_bin = bin;
+      }
+
+      batchBalances[i] = getValueInBin(balance_bin, index);
     }
 
     return batchBalances;

@@ -429,7 +429,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, erc1155Contract.address, id, amount, isGasReceipt, data,
               {gasLimit: 2000000}
             )
-            await expect(tx).to.be.rejectedWith(RevertError()) 
+            await expect(tx).to.be.rejectedWith(RevertError("ERC1155MetaMintBurnMock: INVALID_METHOD")) 
           })
 
           it('should REVERT if invalid response from receiver contract', async () => {
@@ -679,7 +679,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
               const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
-              await expect(tx).to.be.rejectedWith(RevertError())
+              await expect(tx).to.be.rejectedWith(RevertError("SafeMath#sub: UNDERFLOW"))
             })
 
             it("should REVERT if approved ERC20 balance is insufficient", async () => {
@@ -707,7 +707,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
               const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
-              await expect(tx).to.be.rejectedWith(RevertError())
+              await expect(tx).to.be.rejectedWith(RevertError("SafeMath#sub: UNDERFLOW"))
             })
 
             it("should REVERT if FeeTokenType is not supported", async () => {
@@ -1214,7 +1214,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
             // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, erc1155Contract.address, ids, amounts, isGasReceipt, data)
-            await expect(tx).to.be.rejectedWith(RevertError());
+            await expect(tx).to.be.rejectedWith(RevertError("ERC1155MetaMintBurnMock: INVALID_METHOD"));
           })
 
           it('should REVERT if invalid response from receiver contract', async () => {

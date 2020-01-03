@@ -18,10 +18,11 @@ module.exports = {
   },
   solc: {
     optimizer: {
-      enabled: true, // TO TURN ON for launch
-      runs: 500,
+      enabled: true,
+      runs: 100000,
       details: {
-        yul: true
+        yul: true,
+        constantOptimizer: false
       }
     }
   },

@@ -179,7 +179,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
 
     it('should REVERT when sending to non-receiver contract', async () => {
       const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, erc1155Contract.address, 0, 1, [])
-      await expect(tx).to.be.rejectedWith(RevertError());
+      await expect(tx).to.be.rejectedWith(RevertError("ERC1155MetaMintBurnPackedBalanceMock: INVALID_METHOD"));
     })
 
     it('should REVERT if invalid response from receiver contract', async () => {
@@ -399,7 +399,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, erc1155Contract.address, types, values, [],
         {gasLimit: 2000000}
       )
-      await expect(tx).to.be.rejectedWith(RevertError());
+      await expect(tx).to.be.rejectedWith(RevertError("ERC1155MetaMintBurnPackedBalanceMock: INVALID_METHOD"));
     })
 
     it('should REVERT if invalid response from receiver contract', async () => {
