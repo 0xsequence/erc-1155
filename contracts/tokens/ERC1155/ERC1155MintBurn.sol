@@ -29,7 +29,7 @@ contract ERC1155MintBurn is ERC1155 {
     emit TransferSingle(msg.sender, address(0x0), _to, _id, _amount);
 
     // Calling onReceive method if recipient is contract
-    _callonERC1155Received(address(0x0), _to, _id, _amount, _data);
+    _callonERC1155Received(address(0x0), _to, _id, _amount, gasleft(), _data);
   }
 
   /**
@@ -57,7 +57,7 @@ contract ERC1155MintBurn is ERC1155 {
     emit TransferBatch(msg.sender, address(0x0), _to, _ids, _amounts);
 
     // Calling onReceive method if recipient is contract
-    _callonERC1155BatchReceived(address(0x0), _to, _ids, _amounts, _data);
+    _callonERC1155BatchReceived(address(0x0), _to, _ids, _amounts, gasleft(), _data);
   }
 
 

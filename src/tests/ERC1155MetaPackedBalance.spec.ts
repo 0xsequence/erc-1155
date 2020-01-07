@@ -411,11 +411,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
             await receiverContract.functions.setShouldReject(true)
 
             const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data)
-            if (gasReceipt){
-              await expect(tx).to.be.rejectedWith( RevertError("ERC1155MetaPackedBalance#metaSafeTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
-            } else {
-              await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE") )
-            }
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE") )
           })
 
           it('should PASS if valid response from receiver contract', async () => {
@@ -1205,11 +1201,7 @@ contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, isGasReceipt, data,
               {gasLimit: 2000000}
             )
-            if (gasReceipt){
-              await expect(tx).to.be.rejectedWith( RevertError("ERC1155MetaPackedBalance#metaSafeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE") )
-            } else {
-              await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE") )
-            }
+            await expect(tx).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE") )
           })
 
           it('should PASS if valid response from receiver contract', async () => {

@@ -67,7 +67,7 @@ contract ERC1155PackedBalance is IERC165 {
     // require(_amount <= balances);  Not necessary since checked with _viewUpdateBinValue() checks
 
     _safeTransferFrom(_from, _to, _id, _amount);
-    _callonERC1155Received(_from, _to, _id, _amount, _data);
+    _callonERC1155Received(_from, _to, _id, _amount, gasleft(), _data);
   }
 
   /**
@@ -87,7 +87,7 @@ contract ERC1155PackedBalance is IERC165 {
     require(_to != address(0),"ERC1155PackedBalance#safeBatchTransferFrom: INVALID_RECIPIENT");
 
     _safeBatchTransferFrom(_from, _to, _ids, _amounts);
-    _callonERC1155BatchReceived(_from, _to, _ids, _amounts, _data);
+    _callonERC1155BatchReceived(_from, _to, _ids, _amounts, gasleft(), _data);
   }
 
 
@@ -116,12 +116,12 @@ contract ERC1155PackedBalance is IERC165 {
   /**
    * @notice Verifies if receiver is contract and if so, calls (_to).onERC1155Received(...)
    */
-  function _callonERC1155Received(address _from, address _to, uint256 _id, uint256 _amount, bytes memory _data)
+  function _callonERC1155Received(address _from, address _to, uint256 _id, uint256 _amount, uint256 _gasLimit, bytes memory _data)
     internal
   {
     // Check if recipient is contract
     if (_to.isContract()) {
-      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _amount, _data);
+      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received.gas(_gasLimit)(msg.sender, _from, _id, _amount, _data);
       require(retval == ERC1155_RECEIVED_VALUE, "ERC1155PackedBalance#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE");
     }
   }
@@ -190,12 +190,12 @@ contract ERC1155PackedBalance is IERC165 {
   /**
    * @notice Verifies if receiver is contract and if so, calls (_to).onERC1155BatchReceived(...)
    */
-  function _callonERC1155BatchReceived(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts, bytes memory _data)
+  function _callonERC1155BatchReceived(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts, uint256 _gasLimit, bytes memory _data)
     internal
   {
     // Pass data if recipient is contract
     if (_to.isContract()) {
-      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender, _from, _ids, _amounts, _data);
+      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155BatchReceived.gas(_gasLimit)(msg.sender, _from, _ids, _amounts, _data);
       require(retval == ERC1155_BATCH_RECEIVED_VALUE, "ERC1155PackedBalance#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE");
     }
   }
