@@ -98,7 +98,8 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
         uint256(_from),  // Address as uint256
         uint256(_to),    // Address as uint256
         _id,
-        _amount
+        _amount,
+        _isGasFee ? uint256(1) : uint256(0)  // Boolean as uint256
       )
     );
 
@@ -164,7 +165,8 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
         uint256(_from), // Address as uint256
         uint256(_to),   // Address as uint256
         keccak256(abi.encodePacked(_ids)),
-        keccak256(abi.encodePacked(_amounts))
+        keccak256(abi.encodePacked(_amounts)),
+        _isGasFee ? uint256(1) : uint256(0)  // Boolean as uint256
       )
     );
 
@@ -229,9 +231,10 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
       _data,
       abi.encodePacked(
         META_APPROVAL_TYPEHASH,
-        uint256(_owner),                    // Address as uint256
-        uint256(_operator),                 // Address as uint256
-        _approved ? uint256(1) : uint256(0) // Boolean as uint256
+        uint256(_owner),                     // Address as uint256
+        uint256(_operator),                  // Address as uint256
+        _approved ? uint256(1) : uint256(0), // Boolean as uint256
+        _isGasFee ? uint256(1) : uint256(0)  // Boolean as uint256
       )
     );
 
@@ -254,19 +257,19 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
   |_______________________________________*/
 
   // keccak256(
-  //   "metaSafeTransferFrom(address _from,address _to,uint256 _id,uint256 _amount,uint256 nonce,bytes signedData)"
+  //   "metaSafeTransferFrom(address _from,address _to,uint256 _id,uint256 _amount,bool _isGasFee,uint256 nonce,bytes signedData)"
   // );
-  bytes32 internal constant META_TX_TYPEHASH = 0xda41aee141786e5a994acb21bcafccf68ed6e07786cb44008c785a06f2819038;
+  bytes32 internal constant META_TX_TYPEHASH = 0xf678ecb30875110e5052a3c6179517684467cd85443a870b802c49d7f710d491;
 
   // keccak256(
-  //   "metaSafeBatchTransferFrom(address _from,address _to,uint256[] _ids,uint256[] _amounts,uint256 nonce,bytes signedData)"
+  //   "metaSafeBatchTransferFrom(address _from,address _to,uint256[] _ids,uint256[] _amounts,bool _isGasFee,uint256 nonce,bytes signedData)"
   // );
-  bytes32 internal constant META_BATCH_TX_TYPEHASH = 0xa358be8ef28a8eef7877f5d78ce30ff1cada344474e3d550ee9f4be9151f84f7;
+  bytes32 internal constant META_BATCH_TX_TYPEHASH = 0xc16a630afa16698a74d3922e4157e3ebbe498bfdc98e029b146a8089041ddee3;
 
   // keccak256(
-  //   "metaSetApprovalForAll(address _owner,address _operator,bool _approved,uint256 nonce,bytes signedData)"
+  //   "metaSetApprovalForAll(address _owner,address _operator,bool _approved,bool _isGasFee,uint256 nonce,bytes signedData)"
   // );
-  bytes32 internal constant META_APPROVAL_TYPEHASH = 0xd72d507eb90d918a375b250ea7bfc291be59526e94e2baa2fe3b35daa72a0b15;
+  bytes32 internal constant META_APPROVAL_TYPEHASH = 0x27ce16352cca54a5cf7c9be9b32944721596f7cafd7c29da2694fefc1d5a01c1;
 
   /**
    * @notice Verifies signatures for this contract
