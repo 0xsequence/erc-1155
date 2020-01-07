@@ -3,7 +3,6 @@ pragma solidity ^0.5.16;
 import "../../interfaces/IERC165.sol";
 import "../../utils/SafeMath.sol";
 import "../../interfaces/IERC1155TokenReceiver.sol";
-import "../../interfaces/IERC1155.sol";
 import "../../utils/Address.sol";
 
 
@@ -52,7 +51,7 @@ contract ERC1155 is IERC165 {
   {
     require((msg.sender == _from) || isApprovedForAll(_from, msg.sender), "ERC1155#safeTransferFrom: INVALID_OPERATOR");
     require(_to != address(0),"ERC1155#safeTransferFrom: INVALID_RECIPIENT");
-    // require(_amount >= balances[_from][_id]) is not necessary since checked with safemath operations
+    // require(_amount <= balances[_from][_id]) is not necessary since checked with safemath operations
 
     _safeTransferFrom(_from, _to, _id, _amount);
     _callonERC1155Received(_from, _to, _id, _amount, gasleft(), _data);
