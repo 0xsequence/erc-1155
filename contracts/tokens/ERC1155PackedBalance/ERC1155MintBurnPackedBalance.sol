@@ -65,11 +65,12 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
         // Update storage balance of previous bin
         balances[_to][lastBin] = balTo;
         balTo = balances[_to][bin];
+
         // Bin will be the most recent bin
         lastBin = bin;
       }
 
-    //   // Update memory balance
+      // Update memory balance
       balTo = _viewUpdateBinValue(balTo, index, _amounts[i], Operations.Add);
     }
 
@@ -103,7 +104,6 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
     // Emit event
     emit TransferSingle(msg.sender, _from, address(0x0), _id, _amount);
   }
-
 
    // USE EFFICIENT BURN IF POSSIBLE
 

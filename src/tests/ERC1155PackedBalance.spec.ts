@@ -64,7 +64,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
 
     it('getValueInBin should return expected balance for given types', async () => {
       let expected = new BigNumber(2).pow(32).sub(2) // 2**32-2
-      let balance = await erc1155Contract.functions.getValueInBin(LARGEVAL.toString(), 7)
+      let balance = await erc1155Contract.functions.getValueInBin(LARGEVAL.toString(), 0)
       expect(balance).to.be.eql(expected)
     })
 
@@ -303,10 +303,8 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
         })
 
       })
-
     })
   })
-
 
   describe('safeBatchTransferFrom() function', () => {
 
@@ -382,7 +380,6 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
 
     it('should update balances of sender and receiver', async () => {
       await erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, types, values, [])
-
       let balanceFrom: ethers.utils.BigNumber
       let balanceTo: ethers.utils.BigNumber
 

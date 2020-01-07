@@ -328,16 +328,24 @@ contract ERC1155PackedBalance is IERC165 {
   function _viewUpdateBinValue(uint256 _binValues, uint256 _index, uint256 _amount, Operations _operation)
     internal pure returns (uint256 newBinValues)
   {
-    uint256 shift = 256 - IDS_BITS_SIZE * (_index + 1);
+    uint256 shift = IDS_BITS_SIZE * _index;
     uint256 mask = (uint256(1) << IDS_BITS_SIZE) - 1;
 
     if (_operation == Operations.Add) {
-      require(((_binValues >> shift) & mask) + _amount < 2**IDS_BITS_SIZE, "ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW");
       newBinValues = _binValues + (_amount << shift);
+      require(newBinValues >= _binValues, "ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW");
+      require(
+        ((_binValues >> shift) & mask) + _amount < 2**IDS_BITS_SIZE, // Checks that no other id changed
+        "ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW"
+      );
 
     } else if (_operation == Operations.Sub) {
-      require(((_binValues >> shift) & mask) >= _amount, "ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW");
       newBinValues = _binValues - (_amount << shift);
+      require(newBinValues <= _binValues, "ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW");
+      require(
+        ((_binValues >> shift) & mask) >= _amount, // Checks that no other id changed
+        "ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW"
+      );
 
     } else {
       revert("ERC1155PackedBalance#_viewUpdateBinValue: INVALID_BIN_WRITE_OPERATION"); // Bad operation
@@ -358,6 +366,7 @@ contract ERC1155PackedBalance is IERC165 {
     index = _id % IDS_PER_UINT256;
     return (bin, index);
   }
+  
 
   /**
    * @notice Return amount in _binValues at position _index
@@ -374,7 +383,7 @@ contract ERC1155PackedBalance is IERC165 {
     uint256 mask = (uint256(1) << IDS_BITS_SIZE) - 1;
 
     // Shift amount
-    uint256 rightShift = 256 - IDS_BITS_SIZE * (_index + 1);
+    uint256 rightShift = IDS_BITS_SIZE * _index;
     return (_binValues >> rightShift) & mask;
   }
 
