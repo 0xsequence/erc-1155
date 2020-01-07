@@ -366,7 +366,6 @@ contract ERC1155PackedBalance is IERC165 {
     index = _id % IDS_PER_UINT256;
     return (bin, index);
   }
-  
 
   /**
    * @notice Return amount in _binValues at position _index
@@ -402,10 +401,11 @@ contract ERC1155PackedBalance is IERC165 {
    *   bytes4(keccak256("safeTransferFrom(address,address,uint256,uint256,bytes)")) ^
    *   bytes4(keccak256("safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)")) ^
    *   bytes4(keccak256("balanceOf(address,uint256)")) ^
+   *   bytes4(keccak256("balanceOfBatch(address[],uint256[])")) ^
    *   bytes4(keccak256("setApprovalForAll(address,bool)")) ^
    *   bytes4(keccak256("isApprovedForAll(address,address)"));
    */
-  bytes4 constant private INTERFACE_SIGNATURE_ERC1155 = 0x97a409d2;
+  bytes4 constant private INTERFACE_SIGNATURE_ERC1155 = 0xd9b67a26;
 
   /**
    * @notice Query if a contract implements an interface

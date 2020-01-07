@@ -614,25 +614,18 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
 
   })
 
-
   describe('Supports ERC165', () => {
-
     describe('supportsInterface()', () => {
-
       it('should return true for 0x01ffc9a7', async () => {
         const support = await erc1155Contract.functions.supportsInterface('0x01ffc9a7')
         expect(support).to.be.eql(true)
       })
 
-      it('should return true for 0x97a409d2', async () => {
-        // TODO: this fails for some reason.. which interface is this checking?
-        // review & double check
-
-        // const support = await erc1155Contract.functions.supportsInterface('0x97a409d2')
-        // expect(support).to.be.eql(true)
+      it('should return true for 0xd9b67a26', async () => {
+        const support = await erc1155Contract.functions.supportsInterface('0xd9b67a26')
+        expect(support).to.be.eql(true)
       })
     })
-
   })
 
 })
