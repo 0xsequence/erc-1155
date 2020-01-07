@@ -95,18 +95,20 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
       _data,
       abi.encode(
         META_TX_TYPEHASH,
-        _from,  // Address as uint256
-        _to,    // Address as uint256
+        _from, // Address as uint256
+        _to,   // Address as uint256
         _id,
         _amount,
         _isGasFee ? uint256(1) : uint256(0)  // Boolean as uint256
       )
     );
 
+    // Transfer asset
+    _safeTransferFrom(_from, _to, _id, _amount);
+
     // If Gas is being reimbursed
     if (_isGasFee) {
       (gasReceipt, transferData) = abi.decode(signedData, (GasReceipt, bytes));
-      _safeTransferFrom(_from, _to, _id, _amount);
 
       // Check if recipient is contract
       if (_to.isContract()) {
@@ -122,7 +124,6 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
       _transferGasFee(_from, startGas, gasReceipt);
 
     } else {
-      _safeTransferFrom(_from, _to, _id, _amount);
       _callonERC1155Received(_from, _to, _id, _amount, signedData);
     }
   }
@@ -166,16 +167,18 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
         _to,   // Address as uint256
         keccak256(abi.encodePacked(_ids)),
         keccak256(abi.encodePacked(_amounts)),
-        _isGasFee ? uint256(1) : uint256(0) // Boolean as uint256
+        _isGasFee ? uint256(1) : uint256(0)  // Boolean as uint256
       )
     );
+
+    // Transfer assets
+    _safeBatchTransferFrom(_from, _to, _ids, _amounts);
 
     // If gas fee being reimbursed
     if (_isGasFee) {
       (gasReceipt, transferData) = abi.decode(signedData, (GasReceipt, bytes));
 
       // Update balances
-      _safeBatchTransferFrom(_from, _to, _ids, _amounts);
 
             // Check if recipient is contract
       if (_to.isContract()) {
@@ -191,7 +194,6 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
       _transferGasFee(_from, startGas, gasReceipt);
 
     } else {
-      _safeBatchTransferFrom(_from, _to, _ids, _amounts);
       _callonERC1155BatchReceived(_from, _to, _ids, _amounts, signedData);
     }
   }
@@ -280,7 +282,8 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
    *   (bytes32 r, bytes32 s, uint8 v, uint256 nonce, SignatureType sigType),
    *   (GasReceipt g, ?bytes transferData)
    * )
-   *   i.e. high level encoding svhould be (bytes, bytes), where the latter bytes array is a nested bytes array
+   *   i.e. high level encoding should be (bytes, bytes), where the latter bytes array is a nested bytes array
+   * @dev A valid nonce is a nonce that is within 100 value from the current nonce
    */
   function _signatureValidation(
     address _signer,
