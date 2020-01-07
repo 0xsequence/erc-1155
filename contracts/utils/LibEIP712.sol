@@ -32,17 +32,6 @@ contract LibEIP712 {
 
 
   /***********************************|
-  |            Constructor            |
-  |__________________________________*/
-
-  // Instantiate EIP712_DOMAIN_HASH
-  constructor () public
-  {
-    EIP712_DOMAIN_HASH = keccak256(abi.encodePacked(DOMAIN_SEPARATOR_TYPEHASH, uint256(address(this))));
-  }
-
-
-  /***********************************|
   |          Hashing Function         |
   |__________________________________*/
 
@@ -59,7 +48,12 @@ contract LibEIP712 {
     return keccak256(
       abi.encodePacked(
         EIP191_HEADER,
-        EIP712_DOMAIN_HASH,
+        keccak256(
+          abi.encodePacked(
+            DOMAIN_SEPARATOR_TYPEHASH,
+            uint256(address(this))
+          )
+        ),
         hashStruct
     ));
   }
