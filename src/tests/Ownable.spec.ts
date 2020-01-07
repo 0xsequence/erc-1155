@@ -34,10 +34,10 @@ contract('Ownable Contract', (accounts: string[]) => {
     userOwnableMockContract = await ownerOwnableMockContract.connect(userWallet) as OwnableMock 
   })
 
-  describe('getOwner() Function', () => {
+  describe('owner() Function', () => {
 
     it('should return current owner', async () => {
-      const orginalOwner = await ownerOwnableMockContract.functions.getOwner()
+      const orginalOwner = await ownerOwnableMockContract.functions.owner()
       expect(orginalOwner).to.be.equal(ownerWallet.address)
     })
 
@@ -84,9 +84,9 @@ contract('Ownable Contract', (accounts: string[]) => {
     })
 
     it('should update owner when it passes', async () => {
-      const oldOwner = await ownerOwnableMockContract.functions.getOwner()
+      const oldOwner = await ownerOwnableMockContract.functions.owner()
       await ownerOwnableMockContract.functions.transferOwnership(userWallet.address)
-      const newOwner = await ownerOwnableMockContract.functions.getOwner()
+      const newOwner = await ownerOwnableMockContract.functions.owner()
 
       expect(oldOwner).to.be.equal(ownerWallet.address)
       expect(newOwner).to.be.equal(userWallet.address)
