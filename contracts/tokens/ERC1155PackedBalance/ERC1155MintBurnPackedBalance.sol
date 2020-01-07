@@ -45,37 +45,39 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
   {
     require(_ids.length == _amounts.length, "ERC1155MintBurnPackedBalance#_batchMint: INVALID_ARRAYS_LENGTH");
 
-    // Load first bin and index where the token ID balance exists
-    (uint256 bin, uint256 index) = getIDBinIndex(_ids[0]);
+    if (_ids.length > 0) {
+      // Load first bin and index where the token ID balance exists
+      (uint256 bin, uint256 index) = getIDBinIndex(_ids[0]);
 
-    // Balance for current bin in memory (initialized with first transfer)
-    uint256 balTo = _viewUpdateBinValue(balances[_to][bin], index, _amounts[0], Operations.Add);
+      // Balance for current bin in memory (initialized with first transfer)
+      uint256 balTo = _viewUpdateBinValue(balances[_to][bin], index, _amounts[0], Operations.Add);
 
-    // Number of transfer to execute
-    uint256 nTransfer = _ids.length;
+      // Number of transfer to execute
+      uint256 nTransfer = _ids.length;
 
-    // Last bin updated
-    uint256 lastBin = bin;
+      // Last bin updated
+      uint256 lastBin = bin;
 
-    for (uint256 i = 1; i < nTransfer; i++) {
-      (bin, index) = getIDBinIndex(_ids[i]);
+      for (uint256 i = 1; i < nTransfer; i++) {
+        (bin, index) = getIDBinIndex(_ids[i]);
 
-      // If new bin
-      if (bin != lastBin) {
-        // Update storage balance of previous bin
-        balances[_to][lastBin] = balTo;
-        balTo = balances[_to][bin];
+        // If new bin
+        if (bin != lastBin) {
+          // Update storage balance of previous bin
+          balances[_to][lastBin] = balTo;
+          balTo = balances[_to][bin];
 
-        // Bin will be the most recent bin
-        lastBin = bin;
+          // Bin will be the most recent bin
+          lastBin = bin;
+        }
+
+        // Update memory balance
+        balTo = _viewUpdateBinValue(balTo, index, _amounts[i], Operations.Add);
       }
 
-      // Update memory balance
-      balTo = _viewUpdateBinValue(balTo, index, _amounts[i], Operations.Add);
+      // Update storage of the last bin visited
+      balances[_to][bin] = balTo;
     }
-
-    // Update storage of the last bin visited
-    balances[_to][bin] = balTo;
 
     // //Emit event
     emit TransferBatch(msg.sender, address(0x0), _to, _ids, _amounts);
@@ -98,14 +100,12 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
   function _burn(address _from, uint256 _id, uint256 _amount)
     internal
   {
-    //Substract _amount
+    // Substract _amount
     _updateIDBalance(_from, _id, _amount, Operations.Sub);
 
     // Emit event
     emit TransferSingle(msg.sender, _from, address(0x0), _id, _amount);
   }
-
-   // USE EFFICIENT BURN IF POSSIBLE
 
   /**
    * @notice Burn tokens of given token id for each (_ids[i], _amounts[i]) pair
@@ -116,12 +116,11 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
   function _batchBurn(address _from, uint256[] memory _ids, uint256[] memory _amounts)
     internal
   {
-    require(_ids.length == _amounts.length, "ERC1155MintBurnPackedBalance#batchBurn: INVALID_ARRAYS_LENGTH");
-
     // Number of mints to execute
     uint256 nBurn = _ids.length;
+    require(nBurn == _amounts.length, "ERC1155MintBurnPackedBalance#batchBurn: INVALID_ARRAYS_LENGTH");
 
-     // Executing all minting
+    // Executing all minting
     for (uint256 i = 0; i < nBurn; i++) {
       // Update storage balance
       _updateIDBalance(_from,   _ids[i], _amounts[i], Operations.Sub); // Add amount to recipient

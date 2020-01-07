@@ -313,6 +313,11 @@ contract('ERC1155', (accounts: string[]) => {
       await expect(tx).to.be.fulfilled
     })
 
+    it('should PASS if arrays are empty', async () => {
+      const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [], [], [])
+      await expect(tx).to.be.fulfilled
+    })
+
     it('should REVERT if insufficient balance', async () => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [0], [11], [])
       await expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") )

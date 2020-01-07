@@ -140,7 +140,7 @@ contract ERC1155PackedBalance is IERC165 {
     uint256 nTransfer = _ids.length; // Number of transfer to execute
     require(nTransfer == _amounts.length, "ERC1155PackedBalance#_safeBatchTransferFrom: INVALID_ARRAYS_LENGTH");
 
-    if (_from != _to) {
+    if (_from != _to && nTransfer > 0) {
       // Load first bin and index where the token ID balance exists
       (uint256 bin, uint256 index) = getIDBinIndex(_ids[0]);
 
