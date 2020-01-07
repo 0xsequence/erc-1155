@@ -93,10 +93,10 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
     bytes memory signedData = _signatureValidation(
       _from,
       _data,
-      abi.encodePacked(
+      abi.encode(
         META_TX_TYPEHASH,
-        uint256(_from),  // Address as uint256
-        uint256(_to),    // Address as uint256
+        _from,  // Address as uint256
+        _to,    // Address as uint256
         _id,
         _amount,
         _isGasFee ? uint256(1) : uint256(0)  // Boolean as uint256
@@ -160,13 +160,13 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
     bytes memory signedData = _signatureValidation(
       _from,
       _data,
-      abi.encodePacked(
+      abi.encode(
         META_BATCH_TX_TYPEHASH,
-        uint256(_from), // Address as uint256
-        uint256(_to),   // Address as uint256
+        _from, // Address as uint256
+        _to,   // Address as uint256
         keccak256(abi.encodePacked(_ids)),
         keccak256(abi.encodePacked(_amounts)),
-        _isGasFee ? uint256(1) : uint256(0)  // Boolean as uint256
+        _isGasFee ? uint256(1) : uint256(0) // Boolean as uint256
       )
     );
 
@@ -229,10 +229,10 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
     bytes memory signedData = _signatureValidation(
       _owner,
       _data,
-      abi.encodePacked(
+      abi.encode(
         META_APPROVAL_TYPEHASH,
-        uint256(_owner),                     // Address as uint256
-        uint256(_operator),                  // Address as uint256
+        _owner,                              // Address as uint256
+        _operator,                           // Address as uint256
         _approved ? uint256(1) : uint256(0), // Boolean as uint256
         _isGasFee ? uint256(1) : uint256(0)  // Boolean as uint256
       )

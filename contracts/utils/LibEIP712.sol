@@ -49,9 +49,9 @@ contract LibEIP712 {
       abi.encodePacked(
         EIP191_HEADER,
         keccak256(
-          abi.encodePacked(
+          abi.encode(
             DOMAIN_SEPARATOR_TYPEHASH,
-            uint256(address(this))
+            address(this)
           )
         ),
         hashStruct
