@@ -362,7 +362,7 @@ contract ERC1155PackedBalance is IERC165 {
   function getIDBinIndex(uint256 _id)
     public pure returns (uint256 bin, uint256 index)
   {
-    bin = _id * IDS_BITS_SIZE / 256;
+    bin = _id / IDS_PER_UINT256;
     index = _id % IDS_PER_UINT256;
     return (bin, index);
   }
