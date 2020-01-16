@@ -27,10 +27,6 @@ contract LibEIP712 {
   // EIP-191 Header
   string constant internal EIP191_HEADER = "\x19\x01";
 
-  // Domain seperator created in constructor
-  bytes32 internal EIP712_DOMAIN_HASH;
-
-
   /***********************************|
   |          Hashing Function         |
   |__________________________________*/
