@@ -3,13 +3,14 @@ pragma solidity ^0.5.16;
 import "../../interfaces/IERC165.sol";
 import "../../utils/SafeMath.sol";
 import "../../interfaces/IERC1155TokenReceiver.sol";
+import "../../interfaces/IERC1155.sol";
 import "../../utils/Address.sol";
 
 
 /**
  * @dev Implementation of Multi-Token Standard contract
  */
-contract ERC1155 is IERC165 {
+contract ERC1155 is IERC165, IERC1155 {
   using SafeMath for uint256;
   using Address for address;
 
@@ -26,12 +27,6 @@ contract ERC1155 is IERC165 {
 
   // Operator Functions
   mapping (address => mapping(address => bool)) internal operators;
-
-  // Events
-  event TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _amount);
-  event TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _amounts);
-  event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
-  event URI(string _uri, uint256 indexed _id);
 
 
   /***********************************|
