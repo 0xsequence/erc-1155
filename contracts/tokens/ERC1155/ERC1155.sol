@@ -1,4 +1,4 @@
-pragma solidity ^0.5.13;
+pragma solidity ^0.5.16;
 
 import "../../interfaces/IERC165.sol";
 import "../../utils/SafeMath.sol";
@@ -10,7 +10,7 @@ import "../../utils/Address.sol";
 /**
  * @dev Implementation of Multi-Token Standard contract
  */
-contract ERC1155 is IERC165 {
+contract ERC1155 is IERC165, IERC1155 {
   using SafeMath for uint256;
   using Address for address;
 
@@ -27,12 +27,6 @@ contract ERC1155 is IERC165 {
 
   // Operator Functions
   mapping (address => mapping(address => bool)) internal operators;
-
-  // Events
-  event TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _amount);
-  event TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _amounts);
-  event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
-  event URI(string _uri, uint256 indexed _id);
 
 
   /***********************************|
@@ -52,10 +46,10 @@ contract ERC1155 is IERC165 {
   {
     require((msg.sender == _from) || isApprovedForAll(_from, msg.sender), "ERC1155#safeTransferFrom: INVALID_OPERATOR");
     require(_to != address(0),"ERC1155#safeTransferFrom: INVALID_RECIPIENT");
-    // require(_amount >= balances[_from][_id]) is not necessary since checked with safemath operations
+    // require(_amount <= balances[_from][_id]) is not necessary since checked with safemath operations
 
     _safeTransferFrom(_from, _to, _id, _amount);
-    _callonERC1155Received(_from, _to, _id, _amount, _data);
+    _callonERC1155Received(_from, _to, _id, _amount, gasleft(), _data);
   }
 
   /**
@@ -74,7 +68,7 @@ contract ERC1155 is IERC165 {
     require(_to != address(0), "ERC1155#safeBatchTransferFrom: INVALID_RECIPIENT");
 
     _safeBatchTransferFrom(_from, _to, _ids, _amounts);
-    _callonERC1155BatchReceived(_from, _to, _ids, _amounts, _data);
+    _callonERC1155BatchReceived(_from, _to, _ids, _amounts, gasleft(), _data);
   }
 
 
@@ -103,12 +97,12 @@ contract ERC1155 is IERC165 {
   /**
    * @notice Verifies if receiver is contract and if so, calls (_to).onERC1155Received(...)
    */
-  function _callonERC1155Received(address _from, address _to, uint256 _id, uint256 _amount, bytes memory _data)
+  function _callonERC1155Received(address _from, address _to, uint256 _id, uint256 _amount, uint256 _gasLimit, bytes memory _data)
     internal
   {
     // Check if recipient is contract
     if (_to.isContract()) {
-      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received(msg.sender, _from, _id, _amount, _data);
+      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received.gas(_gasLimit)(msg.sender, _from, _id, _amount, _data);
       require(retval == ERC1155_RECEIVED_VALUE, "ERC1155#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE");
     }
   }
@@ -142,12 +136,12 @@ contract ERC1155 is IERC165 {
   /**
    * @notice Verifies if receiver is contract and if so, calls (_to).onERC1155BatchReceived(...)
    */
-  function _callonERC1155BatchReceived(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts, bytes memory _data)
+  function _callonERC1155BatchReceived(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts, uint256 _gasLimit, bytes memory _data)
     internal
   {
     // Pass data if recipient is contract
     if (_to.isContract()) {
-      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender, _from, _ids, _amounts, _data);
+      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155BatchReceived.gas(_gasLimit)(msg.sender, _from, _ids, _amounts, _data);
       require(retval == ERC1155_BATCH_RECEIVED_VALUE, "ERC1155#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE");
     }
   }

@@ -12,7 +12,7 @@ import {
 
 interface OwnableMockInterface extends Interface {
   functions: {
-    getOwner: TypedFunctionDescription<{ encode([]: []): string }>;
+    owner: TypedFunctionDescription<{ encode([]: []): string }>;
 
     transferOwnership: TypedFunctionDescription<{
       encode([_newOwner]: [string]): string;
@@ -47,7 +47,7 @@ export class OwnableMock extends Contract {
   interface: OwnableMockInterface;
 
   functions: {
-    getOwner(): Promise<string>;
+    owner(): Promise<string>;
 
     transferOwnership(
       _newOwner: string,
@@ -61,7 +61,7 @@ export class OwnableMock extends Contract {
     ): Promise<ContractTransaction>;
   };
 
-  getOwner(): Promise<string>;
+  owner(): Promise<string>;
 
   transferOwnership(
     _newOwner: string,
@@ -80,7 +80,7 @@ export class OwnableMock extends Contract {
   };
 
   estimate: {
-    getOwner(): Promise<BigNumber>;
+    owner(): Promise<BigNumber>;
 
     transferOwnership(_newOwner: string): Promise<BigNumber>;
 

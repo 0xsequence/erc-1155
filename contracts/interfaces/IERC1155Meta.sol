@@ -1,4 +1,4 @@
-pragma solidity ^0.5.13;
+pragma solidity ^0.5.16;
 
 interface IERC1155Meta {
 

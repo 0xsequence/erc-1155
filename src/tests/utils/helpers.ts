@@ -27,7 +27,7 @@ export const createTestWallet = (web3: any, addressIndex: number = 0) => {
 // Check if tx was Reverted with specified message
 export function RevertError(errorMessage?: string) {
   let prefix = 'VM Exception while processing transaction: revert'
-  return errorMessage ? prefix + ' ' + errorMessage : prefix
+  return errorMessage ? RegExp(`^${prefix + ' ' + errorMessage}$`) : RegExp(`^${prefix}$`)
 }
 
 // Take a message, hash it and sign it with ETH_SIGN SignatureType
@@ -75,7 +75,7 @@ export function encodeGasReceipt(g: GasReceipt) {
 // Encode data that is passed to safeTransferFrom() for metaTransfers
 export async function encodeMetaTransferFromData(s: TransferSignature, domainHash: string, gasReceipt?: GasReceipt | null, sigType?: string) 
 {
-  const META_TX_TYPEHASH = '0xda41aee141786e5a994acb21bcafccf68ed6e07786cb44008c785a06f2819038';
+  const META_TX_TYPEHASH = '0xf678ecb30875110e5052a3c6179517684467cd85443a870b802c49d7f710d491';
 
   /** Three encoding scenario
    *  1. Gas receipt and transfer data:
@@ -102,11 +102,13 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
     'uint256', // _to:   uint256(address)
     'uint256', // _id
     'uint256', // _amount
+    'uint256', // _isGasFee: uint256(bool)
     'uint256', // nonce
  // 'bytes32', // hash of transfer data (added below, if any)
     ];
   
   let signer = s.from ? s.from : await s.signerWallet.getAddress()
+  let is_gas_Fee_hex = s.isGasFee ? '0x1' : '0x0'
 
   // Packed encoding of transfer signature message
   sigData = ethers.utils.solidityPack(sigArgTypes, [
@@ -115,6 +117,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
     s.receiver,
     s.id,
     s.amount,
+    is_gas_Fee_hex,
     s.nonce,
   ])
 
@@ -172,7 +175,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
 // Encode data that is passed to safeTransferFrom() for metaTransfers
 export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature, domainHash: string, gasReceipt?: GasReceipt | null, sigType?: string) 
 {
-  const META_BATCH_TX_TYPEHASH = '0xa358be8ef28a8eef7877f5d78ce30ff1cada344474e3d550ee9f4be9151f84f7';
+  const META_BATCH_TX_TYPEHASH = '0xc16a630afa16698a74d3922e4157e3ebbe498bfdc98e029b146a8089041ddee3';
 
   /** Three encoding scenario
    *  1. Gas receipt and transfer data:
@@ -201,12 +204,14 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
     'uint256', // _to: uint256(address)
     'bytes32', // keccak256(_ids)
     'bytes32', // keccak256(_amounts)
+    'uint256', // _isGasFee: uint256(bool)
     'uint256', // nonce
  // 'bytes32', // hash of transfer data (added below, if any)
     ];
   
 
   let signer = s.from ? s.from : await s.signerWallet.getAddress()
+  let is_gas_Fee_hex = s.isGasFee ? '0x1' : '0x0'
 
   // Packed encoding of transfer signature message
   sigData = ethers.utils.solidityPack(sigArgTypes, [
@@ -215,6 +220,7 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
     s.receiver,
     ethers.utils.keccak256(ethers.utils.solidityPack(['uint256[]'], [s.ids])),
     ethers.utils.keccak256(ethers.utils.solidityPack(['uint256[]'], [s.amounts])),
+    is_gas_Fee_hex,
     s.nonce,
   ])
 
@@ -271,13 +277,14 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
 // Encode data that is passed to safeTransferFrom() for metaTransfers
 export async function encodeMetaApprovalData(a: ApprovalSignature, domainHash: string, gasReceipt?: GasReceipt | null, sigType?: string) 
 {
-  const META_APPROVAL_TYPEHASH = "0xd72d507eb90d918a375b250ea7bfc291be59526e94e2baa2fe3b35daa72a0b15";
+  const META_APPROVAL_TYPEHASH = "0x27ce16352cca54a5cf7c9be9b32944721596f7cafd7c29da2694fefc1d5a01c1";
 
   let sigData: string; // Data to sign
   let txDataTypes: string[]; // Types of data to encode
   let sig: string; // Signature
 
   let approved_hex = a.approved ? '0x1' : '0x0'
+  let is_gas_Fee_hex = a.isGasFee ? '0x1' : '0x0'
 
   // Struct Data type
   const sigArgTypes = [
@@ -285,6 +292,7 @@ export async function encodeMetaApprovalData(a: ApprovalSignature, domainHash: s
     'uint256', // _owner: uint256(address)
     'uint256', // _operator: uint256(address)
     'uint256', // _approved: uint256(bool)
+    'uint256', // _isGasFee: uint256(bool)
     'uint256', // nonce
   ];
   
@@ -297,6 +305,7 @@ export async function encodeMetaApprovalData(a: ApprovalSignature, domainHash: s
     signer,
     a.operator,
     approved_hex,
+    is_gas_Fee_hex,
     a.nonce,
   ])
 

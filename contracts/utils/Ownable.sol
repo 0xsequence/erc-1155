@@ -1,4 +1,4 @@
-pragma solidity ^0.5.13;
+pragma solidity ^0.5.16;
 
 
 /**
@@ -7,7 +7,7 @@ pragma solidity ^0.5.13;
  * functions, this simplifies the implementation of "user permissions".
  */
 contract Ownable {
-  address private owner;
+  address private _owner_;
 
   event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
@@ -16,15 +16,15 @@ contract Ownable {
    * account.
    */
   constructor () internal {
-    owner = msg.sender;
-    emit OwnershipTransferred(address(0), owner);
+    _owner_ = msg.sender;
+    emit OwnershipTransferred(address(0), _owner_);
   }
 
   /**
    * @dev Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {
-    require(msg.sender == owner, "Ownable#onlyOwner: SENDER_IS_NOT_OWNER");
+    require(msg.sender == _owner_, "Ownable#onlyOwner: SENDER_IS_NOT_OWNER");
     _;
   }
 
@@ -34,14 +34,14 @@ contract Ownable {
    */
   function transferOwnership(address _newOwner) public onlyOwner {
     require(_newOwner != address(0), "Ownable#transferOwnership: INVALID_ADDRESS");
-    emit OwnershipTransferred(owner, _newOwner);
-    owner = _newOwner;
+    emit OwnershipTransferred(_owner_, _newOwner);
+    _owner_ = _newOwner;
   }
 
   /**
    * @notice Returns the address of the owner.
    */
-  function getOwner() public view returns (address) {
-    return owner;
+  function owner() public view returns (address) {
+    return _owner_;
   }
 }

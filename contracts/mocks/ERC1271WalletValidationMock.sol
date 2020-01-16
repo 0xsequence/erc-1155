@@ -1,4 +1,4 @@
-pragma solidity ^0.5.13;
+pragma solidity ^0.5.16;
 
 import "../interfaces/IERC1271Wallet.sol";
 import "../utils/LibBytes.sol";
@@ -69,9 +69,9 @@ contract ERC1271WalletValidationMock is LibEIP712 {
   address public owner;
 
   // keccak256(
-  //   "metaSafeTransferFrom(address _from,address _to,uint256 _id,uint256 _amount,uint256 nonce,bytes signedData)"
+  //   "metaSafeTransferFrom(address _from,address _to,uint256 _id,uint256 _amount,bool _isGasFee,uint256 nonce,bytes signedData)"
   // );
-  bytes32 internal constant META_TX_TYPEHASH = 0xda41aee141786e5a994acb21bcafccf68ed6e07786cb44008c785a06f2819038;
+  bytes32 internal constant META_TX_TYPEHASH = 0xf678ecb30875110e5052a3c6179517684467cd85443a870b802c49d7f710d491;
 
 
   /***********************************|
@@ -115,9 +115,9 @@ contract ERC1271WalletValidationMock is LibEIP712 {
     if (data_signature == META_TX_TYPEHASH) {
 
       // Get data without last byte array
-      data = slice(_data, 0, 0xc0);
+      data = slice(_data, 0, 0xe0);
 
-      // // Get amount and ID
+      // Get amount and ID
       uint256 id = uint256(data.readBytes32(0x60));
       uint256 amount = uint256(data.readBytes32(0x80));
 
@@ -127,7 +127,7 @@ contract ERC1271WalletValidationMock is LibEIP712 {
       }
 
       // Get byte array
-      signedData = slice(_data, 0xc0, _data.length);
+      signedData = slice(_data, 0xe0, _data.length);
 
       // Get hash struct
       signedHash = hashEIP712Message(

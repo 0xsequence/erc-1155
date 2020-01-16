@@ -16,7 +16,7 @@ interface OwnableInterface extends Interface {
       encode([_newOwner]: [string]): string;
     }>;
 
-    getOwner: TypedFunctionDescription<{ encode([]: []): string }>;
+    owner: TypedFunctionDescription<{ encode([]: []): string }>;
   };
 
   events: {
@@ -48,7 +48,7 @@ export class Ownable extends Contract {
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
-    getOwner(): Promise<string>;
+    owner(): Promise<string>;
   };
 
   transferOwnership(
@@ -56,7 +56,7 @@ export class Ownable extends Contract {
     overrides?: TransactionOverrides
   ): Promise<ContractTransaction>;
 
-  getOwner(): Promise<string>;
+  owner(): Promise<string>;
 
   filters: {
     OwnershipTransferred(
@@ -68,6 +68,6 @@ export class Ownable extends Contract {
   estimate: {
     transferOwnership(_newOwner: string): Promise<BigNumber>;
 
-    getOwner(): Promise<BigNumber>;
+    owner(): Promise<BigNumber>;
   };
 }

@@ -1,5 +1,4 @@
-pragma solidity ^0.5.13;
-
+pragma solidity ^0.5.16;
 import "./ERC1155.sol";
 
 
@@ -30,7 +29,7 @@ contract ERC1155MintBurn is ERC1155 {
     emit TransferSingle(msg.sender, address(0x0), _to, _id, _amount);
 
     // Calling onReceive method if recipient is contract
-    _callonERC1155Received(address(0x0), _to, _id, _amount, _data);
+    _callonERC1155Received(address(0x0), _to, _id, _amount, gasleft(), _data);
   }
 
   /**
@@ -58,7 +57,7 @@ contract ERC1155MintBurn is ERC1155 {
     emit TransferBatch(msg.sender, address(0x0), _to, _ids, _amounts);
 
     // Calling onReceive method if recipient is contract
-    _callonERC1155BatchReceived(address(0x0), _to, _ids, _amounts, _data);
+    _callonERC1155BatchReceived(address(0x0), _to, _ids, _amounts, gasleft(), _data);
   }
 
 
@@ -91,12 +90,11 @@ contract ERC1155MintBurn is ERC1155 {
   function _batchBurn(address _from, uint256[] memory _ids, uint256[] memory _amounts)
     internal
   {
-    require(_ids.length == _amounts.length, "ERC1155MintBurn#batchBurn: INVALID_ARRAYS_LENGTH");
-
     // Number of mints to execute
     uint256 nBurn = _ids.length;
+    require(nBurn == _amounts.length, "ERC1155MintBurn#batchBurn: INVALID_ARRAYS_LENGTH");
 
-     // Executing all minting
+    // Executing all minting
     for (uint256 i = 0; i < nBurn; i++) {
       // Update storage balance
       balances[_from][_ids[i]] = balances[_from][_ids[i]].sub(_amounts[i]);

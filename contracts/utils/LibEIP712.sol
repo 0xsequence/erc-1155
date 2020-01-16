@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-pragma solidity ^0.5.13;
+pragma solidity ^0.5.16;
 
 
 contract LibEIP712 {
@@ -26,21 +26,6 @@ contract LibEIP712 {
 
   // EIP-191 Header
   string constant internal EIP191_HEADER = "\x19\x01";
-
-  // Domain seperator created in constructor
-  bytes32 internal EIP712_DOMAIN_HASH;
-
-
-  /***********************************|
-  |            Constructor            |
-  |__________________________________*/
-
-  // Instantiate EIP712_DOMAIN_HASH
-  constructor () public
-  {
-    EIP712_DOMAIN_HASH = keccak256(abi.encodePacked(DOMAIN_SEPARATOR_TYPEHASH, uint256(address(this))));
-  }
-
 
   /***********************************|
   |          Hashing Function         |
@@ -59,7 +44,12 @@ contract LibEIP712 {
     return keccak256(
       abi.encodePacked(
         EIP191_HEADER,
-        EIP712_DOMAIN_HASH,
+        keccak256(
+          abi.encode(
+            DOMAIN_SEPARATOR_TYPEHASH,
+            address(this)
+          )
+        ),
         hashStruct
     ));
   }

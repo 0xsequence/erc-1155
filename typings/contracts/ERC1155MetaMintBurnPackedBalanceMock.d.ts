@@ -172,7 +172,7 @@ interface ERC1155MetaMintBurnPackedBalanceMockInterface extends Interface {
     }>;
 
     URI: TypedEventDescription<{
-      encodeTopics([_uri, _id]: [null, BigNumberish | null]): string[];
+      encodeTopics([_amount, _id]: [null, BigNumberish | null]): string[];
     }>;
   };
 }
@@ -464,7 +464,7 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
       _amount: null
     ): EventFilter;
 
-    URI(_uri: null, _id: BigNumberish | null): EventFilter;
+    URI(_amount: null, _id: BigNumberish | null): EventFilter;
   };
 
   estimate: {

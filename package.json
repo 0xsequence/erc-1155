@@ -1,6 +1,6 @@
 {
   "name": "multi-token-standard",
-  "version": "0.8.9",
+  "version": "0.8.10",
   "description": "ERC1155 Multi-Token Standard implementation for Ethereum",
   "repository": "https://github.com/horizon-games/multi-token-standard",
   "license": "MIT",
@@ -57,21 +57,19 @@
     "chai-bignumber": "^3.0.0",
     "chai-string": "^1.5.0",
     "dotenv": "^8.0.0",
-    "eth-gas-reporter": "^0.2.1",
-    "ethers": "^4.0.31",
+    "eth-gas-reporter": "^0.2.14",
+    "ethers": "^4.0.40",
     "ganache-cli": "6.4.4",
     "ganache-core": "2.5.6",
-    "solc": "0.5.13",
+    "solc": "0.5.16",
     "solium": "^1.2.4",
-    "truffle": "^5.0.25",
+    "truffle": "^5.1.3",
     "truffle-contract": "^4.0.22",
     "truffle-hdwallet-provider": "1.0.17",
     "tslint": "^5.18.0",
     "typechain": "^1.0.3",
-    "typescript": "3.7.2",
+    "typechain-target-ethers": "^1.0.3",
+    "typescript": "3.7.3",
     "zos-lib": "^2.4.0"
-  },
-  "dependencies": {
-    "typechain-target-ethers": "^1.0.2"
   }
 }

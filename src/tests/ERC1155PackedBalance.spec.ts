@@ -64,7 +64,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
 
     it('getValueInBin should return expected balance for given types', async () => {
       let expected = new BigNumber(2).pow(32).sub(2) // 2**32-2
-      let balance = await erc1155Contract.functions.getValueInBin(LARGEVAL.toString(), 7)
+      let balance = await erc1155Contract.functions.getValueInBin(LARGEVAL.toString(), 0)
       expect(balance).to.be.eql(expected)
     })
 
@@ -179,7 +179,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
 
     it('should REVERT when sending to non-receiver contract', async () => {
       const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, erc1155Contract.address, 0, 1, [])
-      await expect(tx).to.be.rejectedWith(RevertError());
+      await expect(tx).to.be.rejectedWith(RevertError("ERC1155MetaMintBurnPackedBalanceMock: INVALID_METHOD"));
     })
 
     it('should REVERT if invalid response from receiver contract', async () => {
@@ -303,10 +303,8 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
         })
 
       })
-
     })
   })
-
 
   describe('safeBatchTransferFrom() function', () => {
 
@@ -332,6 +330,11 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
 
     it('should be able to transfer if sufficient balances', async () => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, types, values, [])
+      await expect(tx).to.be.fulfilled
+    })
+
+    it('should PASS if arrays are empty', async () => {
+      const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [], [], [])
       await expect(tx).to.be.fulfilled
     })
 
@@ -382,7 +385,6 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
 
     it('should update balances of sender and receiver', async () => {
       await erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, types, values, [])
-
       let balanceFrom: ethers.utils.BigNumber
       let balanceTo: ethers.utils.BigNumber
 
@@ -399,7 +401,7 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, erc1155Contract.address, types, values, [],
         {gasLimit: 2000000}
       )
-      await expect(tx).to.be.rejectedWith(RevertError());
+      await expect(tx).to.be.rejectedWith(RevertError("ERC1155MetaMintBurnPackedBalanceMock: INVALID_METHOD"));
     })
 
     it('should REVERT if invalid response from receiver contract', async () => {
@@ -530,6 +532,48 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
       })
     })
 
+    describe('self-transfers', async () => {
+      let selfID = 918273123
+      let selfAmount = new BigNumber(1000);
+      let tx;
+
+      beforeEach(async () => {
+        await erc1155Contract.functions.mintMock(ownerAddress, selfID, selfAmount, [])
+        tx = await erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, ownerAddress, [selfID, selfID], [0, selfAmount], [])
+      })
+
+      it('should not inflate supply when transfering to self', async () => {
+        const balance = await erc1155Contract.functions.balanceOf(ownerAddress, selfID);
+        expect(balance).to.be.eql(selfAmount)
+      })
+
+      it('should REVERT if insufficient funds', async () => {
+        let tx1 = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, ownerAddress, [selfID, selfID], [0, selfAmount.add(1)], [])
+        await expect(tx1).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_safeBatchTransferFrom: UNDERFLOW") )
+
+        let tx2 = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, ownerAddress, [selfID, selfID + 1], [selfAmount, 1], [])
+        await expect(tx2).to.be.rejectedWith( RevertError("ERC1155PackedBalance#_safeBatchTransferFrom: UNDERFLOW") )
+      })
+
+      it('should emit 1 TransferBatch events of N transfers', async () => {
+        const receipt = await tx.wait(1)
+        const ev = receipt.events!.pop()!
+        expect(ev.event).to.be.eql('TransferBatch')
+
+        const args = ev.args! as any
+        expect(args._ids.length).to.be.eql(2)
+      })
+
+      it('should emit 1 TransferBatch events of N transfers of same ID', async () => {
+        const receipt = await tx.wait(1)
+        const ev = receipt.events!.pop()!
+        expect(ev.event).to.be.eql('TransferBatch')
+
+        const args = ev.args! as any
+        expect(args._ids.length).to.be.eql(2)
+      })
+
+    })
   })
 
 
@@ -575,25 +619,18 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
 
   })
 
-
   describe('Supports ERC165', () => {
-
     describe('supportsInterface()', () => {
-
       it('should return true for 0x01ffc9a7', async () => {
         const support = await erc1155Contract.functions.supportsInterface('0x01ffc9a7')
         expect(support).to.be.eql(true)
       })
 
-      it('should return true for 0x97a409d2', async () => {
-        // TODO: this fails for some reason.. which interface is this checking?
-        // review & double check
-
-        // const support = await erc1155Contract.functions.supportsInterface('0x97a409d2')
-        // expect(support).to.be.eql(true)
+      it('should return true for 0xd9b67a26', async () => {
+        const support = await erc1155Contract.functions.supportsInterface('0xd9b67a26')
+        expect(support).to.be.eql(true)
       })
     })
-
   })
 
 })

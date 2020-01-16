@@ -157,7 +157,7 @@ contract('ERC1155', (accounts: string[]) => {
 
     it('should REVERT when sending to non-receiver contract', async () => {
       const tx = erc1155Contract.functions.safeTransferFrom(ownerAddress, erc1155Contract.address, 0, 1, [])
-      await expect(tx).to.be.rejectedWith(RevertError());
+      await expect(tx).to.be.rejectedWith(RevertError("ERC1155MetaMintBurnMock: INVALID_METHOD"));
     })
 
     it('should REVERT if invalid response from receiver contract', async () => {
@@ -313,6 +313,11 @@ contract('ERC1155', (accounts: string[]) => {
       await expect(tx).to.be.fulfilled
     })
 
+    it('should PASS if arrays are empty', async () => {
+      const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [], [], [])
+      await expect(tx).to.be.fulfilled
+    })
+
     it('should REVERT if insufficient balance', async () => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, receiverAddress, [0], [11], [])
       await expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") )
@@ -374,7 +379,7 @@ contract('ERC1155', (accounts: string[]) => {
       const tx = erc1155Contract.functions.safeBatchTransferFrom(ownerAddress, erc1155Contract.address, types, values, [],
         {gasLimit: 2000000}
       )
-      await expect(tx).to.be.rejectedWith(RevertError());
+      await expect(tx).to.be.rejectedWith(RevertError("ERC1155MetaMintBurnMock: INVALID_METHOD"));
     })
 
     it('should REVERT if invalid response from receiver contract', async () => {
@@ -551,25 +556,18 @@ contract('ERC1155', (accounts: string[]) => {
 
   })
 
-
   describe('Supports ERC165', () => {
-
     describe('supportsInterface()', () => {
-
       it('should return true for 0x01ffc9a7', async () => {
         const support = await erc1155Contract.functions.supportsInterface('0x01ffc9a7')
         expect(support).to.be.eql(true)
       })
 
-      it('should return true for 0x97a409d2', async () => {
-        // TODO: this fails for some reason.. which interface is this checking?
-        // review & double check
-
-        // const support = await erc1155Contract.functions.supportsInterface('0x97a409d2')
-        // expect(support).to.be.eql(true)
+      it('should return true for 0xd9b67a26', async () => {
+        const support = await erc1155Contract.functions.supportsInterface('0xd9b67a26')
+        expect(support).to.be.eql(true)
       })
     })
-
   })
 
 })

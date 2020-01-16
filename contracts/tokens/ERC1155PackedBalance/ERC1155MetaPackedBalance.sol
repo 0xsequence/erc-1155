@@ -1,4 +1,4 @@
-pragma solidity ^0.5.13;
+pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
 import "./ERC1155PackedBalance.sol";
@@ -93,36 +93,34 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
     bytes memory signedData = _signatureValidation(
       _from,
       _data,
-      abi.encodePacked(
+      abi.encode(
         META_TX_TYPEHASH,
-        uint256(_from),  // Address as uint256
-        uint256(_to),    // Address as uint256
+        _from, // Address as uint256
+        _to,   // Address as uint256
         _id,
-        _amount
+        _amount,
+        _isGasFee ? uint256(1) : uint256(0)  // Boolean as uint256
       )
     );
+
+    // Transfer asset
+    _safeTransferFrom(_from, _to, _id, _amount);
 
     // If Gas is being reimbursed
     if (_isGasFee) {
       (gasReceipt, transferData) = abi.decode(signedData, (GasReceipt, bytes));
-      _safeTransferFrom(_from, _to, _id, _amount);
 
-      // Check if recipient is contract
-      if (_to.isContract()) {
-        // We need to somewhat protect operators against gas griefing attacks in recipient contract.
-        // Hence we only pass the gasLimit to the recipient such that the validator knows the griefing
-        // limit. Nothing can prevent the receiver to revert the transaction as close to the gasLimit as
-        // possible, but the operator can now only accept meta-transaction gasLimit within a certain range.
-        bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received.gas(gasReceipt.gasLimit)(msg.sender, _from, _id, _amount, transferData);
-        require(retval == ERC1155_RECEIVED_VALUE, "ERC1155MetaPackedBalance#metaSafeTransferFrom: INVALID_ON_RECEIVE_MESSAGE");
-      }
+      // We need to somewhat protect operators against gas griefing attacks in recipient contract.
+      // Hence we only pass the gasLimit to the recipient such that the validator knows the griefing
+      // limit. Nothing can prevent the receiver to revert the transaction as close to the gasLimit as
+      // possible, but the operator can now only accept meta-transaction gasLimit within a certain range.
+      _callonERC1155Received(_from, _to, _id, _amount, gasReceipt.gasLimit, signedData);
 
       // Transfer gas cost
       _transferGasFee(_from, startGas, gasReceipt);
 
     } else {
-      _safeTransferFrom(_from, _to, _id, _amount);
-      _callonERC1155Received(_from, _to, _id, _amount, signedData);
+      _callonERC1155Received(_from, _to, _id, _amount, gasleft(), signedData);
     }
   }
 
@@ -159,38 +157,34 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
     bytes memory signedData = _signatureValidation(
       _from,
       _data,
-      abi.encodePacked(
+      abi.encode(
         META_BATCH_TX_TYPEHASH,
-        uint256(_from), // Address as uint256
-        uint256(_to),   // Address as uint256
+        _from, // Address as uint256
+        _to,   // Address as uint256
         keccak256(abi.encodePacked(_ids)),
-        keccak256(abi.encodePacked(_amounts))
+        keccak256(abi.encodePacked(_amounts)),
+        _isGasFee ? uint256(1) : uint256(0)  // Boolean as uint256
       )
     );
+
+    // Transfer assets
+    _safeBatchTransferFrom(_from, _to, _ids, _amounts);
 
     // If gas fee being reimbursed
     if (_isGasFee) {
       (gasReceipt, transferData) = abi.decode(signedData, (GasReceipt, bytes));
 
-      // Update balances
-      _safeBatchTransferFrom(_from, _to, _ids, _amounts);
-
-            // Check if recipient is contract
-      if (_to.isContract()) {
-        // We need to somewhat protect operators against gas griefing attacks in recipient contract.
-        // Hence we only pass the gasLimit to the recipient such that the validator knows the griefing
-        // limit. Nothing can prevent the receiver to revert the transaction as close to the gasLimit as
-        // possible, but the operator can now only accept meta-transaction gasLimit within a certain range.
-        bytes4 retval = IERC1155TokenReceiver(_to).onERC1155BatchReceived.gas(gasReceipt.gasLimit)(msg.sender, _from, _ids, _amounts, transferData);
-        require(retval == ERC1155_BATCH_RECEIVED_VALUE, "ERC1155MetaPackedBalance#metaSafeBatchTransferFrom: INVALID_ON_RECEIVE_MESSAGE");
-      }
+      // We need to somewhat protect operators against gas griefing attacks in recipient contract.
+      // Hence we only pass the gasLimit to the recipient such that the validator knows the griefing
+      // limit. Nothing can prevent the receiver to revert the transaction as close to the gasLimit as
+      // possible, but the operator can now only accept meta-transaction gasLimit within a certain range.
+      _callonERC1155BatchReceived(_from, _to, _ids, _amounts, gasReceipt.gasLimit, signedData);
 
       // Handle gas reimbursement
       _transferGasFee(_from, startGas, gasReceipt);
 
     } else {
-      _safeBatchTransferFrom(_from, _to, _ids, _amounts);
-      _callonERC1155BatchReceived(_from, _to, _ids, _amounts, signedData);
+      _callonERC1155BatchReceived(_from, _to, _ids, _amounts, gasleft(), signedData);
     }
   }
 
@@ -227,11 +221,12 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
     bytes memory signedData = _signatureValidation(
       _owner,
       _data,
-      abi.encodePacked(
+      abi.encode(
         META_APPROVAL_TYPEHASH,
-        uint256(_owner),                    // Address as uint256
-        uint256(_operator),                 // Address as uint256
-        _approved ? uint256(1) : uint256(0) // Boolean as uint256
+        _owner,                              // Address as uint256
+        _operator,                           // Address as uint256
+        _approved ? uint256(1) : uint256(0), // Boolean as uint256
+        _isGasFee ? uint256(1) : uint256(0)  // Boolean as uint256
       )
     );
 
@@ -254,19 +249,19 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
   |_______________________________________*/
 
   // keccak256(
-  //   "metaSafeTransferFrom(address _from,address _to,uint256 _id,uint256 _amount,uint256 nonce,bytes signedData)"
+  //   "metaSafeTransferFrom(address _from,address _to,uint256 _id,uint256 _amount,bool _isGasFee,uint256 nonce,bytes signedData)"
   // );
-  bytes32 internal constant META_TX_TYPEHASH = 0xda41aee141786e5a994acb21bcafccf68ed6e07786cb44008c785a06f2819038;
+  bytes32 internal constant META_TX_TYPEHASH = 0xf678ecb30875110e5052a3c6179517684467cd85443a870b802c49d7f710d491;
 
   // keccak256(
-  //   "metaSafeBatchTransferFrom(address _from,address _to,uint256[] _ids,uint256[] _amounts,uint256 nonce,bytes signedData)"
+  //   "metaSafeBatchTransferFrom(address _from,address _to,uint256[] _ids,uint256[] _amounts,bool _isGasFee,uint256 nonce,bytes signedData)"
   // );
-  bytes32 internal constant META_BATCH_TX_TYPEHASH = 0xa358be8ef28a8eef7877f5d78ce30ff1cada344474e3d550ee9f4be9151f84f7;
+  bytes32 internal constant META_BATCH_TX_TYPEHASH = 0xc16a630afa16698a74d3922e4157e3ebbe498bfdc98e029b146a8089041ddee3;
 
   // keccak256(
-  //   "metaSetApprovalForAll(address _owner,address _operator,bool _approved,uint256 nonce,bytes signedData)"
+  //   "metaSetApprovalForAll(address _owner,address _operator,bool _approved,bool _isGasFee,uint256 nonce,bytes signedData)"
   // );
-  bytes32 internal constant META_APPROVAL_TYPEHASH = 0xd72d507eb90d918a375b250ea7bfc291be59526e94e2baa2fe3b35daa72a0b15;
+  bytes32 internal constant META_APPROVAL_TYPEHASH = 0x27ce16352cca54a5cf7c9be9b32944721596f7cafd7c29da2694fefc1d5a01c1;
 
   /**
    * @notice Verifies signatures for this contract
@@ -277,7 +272,8 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
    *   (bytes32 r, bytes32 s, uint8 v, uint256 nonce, SignatureType sigType),
    *   (GasReceipt g, ?bytes transferData)
    * )
-   *   i.e. high level encoding svhould be (bytes, bytes), where the latter bytes array is a nested bytes array
+   *   i.e. high level encoding should be (bytes, bytes), where the latter bytes array is a nested bytes array
+   * @dev A valid nonce is a nonce that is within 100 value from the current nonce
    */
   function _signatureValidation(
     address _signer,
@@ -378,7 +374,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
         _safeTransferFrom(_from, feeRecipient, tokenID, fee);
 
         // No need to protect against griefing since recipient contract is most likely the operator
-        _callonERC1155Received(_from, feeRecipient, tokenID, fee, "");
+        _callonERC1155Received(_from, feeRecipient, tokenID, gasleft(), fee, "");
 
       // Fee is paid from another ERC-1155 contract
       } else {
