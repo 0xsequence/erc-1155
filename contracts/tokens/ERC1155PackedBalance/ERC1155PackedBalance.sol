@@ -174,7 +174,7 @@ contract ERC1155PackedBalance is IERC165, IERC1155 {
 
     // If transfer to self, just make sure all amounts are valid
     } else {
-      for (uint256 i = 1; i < nTransfer; i++) {
+      for (uint256 i = 0; i < nTransfer; i++) {
         require(balanceOf(_from, _ids[i]) >= _amounts[i], "ERC1155PackedBalance#_safeBatchTransferFrom: UNDERFLOW");
       }
     }
