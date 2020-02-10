@@ -140,6 +140,10 @@ contract('ERC1155PackedBalance', (accounts: string[]) => {
       operatorContract = await operatorAbstract.deploy(operatorWallet) as ERC1155OperatorMock
 
       await erc1155Contract.functions.mintMock(ownerAddress, 0, 256, [])
+
+      // In case weird balance changes in other token ids would happen
+      await erc1155Contract.functions.mintMock(ownerAddress, 1, 256, [])
+      await erc1155Contract.functions.mintMock(ownerAddress, LARGEVAL.add(1), 256, [])
     })
 
     it('should be able to transfer if sufficient balance', async () => {

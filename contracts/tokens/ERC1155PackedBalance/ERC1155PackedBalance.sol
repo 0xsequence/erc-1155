@@ -243,7 +243,7 @@ contract ERC1155PackedBalance is IERC165, IERC1155 {
     uint256 bin;
     uint256 index;
 
-    //Get bin and index of _IF
+    //Get bin and index of _id
     (bin, index) = getIDBinIndex(_id);
     return getValueInBin(balances[_owner][bin], index);
   }
@@ -273,7 +273,7 @@ contract ERC1155PackedBalance is IERC165, IERC1155 {
     for (uint256 i = 1; i < n_owners; i++) {
       (bin, index) = getIDBinIndex(_ids[i]);
 
-      // SSTORE if user changed or if bin changed for the same user
+      // SLOAD if bin changed for the same owner or if owner changed
       if (bin != last_bin || _owners[i-1] != _owners[i]) {
         balance_bin = balances[_owners[i]][bin];
         last_bin = bin;

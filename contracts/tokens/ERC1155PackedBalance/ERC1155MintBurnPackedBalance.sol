@@ -109,6 +109,10 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
 
   /**
    * @notice Burn tokens of given token id for each (_ids[i], _amounts[i]) pair
+   * @dev This batchBurn method does not implement the most efficient way of updating
+   *      balances to reduce the potential bug surface as this function is expected to
+   *      be less common than transfers. EIP-2200 makes this method significantly
+   *      more efficient already for packed balances.
    * @param _from     The address to burn tokens from
    * @param _ids      Array of token ids to burn
    * @param _amounts  Array of the amount to be burned
@@ -116,17 +120,17 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
   function _batchBurn(address _from, uint256[] memory _ids, uint256[] memory _amounts)
     internal
   {
-    // Number of mints to execute
+    // Number of burning to execute
     uint256 nBurn = _ids.length;
     require(nBurn == _amounts.length, "ERC1155MintBurnPackedBalance#batchBurn: INVALID_ARRAYS_LENGTH");
 
-    // Executing all minting
+    // Executing all burning
     for (uint256 i = 0; i < nBurn; i++) {
       // Update storage balance
       _updateIDBalance(_from,   _ids[i], _amounts[i], Operations.Sub); // Add amount to recipient
     }
 
-    // Emit batch mint event
+    // Emit batch burn event
     emit TransferBatch(msg.sender, _from, address(0x0), _ids, _amounts);
   }
 }

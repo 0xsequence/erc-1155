@@ -299,13 +299,12 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     // Complete data to pass to signer verifier
     bytes memory fullData = abi.encodePacked(_encMembers, nonce, signedData);
 
-    // Verify if _from is the signer
-    require(isValidSignature(_signer, hash, fullData, sig), "ERC1155Meta#_signatureValidation: INVALID_SIGNATURE");
-
     //Update signature nonce
     nonces[_signer] = nonce + 1;
     emit NonceChange(_signer, nonce + 1);
 
+    // Verify if _from is the signer
+    require(isValidSignature(_signer, hash, fullData, sig), "ERC1155Meta#_signatureValidation: INVALID_SIGNATURE");
     return signedData;
   }
 
@@ -363,7 +362,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     feeRecipient = _g.feeRecipient == address(0) ? msg.sender : _g.feeRecipient;
 
     // Fee token is ERC1155
-    if (feeTokenType == FeeTokenType.ERC1155 ) {
+    if (feeTokenType == FeeTokenType.ERC1155) {
       (tokenAddress, tokenID) = abi.decode(_g.feeTokenData, (address, uint256));
 
       // Fee is paid from this ERC1155 contract
