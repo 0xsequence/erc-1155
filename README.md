@@ -28,8 +28,9 @@ contract MyERC1155Token is ERC1155 {
 
 1. Install node v11 and yarn (npm install -g yarn)
 2. `yarn install`
-3. `yarn ganache`
-4. in another terminal run, `yarn test` - executes test suite
+3. `yarn build`
+4. `yarn ganache`
+5. in another terminal run, `yarn test` - executes test suite
 
 # Abstract
 
