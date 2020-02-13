@@ -107,10 +107,10 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     if (_isGasFee) {
       (gasReceipt, transferData) = abi.decode(signedData, (GasReceipt, bytes));
 
-      // We need to somewhat protect operators against gas griefing attacks in recipient contract.
-      // Hence we only pass the gasLimit to the recipient such that the validator knows the griefing
+      // We need to somewhat protect relayers against gas griefing attacks in recipient contract.
+      // Hence we only pass the gasLimit to the recipient such that the relayer knows the griefing
       // limit. Nothing can prevent the receiver to revert the transaction as close to the gasLimit as
-      // possible, but the operator can now only accept meta-transaction gasLimit within a certain range.
+      // possible, but the relayer can now only accept meta-transaction gasLimit within a certain range.
       _callonERC1155Received(_from, _to, _id, _amount, gasReceipt.gasLimit, signedData);
 
       // Transfer gas cost
@@ -171,10 +171,10 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     if (_isGasFee) {
       (gasReceipt, transferData) = abi.decode(signedData, (GasReceipt, bytes));
 
-      // We need to somewhat protect operators against gas griefing attacks in recipient contract.
-      // Hence we only pass the gasLimit to the recipient such that the validator knows the griefing
+      // We need to somewhat protect relayers against gas griefing attacks in recipient contract.
+      // Hence we only pass the gasLimit to the recipient such that the relayer knows the griefing
       // limit. Nothing can prevent the receiver to revert the transaction as close to the gasLimit as
-      // possible, but the operator can now only accept meta-transaction gasLimit within a certain range.
+      // possible, but the relayer can now only accept meta-transaction gasLimit within a certain range.
       _callonERC1155BatchReceived(_from, _to, _ids, _amounts, gasReceipt.gasLimit, signedData);
 
       // Handle gas reimbursement
@@ -369,7 +369,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
       if (tokenAddress == address(this)) {
         _safeTransferFrom(_from, feeRecipient, tokenID, fee);
 
-        // No need to protect against griefing since recipient (if contract) is most likely owned by the operator
+        // No need to protect against griefing since recipient (if contract) is most likely owned by the relayer
         _callonERC1155Received(_from, feeRecipient, tokenID, gasleft(), fee, "");
 
       // Fee is paid from another ERC-1155 contract
