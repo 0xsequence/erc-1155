@@ -369,7 +369,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
       if (tokenAddress == address(this)) {
         _safeTransferFrom(_from, feeRecipient, tokenID, fee);
 
-        // No need to protect against griefing since recipient contract is most likely the operator
+        // No need to protect against griefing since recipient (if contract) is most likely owned by the operator
         _callonERC1155Received(_from, feeRecipient, tokenID, gasleft(), fee, "");
 
       // Fee is paid from another ERC-1155 contract
