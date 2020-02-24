@@ -240,7 +240,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
 
 
   /****************************************|
-  |      Signture Validation Functions     |
+  |      Signature Validation Functions     |
   |_______________________________________*/
 
   // keccak256(

@@ -237,7 +237,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
 
 
   /****************************************|
-  |      Signture Validation Functions     |
+  |      Signature Validation Functions     |
   |_______________________________________*/
 
   // keccak256(
