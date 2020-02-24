@@ -58,6 +58,9 @@ contract('ERC1155Meta', (accounts: string[]) => {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
   const DOMAIN_SEPARATOR_TYPEHASH = '0x035aff83d86937d35b32e04f0ddc6ff469290eef2f1b692d8a815c89404d4749'
 
+  // Pass gas since ganache can't figure it out
+  let TX_PARAM = {gasLimit: 2000000}
+
   let ownerAddress: string
   let receiverAddress: string
   let operatorAddress: string
@@ -101,9 +104,8 @@ contract('ERC1155Meta', (accounts: string[]) => {
     let feeTokenID = 666   
     let isGasReceipt: boolean = true;
     let feeTokenInitBalance = new BigNumber(100000000);
-    
+
     let feeType = 0 // ERC-1155
-    let feeToken : BigNumber;
     let feeTokenAddress : string
     let feeTokenDataERC1155: string | Uint8Array
 
@@ -113,10 +115,10 @@ contract('ERC1155Meta', (accounts: string[]) => {
     let data : string;
 
     let conditions = [
-      [transferData, true, 'Gas receipt & transfer data'],  
+      [transferData, true, 'Gas receipt & transfer data'],
       [null, true, 'Gas receipt w/o transfer data'],
-      [transferData, false, 'Transfer data w/o gas receipt '],  
-      [null, false, 'No Gas receipt & No transfer data']  
+      [transferData, false, 'Transfer data w/o gas receipt '],
+      [null, false, 'No Gas receipt & No transfer data']
     ]
 
     conditions.forEach(function(condition) {
@@ -142,15 +144,11 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
           // Gas Receipt
           gasReceipt = {
-            gasLimit: 125000,
-            baseGas: 30000,
-            gasPrice: 1,
+            gasLimitCallback: 130000,
+            gasFee: 30000,
             feeRecipient: operatorAddress,
             feeTokenData: feeTokenDataERC1155,
           }
-            
-          // fee token in uint
-          feeToken = new BigNumber(feeTokenID)
 
           // Check if gas receipt is included
           gasReceipt = isGasReceipt ? gasReceipt : null
@@ -171,7 +169,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           await erc1155Contract.functions.mintMock(ownerAddress, id, initBalance, [])
 
           // Mint tokens used to pay for gas
-          await erc1155Contract.functions.mintMock(ownerAddress, feeToken, feeTokenInitBalance, [])
+          await erc1155Contract.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance, [])
           
           // Domain hash
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
@@ -190,7 +188,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           // Check if data lelngth is more than 69
           expect(ethers.utils.arrayify(data).length).to.be.at.least(70)
 
-          // @ts-ignore
           const tx = erc1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith(RevertError());  
         })
@@ -203,7 +200,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           ))
           data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
 
-          // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )    
         })
@@ -212,7 +208,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           transferObj.signerWallet = operatorWallet;
           data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
 
-          // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )  
         })
@@ -221,7 +216,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           transferObj.receiver = ownerAddress;
           data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
 
-          // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )  
         })
@@ -230,7 +224,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           transferObj.id = id+1;
           data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
 
-          // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )  
         })
@@ -239,7 +232,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           transferObj.amount = amount + 1;
           data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
 
-          // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )  
         })
@@ -280,7 +272,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           // PASS BAD DATA
           data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [ethsig_nonce, badGasAndTransferData])
 
-          // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )
         })
@@ -321,7 +312,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             erc1271WalletAddress = erc1271WalletValidationMockContract.address;
 
             await erc1155Contract.functions.mintMock(erc1271WalletAddress, id, initBalance, [])
-            await erc1155Contract.functions.mintMock(erc1271WalletAddress, feeToken, feeTokenInitBalance, [])        
+            await erc1155Contract.functions.mintMock(erc1271WalletAddress, feeTokenID, feeTokenInitBalance, [])        
           })
 
           describe(`EIP-1271 (bytes) signatures (03)`, () => {
@@ -398,7 +389,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
             transferObj.amount = initBalance+1;
             data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
 
-            // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, initBalance+1, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") ) 
           })
@@ -407,14 +397,12 @@ contract('ERC1155Meta', (accounts: string[]) => {
             transferObj.receiver = ZERO_ADDRESS;
             data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
 
-            // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, ZERO_ADDRESS, id, amount, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#metaSafeTransferFrom: INVALID_RECIPIENT") ) 
           })
 
           it('should REVERT if transfer leads to overflow', async () => {
             await erc1155Contract.functions.mintMock(receiverAddress, id, MAXVAL, [])
-            // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("SafeMath#add: OVERFLOW") ) 
           })
@@ -423,10 +411,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             transferObj.receiver = erc1155Contract.address;
             data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
 
-            // @ts-ignore
-            const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, erc1155Contract.address, id, amount, isGasReceipt, data,
-              {gasLimit: 2000000}
-            )
+            const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, erc1155Contract.address, id, amount, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith(RevertError("ERC1155MetaMintBurnMock: INVALID_METHOD")) 
           })
 
@@ -437,10 +422,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             // Force invalid response
             await receiverContract.functions.setShouldReject(true)
 
-            // @ts-ignore
-            const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data,
-              {gasLimit: 2000000}
-            )
+            const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data)
 
             await expect(tx).to.be.rejectedWith( RevertError("ERC1155#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE") )
           })
@@ -449,10 +431,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             transferObj.receiver = receiverContract.address;
             data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt, "02")
 
-            // @ts-ignore
-            const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data,
-              {gasLimit: 2000000}
-            )
+            const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data)
             
             //await expect(tx).to.be.fulfilled
             await expect(tx).to.be.fulfilled
@@ -467,43 +446,24 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 this.skip();
               }
             });
- 
-            it('should reimburse gasReceipt.gasLimit if gas used exceeds limit', async () => {
-              let lowGasLimit = 11;
-              gasReceipt!.gasLimit = lowGasLimit
-
-              data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
-
-              // @ts-ignore
-              await operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
-
-              let senderBalance = await erc1155Contract.functions.balanceOf(ownerAddress, feeToken)
-              let executorBalance = await erc1155Contract.functions.balanceOf(operatorAddress, feeToken)
-
-              expect(senderBalance.toNumber()).to.be.eql(feeTokenInitBalance.sub(lowGasLimit).toNumber())
-              expect(executorBalance.toNumber()).to.be.eql(lowGasLimit)
-            })
             
-
             it('should send gas fee to msg.sender is fee recipient ix 0x0', async () => {
               gasReceipt!.feeRecipient = ZERO_ADDRESS;
 
               data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
 
-              // @ts-ignore
               await receiverERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
 
-              let receiverBalance = await erc1155Contract.functions.balanceOf(receiverAddress, feeToken)
+              let receiverBalance = await erc1155Contract.functions.balanceOf(receiverAddress, feeTokenID)
 
-              expect(gasReceipt!.baseGas).to.be.lessThan(receiverBalance.toNumber())
+              expect(gasReceipt!.gasFee).to.be.eql(receiverBalance.toNumber())
             })
 
             it("should send gas fee to specified fee recipient (if not 0x0), not tx.origin", async () => {
-              // @ts-ignore
               await receiverERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
-              let operatorBalance = await erc1155Contract.functions.balanceOf(operatorAddress, feeToken)
+              let operatorBalance = await erc1155Contract.functions.balanceOf(operatorAddress, feeTokenID)
 
-              expect(gasReceipt!.baseGas).to.be.lessThan(operatorBalance.toNumber())
+              expect(gasReceipt!.gasFee).to.be.eql(operatorBalance.toNumber())
             })
 
             it("should REVERT if gasReceipt is incorrect", async () => {
@@ -539,7 +499,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
               // PASS BAD DATA
               data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [ethsig_nonce, badGasAndTransferData])
   
-              // @ts-ignore
               const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
               await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )
             })
@@ -554,7 +513,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 [erc1155Contract2.address, feeTokenID, 0]
               )
     
-              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimitCallback: 130000, gasFee: 1000, 
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC1155
               }
     
@@ -564,7 +523,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
               // Data to pass in transfer method
               data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
     
-              // @ts-ignore
               const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
@@ -580,7 +538,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 [erc1155Contract2.address, feeTokenID, 0]
               )
     
-              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimitCallback: 130000, gasFee: 1000,
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC1155
               }
     
@@ -590,7 +548,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
               // Data to pass in transfer method
               data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
     
-              // @ts-ignore
               const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
@@ -607,7 +564,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 [erc1155Contract2.address, feeTokenID, 0]
               )
     
-              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimitCallback: 130000, gasFee: 1000,
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC1155
               }
     
@@ -617,7 +574,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
               // Data to pass in transfer method
               data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
     
-              // @ts-ignore
               const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
@@ -634,7 +590,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 ['address', 'uint8'], [erc20Contract.address, 1]
               )
     
-              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimitCallback: 130000, gasFee: 1000,
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
               }
     
@@ -644,7 +600,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
               // Data to pass in transfer method
               data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
     
-              // @ts-ignore
               const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
@@ -660,7 +615,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 ['address', 'uint8'], [erc20Contract.address, 1]
               )
     
-              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimitCallback: 130000, gasFee: 1000,
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
               }
     
@@ -670,7 +625,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
               // Data to pass in transfer method
               data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
     
-              // @ts-ignore
               const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
@@ -688,7 +642,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 ['address', 'uint8'], [erc20Contract.address, 1]
               )
     
-              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimitCallback: 130000, gasFee: 1000,
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
               }
     
@@ -698,7 +652,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
               // Data to pass in transfer method
               data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
     
-              // @ts-ignore
               const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
@@ -715,7 +668,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 ['address', 'uint8'], [erc20Contract.address, 2]
               )
     
-              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimitCallback: 130000, gasFee: 1000,
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
               }
     
@@ -725,7 +678,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
               // Data to pass in transfer method
               data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
     
-              // @ts-ignore
               const tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
@@ -735,7 +687,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 ['address', 'uint8'], [erc20Contract.address, 3]
               )
     
-              gasReceipt = {gasLimit: 125000, baseGas: 1000, gasPrice: 1, 
+              gasReceipt = {gasLimitCallback: 130000, gasFee: 1000,
                 feeRecipient: operatorAddress, feeTokenData: feeTokenDataERC20
               }
     
@@ -745,7 +697,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
               // Data to pass in transfer method
               data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
     
-              // @ts-ignore
               const tx2 = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, 
                 {gasLimit: 2000000}
               )
@@ -775,12 +726,11 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
               it('should REVERT if gas used in onERC1155Received exceeds limit', async () => {
                 let lowGasLimit = 1000;
-                gasReceipt!.gasLimit = lowGasLimit
+                gasReceipt!.gasLimitCallback = lowGasLimit
                 transferObj.receiver = receiverContract.address;
   
                 data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
   
-                // @ts-ignore
                 let tx = operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data, 
                   {gasLimit: 2000000}
                 )
@@ -789,26 +739,24 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
               it('should PASS if gas used in onERC1155Received does not exceed limit', async () => {
                 let okGasLimit = 9000;
-                gasReceipt!.gasLimit = okGasLimit
+                gasReceipt!.gasLimitCallback = okGasLimit
                 transferObj.receiver = receiverContract.address;
   
                 data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
   
-                // @ts-ignore
                 let tx =  operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data,
                   {gasLimit: 2000000}
                 )
                 await expect(tx).to.be.fulfilled
               })
 
-              it('should PASS if gasLimit is higher than gas sent in transaction', async () => {
-                let highGasLimit = 3000000;
-                gasReceipt!.gasLimit = highGasLimit
+              it('should PASS if gasLimitCallback is higher than gas sent in transaction', async () => {
+                let highGasLimit = 30000000;
+                gasReceipt!.gasLimitCallback = highGasLimit
                 transferObj.receiver = receiverContract.address;
   
                 data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
   
-                // @ts-ignore
                 let tx =  operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data,
                   {gasLimit: 2000000}
                 )
@@ -847,7 +795,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
             let tx: ethers.ContractTransaction
 
             beforeEach(async () => {
-              //@ts-ignore
               tx = await operatorERC1155Contract.functions.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
             })
 
@@ -870,14 +817,13 @@ contract('ERC1155Meta', (accounts: string[]) => {
               });
 
               it('should update gas token balance of sender', async () => {
-                const senderBalance = await erc1155Contract.functions.balanceOf(ownerAddress, feeToken)
-                //@ts-ignore
-                expect(senderBalance.toNumber()).to.be.lessThan(feeTokenInitBalance.toNumber() - gasReceipt!.baseGas)
+                const senderBalance = await erc1155Contract.functions.balanceOf(ownerAddress, feeTokenID)
+                expect(senderBalance).to.be.eql(feeTokenInitBalance.sub(gasReceipt!.gasFee))
               })
 
               it('should update gas token balance of executor', async () => {
-                const balance = await erc1155Contract.functions.balanceOf(operatorAddress, feeToken)
-                expect(gasReceipt!.baseGas).to.be.lessThan(balance.toNumber());
+                const balance = await erc1155Contract.functions.balanceOf(operatorAddress, feeTokenID)
+                expect(gasReceipt!.gasFee).to.be.eql(balance.toNumber());
               })
             })
 
@@ -965,24 +911,23 @@ contract('ERC1155Meta', (accounts: string[]) => {
     let initBalance = 100;
     let amount = 10;
     let nonce = new BigNumber(0);
+
+    // Parameters for balances
+    let ids: any[], amounts: any[]
+    let nTokenTypes = 33
     
     let isGasReceipt: boolean = true;
     let feeTokenInitBalance = new BigNumber(100000000);
 
     let feeType = 0
-    let feeToken: BigNumber;
     let feeTokenID = 666
     let feeTokenAddress: string;
     let feeTokenDataERC1155: string | Uint8Array
 
-    // Parameters for balances
-    let ids: any[], amounts: any[]
-    let nTokenTypes    = 18
-
     let transferObj: BatchTransferSignature;
-    let gasReceipt : GasReceipt | null;
+    let gasReceipt: GasReceipt | null;
     let domainHash: string;
-    let data : string;
+    let data: string;
 
     let conditions = [
       [transferData, true, 'Gas receipt & transfer data'],
@@ -1022,14 +967,10 @@ contract('ERC1155Meta', (accounts: string[]) => {
             [feeTokenAddress,  feeTokenID, feeType]
           )
 
-          // fee token in uint
-          feeToken = new BigNumber(feeTokenID)
-
           // Gas Receipt
           gasReceipt = {
-            gasLimit: 125000,
-            baseGas: 30000,
-            gasPrice: 1,
+            gasLimitCallback: 130000,
+            gasFee: 30000,
             feeRecipient: operatorAddress,
             feeTokenData: feeTokenDataERC1155,
           }
@@ -1069,7 +1010,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           ))
           data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
 
-          // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )    
         })
@@ -1078,7 +1018,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           transferObj.signerWallet = operatorWallet;
           data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
 
-          // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )  
         })
@@ -1087,7 +1026,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           transferObj.receiver = ownerAddress;
           data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
 
-          // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )  
         })
@@ -1096,7 +1034,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           transferObj.ids[0] = 6;
           data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
 
-          // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )  
         })
@@ -1105,13 +1042,12 @@ contract('ERC1155Meta', (accounts: string[]) => {
           transferObj.amounts[0] = amount + 1;
           data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
 
-          // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )  
         })
 
         it("should REVERT if transfer data is incorrect", async () => {
-          const sigArgTypes = ['address', 'address', 'address', 'uint256', 'uint256', 'uint256'];
+          const sigArgTypes = ['address', 'address', 'address', 'uint256[]', 'uint256[]', 'uint256'];
           const txDataTypes = ['bytes', 'bytes'];
         
           let signer = await transferObj.signerWallet.getAddress()
@@ -1146,7 +1082,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           // PASS BAD DATA
           data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [ethsig_nonce, badGasAndTransferData])
 
-          // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )
         })
@@ -1155,7 +1090,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           transferObj.nonce = nonce.add(101);
           data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
 
-          // @ts-ignore
           const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_NONCE") ) 
 
@@ -1186,7 +1120,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             erc1271WalletAddress = erc1271WalletValidationMockContract.address;
 
             await erc1155Contract.functions.batchMintMock(erc1271WalletAddress, ids, amounts, [])
-            await erc1155Contract.functions.mintMock(erc1271WalletAddress, feeToken, feeTokenInitBalance, [])        
+            await erc1155Contract.functions.mintMock(erc1271WalletAddress, feeTokenID, feeTokenInitBalance, [])        
           })
 
           describe(`EIP-1271 (bytes) signatures (03)`, () => {
@@ -1227,7 +1161,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
             amounts[0] = initBalance+1;
             data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
 
-            // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") ) 
           })
@@ -1236,14 +1169,12 @@ contract('ERC1155Meta', (accounts: string[]) => {
             transferObj.receiver = ZERO_ADDRESS;
             data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
 
-            // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, ZERO_ADDRESS, ids, amounts, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#metaSafeBatchTransferFrom: INVALID_RECIPIENT") ) 
           })
 
           it('should REVERT if transfer leads to overflow', async () => {
             await operatorERC1155Contract.functions.mintMock(receiverAddress, ids[0], MAXVAL, [])
-            // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("SafeMath#add: OVERFLOW") ) 
           })
@@ -1252,7 +1183,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
             transferObj.receiver = erc1155Contract.address;
             data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
 
-            // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, erc1155Contract.address, ids, amounts, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith(RevertError("ERC1155MetaMintBurnMock: INVALID_METHOD"));
           })
@@ -1264,7 +1194,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
             // Force invalid response
             await receiverContract.functions.setShouldReject(true)
 
-            // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("ERC1155#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE") )
 
@@ -1274,7 +1203,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
             transferObj.receiver = receiverContract.address;
             data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
 
-            // @ts-ignore
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, isGasReceipt, data,
               {gasLimit: 2000000}
             )
@@ -1290,46 +1218,28 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 this.skip();
               }
             });
- 
-            it('should reimburse gasReceipt.gasLimit if gas used exceeds limit', async () => {
-              let lowGasLimit = 11;
-              gasReceipt!.gasLimit = lowGasLimit
-
-              data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
-
-              // @ts-ignore
-              await operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
-
-              let senderBalance = await operatorERC1155Contract.functions.balanceOf(ownerAddress, feeToken)
-              let executorBalance = await operatorERC1155Contract.functions.balanceOf(operatorAddress, feeToken)
-
-              expect(senderBalance.toNumber()).to.be.eql(feeTokenInitBalance.sub(lowGasLimit).toNumber())
-              expect(executorBalance.toNumber()).to.be.eql(lowGasLimit)
-            })
 
             it('should send gas fee to tx.origin is fee recipient ix 0x0', async () => {
               gasReceipt!.feeRecipient = ZERO_ADDRESS;
 
               data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
 
-              // @ts-ignore
               await receiverERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
 
-              let receiverBalance = await operatorERC1155Contract.functions.balanceOf(receiverAddress, feeToken)
+              let receiverBalance = await operatorERC1155Contract.functions.balanceOf(receiverAddress, feeTokenID)
 
-              expect(gasReceipt!.baseGas).to.be.lessThan(receiverBalance.toNumber())
+              expect(gasReceipt!.gasFee).to.be.eql(receiverBalance.toNumber())
             })
 
             it("should send gas fee to specified fee recipient (if not 0x0), not tx.origin", async () => {
-              // @ts-ignore
-              await operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
-              let operatorBalance = await operatorERC1155Contract.functions.balanceOf(operatorAddress, feeToken)
+              await receiverERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
+              let operatorBalance = await operatorERC1155Contract.functions.balanceOf(operatorAddress, feeTokenID)
 
-              expect(gasReceipt!.baseGas).to.be.lessThan(operatorBalance.toNumber())
+              expect(gasReceipt!.gasFee).to.be.eql(operatorBalance.toNumber())
             })
 
             it("should REVERT if gasReceipt is incorrect", async () => {
-              const sigArgTypes = ['address', 'address', 'address', 'uint256', 'uint256', 'uint256'];
+              const sigArgTypes = ['address', 'address', 'address', 'uint256[]', 'uint256[]', 'uint256'];
               const txDataTypes = ['bytes', 'bytes'];
             
               let signer = await transferObj.signerWallet.getAddress()
@@ -1360,7 +1270,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
               // PASS BAD DATA
               data = ethers.utils.defaultAbiCoder.encode(txDataTypes, [ethsig_nonce, badGasAndTransferData])
   
-              // @ts-ignore
               const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
               await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )
             })
@@ -1381,7 +1290,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
               transferObj.isGasFee = false
               data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
     
-              // @ts-ignore
               let tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, false, data)
               await expect(tx).to.be.fulfilled
             })
@@ -1390,12 +1298,11 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
               it('should REVERT if gas used in onERC1155BatchReceived exceeds limit', async () => {
                 let lowGasLimit = 1000;
-                gasReceipt!.gasLimit = lowGasLimit
+                gasReceipt!.gasLimitCallback = lowGasLimit
                 transferObj.receiver = receiverContract.address;
   
                 data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
   
-                // @ts-ignore
                 let tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, isGasReceipt, data, 
                   {gasLimit: 2000000}
                 )
@@ -1404,12 +1311,11 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
               it('should PASS if gas used in onERC1155BatchReceived does not exceed limit', async () => {
                 let okGasLimit = 120000;
-                gasReceipt!.gasLimit = okGasLimit
+                gasReceipt!.gasLimitCallback = okGasLimit
                 transferObj.receiver = receiverContract.address;
   
                 data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
   
-                // @ts-ignore
                 let tx =  operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, isGasReceipt, data,
                   {gasLimit: 2000000}
                 )
@@ -1418,12 +1324,11 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
               it('should PASS if gasLimit is higher than gas sent in transaction', async () => {
                 let highGasLimit = 3000000;
-                gasReceipt!.gasLimit = highGasLimit
+                gasReceipt!.gasLimitCallback = highGasLimit
                 transferObj.receiver = receiverContract.address;
   
                 data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
   
-                // @ts-ignore
                 let tx =  operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, isGasReceipt, data,
                   {gasLimit: 2000000}
                 )
@@ -1463,7 +1368,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
             let tx: ethers.ContractTransaction
 
             beforeEach(async () => {
-              //@ts-ignore
               tx = await operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverAddress, ids, amounts, isGasReceipt, data)
             })
 
@@ -1489,14 +1393,13 @@ contract('ERC1155Meta', (accounts: string[]) => {
               });
 
               it('should update gas token balance of sender', async () => {
-                const senderBalance = await operatorERC1155Contract.functions.balanceOf(ownerAddress, feeToken)
-                //@ts-ignore
-                expect(senderBalance.toNumber()).to.be.lessThan(feeTokenInitBalance.toNumber() - gasReceipt!.baseGas)
+                const senderBalance = await operatorERC1155Contract.functions.balanceOf(ownerAddress, feeTokenID)
+                expect(senderBalance).to.be.eql(feeTokenInitBalance.sub(gasReceipt!.gasFee))
               })
 
               it('should update gas token balance of executor', async () => {
-                const balance = await operatorERC1155Contract.functions.balanceOf(operatorAddress, feeToken)
-                expect(gasReceipt!.baseGas).to.be.lessThan(balance.toNumber());
+                const balance = await operatorERC1155Contract.functions.balanceOf(operatorAddress, feeTokenID)
+                expect(gasReceipt!.gasFee).to.be.eql(balance.toNumber());
               })
             })
 
@@ -1518,7 +1421,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
               })
         
               it('should have `msg.sender` as `_operator` field, not _from', async () => {                
-                //@ts-ignore
                 const receipt = await tx.wait(1)
                 const ev = receipt.events!.pop()!
         
@@ -1591,23 +1493,23 @@ contract('ERC1155Meta', (accounts: string[]) => {
   describe('metaSetApprovalForAll() function', () => {
 
     let initBalance = 100;
+    let isGasReimbursed = true;
     let approved = true;
     let nonce = new BigNumber(0);
     let id = 66;
-    
-    let isGasReceipt = true;
-    let isGasReimbursed = true;
-    let feeTokenInitBalance = new BigNumber(100000000);
-    let feeType = 0
-    let feeTokenID = 666
 
-    let feeTokenAddress: string;
-    let feeTokenDataERC1155: string | Uint8Array
     let approvalObj: ApprovalSignature;
     let gasReceipt : GasReceipt | null;
-    let feeToken: BigNumber;
-    let data: string;
     let domainHash : string;
+    let data: string;
+
+    let isGasReceipt: boolean = true;
+    let feeTokenInitBalance = new BigNumber(100000000);
+
+    let feeType = 0
+    let feeTokenID = 666  
+    let feeTokenAddress : string
+    let feeTokenDataERC1155: string | Uint8Array
 
     let conditions = [
       [true, 'Gas receipt'],  
@@ -1628,15 +1530,11 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
           // Gas Receipt
           gasReceipt = {
-            gasLimit: 125000,
-            baseGas: 30000,
-            gasPrice: 1,
+            gasLimitCallback: 125000,
+            gasFee: 30000,
             feeRecipient: operatorAddress,
             feeTokenData: feeTokenDataERC1155,
           }
-
-          // Convert to uint representation
-          feeToken = new BigNumber(feeTokenID)
 
           // Check if gas receipt is included
           gasReceipt = isGasReceipt ? gasReceipt : null
@@ -1656,7 +1554,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           await erc1155Contract.functions.mintMock(ownerAddress, id, initBalance, [])
 
           // Mint tokens used to pay for gas
-          await erc1155Contract.functions.mintMock(ownerAddress, feeToken, feeTokenInitBalance, [])
+          await erc1155Contract.functions.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance, [])
 
           // Domain hash
           domainHash = ethers.utils.keccak256(ethers.utils.solidityPack(
@@ -1668,7 +1566,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
         })
 
         it("should PASS if signature is valid", async () => {
-          // @ts-ignore
           let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
           await expect(tx).to.be.fulfilled
         })
@@ -1684,7 +1581,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
             erc1271WalletValidationMockContract = await ERC1271WalletValidationMockAbstract.deploy(ownerWallet, [domainHash]) as ERC1271WalletValidationMock
             erc1271WalletAddress = erc1271WalletValidationMockContract.address;
 
-            await erc1155Contract.functions.mintMock(erc1271WalletAddress, feeToken, feeTokenInitBalance, [])        
+            await erc1155Contract.functions.mintMock(erc1271WalletAddress, feeTokenID, feeTokenInitBalance, [])        
           })
 
           describe(`EIP-1271 (bytes) signatures (03)`, () => {
@@ -1741,7 +1638,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
             approvalObj.isGasFee = false
             data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt)
   
-            // @ts-ignore
             let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, false, data)
             await expect(tx).to.be.fulfilled
           })
@@ -1770,7 +1666,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
             approvalObj.isGasFee = true
             data = await encodeMetaApprovalData(approvalObj, domainHash)
   
-            // @ts-ignore
             let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, true, data)
             await expect(tx).to.be.rejectedWith(RevertError());
           })
@@ -1783,7 +1678,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           ))
           data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt)
 
-          // @ts-ignore
           let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )    
         })
@@ -1792,7 +1686,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           approvalObj.operator = receiverAddress;   
           data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt)
 
-          // @ts-ignore
           let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )    
         })
@@ -1801,7 +1694,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           approvalObj.approved = false;
           data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt)
 
-          // @ts-ignore
           let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
           await expect(tx).to.be.rejectedWith( RevertError("ERC1155Meta#_signatureValidation: INVALID_SIGNATURE") )    
         })
@@ -1826,7 +1718,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
 
         it('should emit an ApprovalForAll event', async () => {
-          // @ts-ignore
           let tx = await operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
           const receipt = await tx.wait(1)
 
@@ -1834,7 +1725,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
         })
 
         it('should set the operator status to _status argument', async () => {
-          // @ts-ignore
           let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
           await expect(tx).to.be.fulfilled
 
@@ -1869,7 +1759,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
         context('When the operator was already an operator', () => {
           beforeEach(async () => {
-            // @ts-ignore
             let tx = await operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
 
             // Update nonce of approval signature object for subsequent tests
@@ -1879,7 +1768,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
           it('should leave the operator status to set to true again', async () => {
             data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt)
 
-            // @ts-ignore
             let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, approved, isGasReimbursed, data)
             await expect(tx).to.be.fulfilled
 
@@ -1891,7 +1779,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
             approvalObj.approved = false;
             data = await encodeMetaApprovalData(approvalObj, domainHash, gasReceipt)
 
-            // @ts-ignore
             let tx = operatorERC1155Contract.functions.metaSetApprovalForAll(ownerAddress, operatorAddress, false, isGasReimbursed, data)
             await expect(tx).to.be.fulfilled
 

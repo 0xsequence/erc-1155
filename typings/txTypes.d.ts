@@ -2,9 +2,8 @@ import { Wallet } from 'ethers'
 import { BigNumber } from 'ethers/utils'
 
 export type GasReceipt = {
-  gasLimit: number | string | BigNumber;
-  baseGas: number | string | BigNumber;
-  gasPrice: number | string | BigNumber;
+  gasFee: number | string | BigNumber;
+  gasLimitCallback: number | string | BigNumber;
   feeRecipient: string;
   feeTokenData: string | Uint8Array;
 };

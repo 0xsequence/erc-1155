@@ -60,9 +60,8 @@ export async function ethSignTypedData(
 }
 
 export const GasReceiptType = `tuple(
-    uint256 gasLimit,
-    uint256 baseGas,
-    uint256 gasPrice,
+    uint256 gasFee,
+    uint256 gasLimitCallback,
     address feeRecipient,
     bytes feeTokenData
   )`
