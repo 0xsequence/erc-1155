@@ -27,11 +27,10 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
    *     Last element should be a 0x0 if ERC-20 and 0x1 for ERC-1155
    */
   struct GasReceipt {
-    uint256 gasLimit;     // Max amount of gas that can be reimbursed
-    uint256 baseGas;      // Base gas cost (includes things like 21k, CALLDATA size, etc.)
-    uint256 gasPrice;     // Price denominated in token X per gas unit
-    address feeRecipient; // Address to send payment to
-    bytes feeTokenData;   // Data for token to pay for gas as `uint256(tokenAddress)`
+    uint256 gasFee;           // Fixed cost for the tx
+    uint256 gasLimitCallback; // Maximum amount of gas the callback in transfer functions can use
+    address feeRecipient;     // Address to send payment to
+    bytes feeTokenData;       // Data for token to pay for gas
   }
 
   // Which token standard is used to pay gas fee
@@ -81,8 +80,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
   {
     require(_to != address(0), "ERC1155Meta#metaSafeTransferFrom: INVALID_RECIPIENT");
 
-    // Starting gas amount
-    uint256 startGas = gasleft();
+    // Initializing
     bytes memory transferData;
     GasReceipt memory gasReceipt;
 
@@ -111,10 +109,10 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
       // Hence we only pass the gasLimit to the recipient such that the relayer knows the griefing
       // limit. Nothing can prevent the receiver to revert the transaction as close to the gasLimit as
       // possible, but the relayer can now only accept meta-transaction gasLimit within a certain range.
-      _callonERC1155Received(_from, _to, _id, _amount, gasReceipt.gasLimit, signedData);
+      _callonERC1155Received(_from, _to, _id, _amount, gasReceipt.gasLimitCallback, signedData);
 
       // Transfer gas cost
-      _transferGasFee(_from, startGas, gasReceipt);
+      _transferGasFee(_from, gasReceipt);
 
     } else {
       _callonERC1155Received(_from, _to, _id, _amount, gasleft(), signedData);
@@ -145,8 +143,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
   {
     require(_to != address(0), "ERC1155Meta#metaSafeBatchTransferFrom: INVALID_RECIPIENT");
 
-    // Starting gas amount
-    uint256 startGas = gasleft();
+    // Initializing
     bytes memory transferData;
     GasReceipt memory gasReceipt;
 
@@ -175,10 +172,10 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
       // Hence we only pass the gasLimit to the recipient such that the relayer knows the griefing
       // limit. Nothing can prevent the receiver to revert the transaction as close to the gasLimit as
       // possible, but the relayer can now only accept meta-transaction gasLimit within a certain range.
-      _callonERC1155BatchReceived(_from, _to, _ids, _amounts, gasReceipt.gasLimit, signedData);
+      _callonERC1155BatchReceived(_from, _to, _ids, _amounts, gasReceipt.gasLimitCallback, signedData);
 
       // Handle gas reimbursement
-      _transferGasFee(_from, startGas, gasReceipt);
+      _transferGasFee(_from, gasReceipt);
 
     } else {
       _callonERC1155BatchReceived(_from, _to, _ids, _amounts, gasleft(), signedData);
@@ -211,9 +208,6 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     bytes memory _data)
     public
   {
-    // Starting gas amount
-    uint256 startGas = gasleft();
-
     // Verify signature and extract the signed data
     bytes memory signedData = _signatureValidation(
       _owner,
@@ -236,13 +230,14 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     // Handle gas reimbursement
     if (_isGasFee) {
       GasReceipt memory gasReceipt = abi.decode(signedData, (GasReceipt));
-      _transferGasFee(_owner, startGas, gasReceipt);
+      _transferGasFee(_owner, gasReceipt);
     }
   }
 
 
+
   /****************************************|
-  |      Signture Validation Functions     |
+  |      Signature Validation Functions     |
   |_______________________________________*/
 
   // keccak256(
@@ -326,11 +321,10 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
   /**
    * @notice Will reimburse tx.origin or fee recipient for the gas spent execution a transaction
    *         Can reimbuse in any ERC-20 or ERC-1155 token
-   * @param _from      Address from which the payment will be made from
-   * @param _startGas  The gas amount left when gas counter started
-   * @param _g         GasReceipt object that contains gas reimbursement information
+   * @param _from  Address from which the payment will be made from
+   * @param _g     GasReceipt object that contains gas reimbursement information
    */
-  function _transferGasFee(address _from, uint256 _startGas, GasReceipt memory _g)
+  function _transferGasFee(address _from, GasReceipt memory _g)
       internal
   {
     // Pop last byte to get token fee type
@@ -348,15 +342,8 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     // Declarations
     address tokenAddress;
     address feeRecipient;
-    uint256 gasUsed;
     uint256 tokenID;
-    uint256 fee;
-
-    // Amount of gas consumed
-    gasUsed = _startGas.sub(gasleft()).add(_g.baseGas);
-
-    // Reimburse up to gasLimit (instead of throwing)
-    fee = gasUsed > _g.gasLimit ? _g.gasLimit.mul(_g.gasPrice) : gasUsed.mul(_g.gasPrice);
+    uint256 fee = _g.gasFee;
 
     // If receiver is 0x0, then anyone can claim, otherwise, refund addresse provided
     feeRecipient = _g.feeRecipient == address(0) ? msg.sender : _g.feeRecipient;
