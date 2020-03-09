@@ -74,7 +74,7 @@ export function encodeGasReceipt(g: GasReceipt) {
 // Encode data that is passed to safeTransferFrom() for metaTransfers
 export async function encodeMetaTransferFromData(s: TransferSignature, domainHash: string, gasReceipt?: GasReceipt | null, sigType?: string) 
 {
-  const META_TX_TYPEHASH = '0xf678ecb30875110e5052a3c6179517684467cd85443a870b802c49d7f710d491';
+  const META_TX_TYPEHASH = '0xce0b514b3931bdbe4d5d44e4f035afe7113767b7db71949271f6a62d9c60f558';
 
   /** Three encoding scenario
    *  1. Gas receipt and transfer data:
@@ -174,7 +174,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
 // Encode data that is passed to safeTransferFrom() for metaTransfers
 export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature, domainHash: string, gasReceipt?: GasReceipt | null, sigType?: string) 
 {
-  const META_BATCH_TX_TYPEHASH = '0xc16a630afa16698a74d3922e4157e3ebbe498bfdc98e029b146a8089041ddee3';
+  const META_BATCH_TX_TYPEHASH = '0xa3d4926e8cf8fe8e020cd29f514c256bc2eec62aa2337e415f1a33a4828af5a0';
 
   /** Three encoding scenario
    *  1. Gas receipt and transfer data:
@@ -276,7 +276,7 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
 // Encode data that is passed to safeTransferFrom() for metaTransfers
 export async function encodeMetaApprovalData(a: ApprovalSignature, domainHash: string, gasReceipt?: GasReceipt | null, sigType?: string) 
 {
-  const META_APPROVAL_TYPEHASH = "0x27ce16352cca54a5cf7c9be9b32944721596f7cafd7c29da2694fefc1d5a01c1";
+  const META_APPROVAL_TYPEHASH = "0xf5d4c820494c8595de274c7ff619bead38aac4fbc3d143b5bf956aa4b84fa524";
 
   let sigData: string; // Data to sign
   let txDataTypes: string[]; // Types of data to encode

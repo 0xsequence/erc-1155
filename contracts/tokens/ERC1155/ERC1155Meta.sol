@@ -125,6 +125,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
    * @param _to       Target addresses
    * @param _ids      IDs of each token type
    * @param _amounts  Transfer amounts per token type
+   * @param _isGasFee Whether gas is reimbursed to executor or not
    * @param _data     Encodes a meta transfer indicator, signature, gas payment receipt and extra transfer data
    *   _data should be encoded as (
    *   (bytes32 r, bytes32 s, uint8 v, uint256 nonce, SignatureType sigType),
@@ -241,19 +242,19 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
   |_______________________________________*/
 
   // keccak256(
-  //   "metaSafeTransferFrom(address _from,address _to,uint256 _id,uint256 _amount,bool _isGasFee,uint256 nonce,bytes signedData)"
+  //   "metaSafeTransferFrom(address,address,uint256,uint256,bool,bytes)"
   // );
-  bytes32 internal constant META_TX_TYPEHASH = 0xf678ecb30875110e5052a3c6179517684467cd85443a870b802c49d7f710d491;
+  bytes32 internal constant META_TX_TYPEHASH = 0xce0b514b3931bdbe4d5d44e4f035afe7113767b7db71949271f6a62d9c60f558;
 
   // keccak256(
-  //   "metaSafeBatchTransferFrom(address _from,address _to,uint256[] _ids,uint256[] _amounts,bool _isGasFee,uint256 nonce,bytes signedData)"
+  //   "metaSafeBatchTransferFrom(address,address,uint256[],uint256[],bool,bytes)"
   // );
-  bytes32 internal constant META_BATCH_TX_TYPEHASH = 0xc16a630afa16698a74d3922e4157e3ebbe498bfdc98e029b146a8089041ddee3;
+  bytes32 internal constant META_BATCH_TX_TYPEHASH = 0xa3d4926e8cf8fe8e020cd29f514c256bc2eec62aa2337e415f1a33a4828af5a0;
 
   // keccak256(
-  //   "metaSetApprovalForAll(address _owner,address _operator,bool _approved,bool _isGasFee,uint256 nonce,bytes signedData)"
+  //   "metaSetApprovalForAll(address,address,bool,bool,bytes)"
   // );
-  bytes32 internal constant META_APPROVAL_TYPEHASH = 0x27ce16352cca54a5cf7c9be9b32944721596f7cafd7c29da2694fefc1d5a01c1;
+  bytes32 internal constant META_APPROVAL_TYPEHASH = 0xf5d4c820494c8595de274c7ff619bead38aac4fbc3d143b5bf956aa4b84fa524;
 
   /**
    * @notice Verifies signatures for this contract
