@@ -236,7 +236,6 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
   }
 
 
-
   /****************************************|
   |      Signature Validation Functions     |
   |_______________________________________*/
