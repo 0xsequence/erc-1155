@@ -2,7 +2,7 @@
 
 An implementation example of a standard **Multi-Token (MT)** contract, which contains multiple classes of fungible tokens referenced by IDs. Standard interface discussion at [ERC-1155](https://github.com/ethereum/EIPs/issues/1155). 
 
-# What is this?
+# Description
 
 The contracts in this repository follow a standard implementation of an ([ERC-1155](https://github.com/ethereum/EIPs/issues/1155) contract. This standard provides basic functionality to track and transfer multiple tokens and the interface provide an API other contracts and off-chain third parties can use.
 
