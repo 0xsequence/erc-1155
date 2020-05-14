@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.7;
 pragma experimental ABIEncoderV2;
 
 import "../tokens/ERC1155/ERC1155Meta.sol";
@@ -71,7 +71,7 @@ contract ERC1155MetaMintBurnMock is ERC1155Meta, ERC1155MintBurn, ERC1155Metadat
   |       Unsupported Functions       |
   |__________________________________*/
 
-  function () external {
+  fallback () external {
     revert("ERC1155MetaMintBurnMock: INVALID_METHOD");
   }
 }

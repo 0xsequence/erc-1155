@@ -6828,10 +6828,10 @@ sol-explore@1.6.1:
   resolved "https://registry.yarnpkg.com/sol-explore/-/sol-explore-1.6.1.tgz#b59f073c69fe332560d5a10c32ba8ca7f2986cfb"
   integrity sha1-tZ8HPGn+MyVg1aEMMrqMp/KYbPs=
 
-solc@0.5.16:
-  version "0.5.16"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.16.tgz#6c8d710a3792ccc79db924606b558a1149b1c603"
-  integrity sha512-weEtRtisJyf+8UjELs7S4ST1KK7UIq6SRB7tpprfJBL9b5mTrZAT7m4gJKi2h6MiBpuSWfnraK8BnkyWzuTMRA==
+solc@0.6.7:
+  version "0.6.7"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.6.7.tgz#4cf6bed8c1d3a6728fcab86552c6ac31fe4d14ca"
+  integrity sha512-a3iocjS1yGzw3Wy7jkqSLX3Vg1lMDCyoKZoVfpOagRGWkh37f11BrcUDO8f73rjdpw2WUBSLJtTQ26i52/0JOg==
   dependencies:
     command-exists "^1.2.8"
     commander "3.0.2"

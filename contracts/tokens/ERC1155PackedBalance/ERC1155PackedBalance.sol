@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.7;
 
 import "../../utils/SafeMath.sol";
 import "../../interfaces/IERC1155TokenReceiver.sol";
@@ -28,7 +28,7 @@ contract ERC1155PackedBalance is IERC165, IERC1155 {
   bytes4 constant internal ERC1155_BATCH_RECEIVED_VALUE = 0xbc197c81;
 
   // Constants regarding bin sizes for balance packing
-  // IDS_BITS_SIZE **MUST** be a power of 2 (e.g. 2, 4, 8, 16, 32, 64, 128) 
+  // IDS_BITS_SIZE **MUST** be a power of 2 (e.g. 2, 4, 8, 16, 32, 64, 128)
   uint256 internal constant IDS_BITS_SIZE   = 32;                  // Max balance amount in bits per token ID
   uint256 internal constant IDS_PER_UINT256 = 256 / IDS_BITS_SIZE; // Number of ids per uint256
 
@@ -55,7 +55,7 @@ contract ERC1155PackedBalance is IERC165, IERC1155 {
    * @param _data    Additional data with no specified format, sent in call to `_to`
    */
   function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _amount, bytes memory _data)
-    public
+    public override
   {
     // Requirements
     require((msg.sender == _from) || isApprovedForAll(_from, msg.sender), "ERC1155PackedBalance#safeTransferFrom: INVALID_OPERATOR");
@@ -76,7 +76,7 @@ contract ERC1155PackedBalance is IERC165, IERC1155 {
    * @param _data     Additional data with no specified format, sent in call to `_to`
    */
   function safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts, bytes memory _data)
-    public
+    public override
   {
     // Requirements
     require((msg.sender == _from) || isApprovedForAll(_from, msg.sender), "ERC1155PackedBalance#safeBatchTransferFrom: INVALID_OPERATOR");
@@ -117,7 +117,7 @@ contract ERC1155PackedBalance is IERC165, IERC1155 {
   {
     // Check if recipient is contract
     if (_to.isContract()) {
-      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received.gas(_gasLimit)(msg.sender, _from, _id, _amount, _data);
+      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155Received{gas:_gasLimit}(msg.sender, _from, _id, _amount, _data);
       require(retval == ERC1155_RECEIVED_VALUE, "ERC1155PackedBalance#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE");
     }
   }
@@ -191,7 +191,7 @@ contract ERC1155PackedBalance is IERC165, IERC1155 {
   {
     // Pass data if recipient is contract
     if (_to.isContract()) {
-      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155BatchReceived.gas(_gasLimit)(msg.sender, _from, _ids, _amounts, _data);
+      bytes4 retval = IERC1155TokenReceiver(_to).onERC1155BatchReceived{gas: _gasLimit}(msg.sender, _from, _ids, _amounts, _data);
       require(retval == ERC1155_BATCH_RECEIVED_VALUE, "ERC1155PackedBalance#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE");
     }
   }
@@ -207,7 +207,7 @@ contract ERC1155PackedBalance is IERC165, IERC1155 {
    * @param _approved  True if the operator is approved, false to revoke approval
    */
   function setApprovalForAll(address _operator, bool _approved)
-    external
+    external override
   {
     // Update operator status
     operators[msg.sender][_operator] = _approved;
@@ -218,10 +218,10 @@ contract ERC1155PackedBalance is IERC165, IERC1155 {
    * @notice Queries the approval status of an operator for a given owner
    * @param _owner     The owner of the Tokens
    * @param _operator  Address of authorized operator
-   * @return True if the operator is approved, false if not
+   * @return isOperator True if the operator is approved, false if not
    */
   function isApprovedForAll(address _owner, address _operator)
-    public view returns (bool isOperator)
+    public override view returns (bool isOperator)
   {
     return operators[_owner][_operator];
   }
@@ -238,7 +238,7 @@ contract ERC1155PackedBalance is IERC165, IERC1155 {
    * @return The _owner's balance of the Token type requested
    */
   function balanceOf(address _owner, uint256 _id)
-    public view returns (uint256)
+    public override view returns (uint256)
   {
     uint256 bin;
     uint256 index;
@@ -255,7 +255,7 @@ contract ERC1155PackedBalance is IERC165, IERC1155 {
    * @return The _owner's balance of the Token types requested (i.e. balance for each (owner, id) pair)
     */
   function balanceOfBatch(address[] memory _owners, uint256[] memory _ids)
-    public view returns (uint256[] memory)
+    public override view returns (uint256[] memory)
   {
     uint256 n_owners = _owners.length;
     require(n_owners == _ids.length, "ERC1155PackedBalance#balanceOfBatch: INVALID_ARRAY_LENGTH");
@@ -353,7 +353,7 @@ contract ERC1155PackedBalance is IERC165, IERC1155 {
   /**
   * @notice Return the bin number and index within that bin where ID is
   * @param _id  Token id
-  * @return (Bin number, ID"s index within that bin)
+  * @return bin index (Bin number, ID"s index within that bin)
   */
   function getIDBinIndex(uint256 _id)
     public pure returns (uint256 bin, uint256 index)
@@ -408,7 +408,7 @@ contract ERC1155PackedBalance is IERC165, IERC1155 {
    * @param _interfaceID  The interface identifier, as specified in ERC-165
    * @return `true` if the contract implements `_interfaceID` and
    */
-  function supportsInterface(bytes4 _interfaceID) external view returns (bool) {
+  function supportsInterface(bytes4 _interfaceID) external override view returns (bool) {
     if (_interfaceID == INTERFACE_SIGNATURE_ERC165 ||
         _interfaceID == INTERFACE_SIGNATURE_ERC1155) {
       return true;

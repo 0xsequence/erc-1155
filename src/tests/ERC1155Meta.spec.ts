@@ -1397,7 +1397,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
                 expect(senderBalance).to.be.eql(feeTokenInitBalance.sub(gasReceipt!.gasFee))
               })
 
-              it('should update gas token balance of executor', async () => {
+              it.only('should update gas token balance of executor', async () => {
                 const balance = await operatorERC1155Contract.functions.balanceOf(operatorAddress, feeTokenID)
                 expect(gasReceipt!.gasFee).to.be.eql(balance.toNumber());
               })
