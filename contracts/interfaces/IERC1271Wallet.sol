@@ -1,4 +1,4 @@
-pragma solidity ^0.6.7;
+pragma solidity ^0.6.8;
 
 
 interface  IERC1271Wallet {

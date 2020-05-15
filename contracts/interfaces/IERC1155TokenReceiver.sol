@@ -1,4 +1,4 @@
-pragma solidity ^0.6.7;
+pragma solidity ^0.6.8;
 
 /**
  * @dev ERC-1155 interface for accepting safe transfers.

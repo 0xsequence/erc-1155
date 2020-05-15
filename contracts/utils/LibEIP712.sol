@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-pragma solidity ^0.6.7;
+pragma solidity ^0.6.8;
 
 
 contract LibEIP712 {
