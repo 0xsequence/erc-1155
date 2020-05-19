@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.8;
 
 import "../interfaces/IERC1271Wallet.sol";
 import "../utils/LibBytes.sol";
@@ -36,7 +36,7 @@ contract LibEIP712 {
   /**
    * @dev Calculates EIP712 encoding for a hash struct in this EIP712 Domain.
    * @param hashStruct The EIP712 hash struct.
-   * @return EIP712 hash applied to this EIP712 Domain.
+   * @return result EIP712 hash applied to this EIP712 Domain.
    */
   function hashEIP712Message(bytes32 hashStruct)
       internal

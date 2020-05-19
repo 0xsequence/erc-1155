@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.8;
 
 
 interface  IERC1271Wallet {
@@ -10,7 +10,7 @@ interface  IERC1271Wallet {
    *   > This function MAY modify Ethereum's state
    * @param _data       Arbitrary length data signed on the behalf of address(this)
    * @param _signature  Signature byte array associated with _data
-   * @return Magic value 0x20c13b0b if the signature is valid and 0x0 otherwise
+   * @return magicValue Magic value 0x20c13b0b if the signature is valid and 0x0 otherwise
    *
    */
   function isValidSignature(
@@ -27,7 +27,7 @@ interface  IERC1271Wallet {
    *   > This function MAY modify Ethereum's state
    * @param _hash       keccak256 hash that was signed
    * @param _signature  Signature byte array associated with _data
-   * @return Magic value 0x20c13b0b if the signature is valid and 0x0 otherwise
+   * @return magicValue Magic value 0x20c13b0b if the signature is valid and 0x0 otherwise
    */
   function isValidSignature(
     bytes32 _hash,

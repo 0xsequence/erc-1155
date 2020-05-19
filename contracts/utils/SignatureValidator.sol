@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.8;
 
 import "../interfaces/IERC1271Wallet.sol";
 import "./LibBytes.sol";
@@ -45,7 +45,7 @@ contract SignatureValidator is LibEIP712 {
    * @param _sig            Proof that the hash has been signed by signer.
    *      For non wallet signatures, _sig is expected to be an array tightly encoded as
    *      (bytes32 r, bytes32 s, uint8 v, uint256 nonce, SignatureType sigType)
-   * @return True if the address recovered from the provided signature matches the input signer address.
+   * @return isValid True if the address recovered from the provided signature matches the input signer address.
    */
   function isValidSignature(
     address _signerAddress,

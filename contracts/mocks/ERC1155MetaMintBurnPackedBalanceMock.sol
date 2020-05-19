@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.8;
 pragma experimental ABIEncoderV2;
 
 import "../tokens/ERC1155PackedBalance/ERC1155MetaPackedBalance.sol";
@@ -71,7 +71,7 @@ contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, E
   |       Unsupported Functions       |
   |__________________________________*/
 
-  function () external {
+  fallback () external {
     revert("ERC1155MetaMintBurnPackedBalanceMock: INVALID_METHOD");
   }
 }

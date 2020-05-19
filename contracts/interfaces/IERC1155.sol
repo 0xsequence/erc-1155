@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.8;
 
 
 interface IERC1155 {
@@ -106,7 +106,7 @@ interface IERC1155 {
    * @notice Queries the approval status of an operator for a given owner
    * @param _owner     The owner of the Tokens
    * @param _operator  Address of authorized operator
-   * @return           True if the operator is approved, false if not
+   * @return isOperator True if the operator is approved, false if not
    */
   function isApprovedForAll(address _owner, address _operator) external view returns (bool isOperator);
 }

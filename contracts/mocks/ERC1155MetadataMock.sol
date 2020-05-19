@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.8;
 pragma experimental ABIEncoderV2;
 
 import "../tokens/ERC1155/ERC1155Metadata.sol";
@@ -36,7 +36,7 @@ contract ERC1155MetadataMock is ERC1155Metadata {
   |       Unsupported Functions       |
   |__________________________________*/
 
-  function () external {
+  fallback () external {
     revert('ERC1155MetadataMock: INVALID_METHOD');
   }
 }

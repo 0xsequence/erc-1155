@@ -12,7 +12,7 @@
   This is a truncated version of the original LibBytes.sol library from ZeroEx.
 */
 
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.8;
 
 
 library LibBytes {
@@ -25,7 +25,7 @@ library LibBytes {
   /**
    * @dev Pops the last byte off of a byte array by modifying its length.
    * @param b Byte array that will be modified.
-   * @return The byte that was popped off.
+   * @return result The byte that was popped off.
    */
   function popLastByte(bytes memory b)
     internal
@@ -57,7 +57,7 @@ library LibBytes {
    * @dev Reads a bytes32 value from a position in a byte array.
    * @param b Byte array containing a bytes32 value.
    * @param index Index in byte array of bytes32 value.
-   * @return bytes32 value from byte array.
+   * @return result bytes32 value from byte array.
    */
   function readBytes32(
     bytes memory b,
