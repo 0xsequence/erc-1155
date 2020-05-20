@@ -1,6 +1,5 @@
 pragma solidity ^0.6.8;
 
-import "../../interfaces/IERC165.sol";
 import "../../utils/SafeMath.sol";
 import "../../interfaces/IERC1155TokenReceiver.sol";
 import "../../interfaces/IERC1155.sol";
@@ -10,7 +9,7 @@ import "../../utils/Address.sol";
 /**
  * @dev Implementation of Multi-Token Standard contract
  */
-contract ERC1155 is IERC165, IERC1155 {
+contract ERC1155 is IERC1155 {
   using SafeMath for uint256;
   using Address for address;
 
@@ -241,7 +240,7 @@ contract ERC1155 is IERC165, IERC1155 {
    * @param _interfaceID  The interface identifier, as specified in ERC-165
    * @return `true` if the contract implements `_interfaceID` and
    */
-  function supportsInterface(bytes4 _interfaceID) external override view returns (bool) {
+  function supportsInterface(bytes4 _interfaceID) external virtual view returns (bool) {
     if (_interfaceID == INTERFACE_SIGNATURE_ERC165 ||
         _interfaceID == INTERFACE_SIGNATURE_ERC1155) {
       return true;
