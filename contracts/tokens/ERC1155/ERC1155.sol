@@ -3,6 +3,7 @@ pragma solidity ^0.6.8;
 import "../../utils/SafeMath.sol";
 import "../../interfaces/IERC1155TokenReceiver.sol";
 import "../../interfaces/IERC1155.sol";
+import "../../interfaces/IERC165.sol";
 import "../../utils/Address.sol";
 
 
@@ -219,30 +220,15 @@ contract ERC1155 is IERC1155 {
   |          ERC165 Functions         |
   |__________________________________*/
 
-  /**
-   * INTERFACE_SIGNATURE_ERC165 = bytes4(keccak256("supportsInterface(bytes4)"));
-   */
-  bytes4 constant private INTERFACE_SIGNATURE_ERC165 = 0x01ffc9a7;
-
-  /**
-   * INTERFACE_SIGNATURE_ERC1155 =
-   * bytes4(keccak256("safeTransferFrom(address,address,uint256,uint256,bytes)")) ^
-   * bytes4(keccak256("safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)")) ^
-   * bytes4(keccak256("balanceOf(address,uint256)")) ^
-   * bytes4(keccak256("balanceOfBatch(address[],uint256[])")) ^
-   * bytes4(keccak256("setApprovalForAll(address,bool)")) ^
-   * bytes4(keccak256("isApprovedForAll(address,address)"));
-   */
-  bytes4 constant private INTERFACE_SIGNATURE_ERC1155 = 0xd9b67a26;
 
   /**
    * @notice Query if a contract implements an interface
    * @param _interfaceID  The interface identifier, as specified in ERC-165
    * @return `true` if the contract implements `_interfaceID` and
    */
-  function supportsInterface(bytes4 _interfaceID) external virtual view returns (bool) {
-    if (_interfaceID == INTERFACE_SIGNATURE_ERC165 ||
-        _interfaceID == INTERFACE_SIGNATURE_ERC1155) {
+  function supportsInterface(bytes4 _interfaceID) external virtual pure returns (bool) {
+    if (_interfaceID == type(IERC165).interfaceId ||
+        _interfaceID == type(IERC1155).interfaceId) {
       return true;
     }
     return false;
