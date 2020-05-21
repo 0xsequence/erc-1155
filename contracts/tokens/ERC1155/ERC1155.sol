@@ -220,7 +220,6 @@ contract ERC1155 is IERC1155 {
   |          ERC165 Functions         |
   |__________________________________*/
 
-
   /**
    * @notice Query if a contract implements an interface
    * @param _interfaceID  The interface identifier, as specified in ERC-165
