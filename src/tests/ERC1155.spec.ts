@@ -92,7 +92,7 @@ contract('ERC1155', (accounts: string[]) => {
       await expect(returnedValue).to.be.equal(true)
     })
 
-    it('supportsInterface(v) on receiver should return true', async () => {
+    it('supportsInterface(0x01ffc9a7) on receiver should return true', async () => {
       let abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
       const receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
       const returnedValue = await receiverContract.functions.supportsInterface('0x01ffc9a7')
@@ -558,12 +558,12 @@ contract('ERC1155', (accounts: string[]) => {
 
   describe('Supports ERC165', () => {
     describe('supportsInterface()', () => {
-      it('should return true for 0x01ffc9a7', async () => {
+      it('should return true for 0x01ffc9a7 (IERC165)', async () => {
         const support = await erc1155Contract.functions.supportsInterface('0x01ffc9a7')
         expect(support).to.be.eql(true)
       })
 
-      it('should return true for 0xd9b67a26', async () => {
+      it('should return true for 0xd9b67a26 (IERC1155)', async () => {
         const support = await erc1155Contract.functions.supportsInterface('0xd9b67a26')
         expect(support).to.be.eql(true)
       })
