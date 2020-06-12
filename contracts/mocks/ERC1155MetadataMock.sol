@@ -1,10 +1,9 @@
 pragma solidity ^0.6.8;
 pragma experimental ABIEncoderV2;
 
-import "../tokens/ERC1155/ERC1155Metadata.sol";
+import "./ERC1155MetaMintBurnMock.sol";
 
-
-contract ERC1155MetadataMock is ERC1155Metadata {
+contract ERC1155MetadataMock is ERC1155MetaMintBurnMock {
 
   /***********************************|
   |         Base URI Functions        |
@@ -18,7 +17,6 @@ contract ERC1155MetadataMock is ERC1155Metadata {
     super._setBaseMetadataURI(_newBaseMetadataURI);
   }
 
-
   /***********************************|
   |         Log URI Functions         |
   |__________________________________*/
@@ -31,12 +29,11 @@ contract ERC1155MetadataMock is ERC1155Metadata {
     super._logURIs(_tokenIDs);
   }
 
-
   /***********************************|
   |       Unsupported Functions       |
   |__________________________________*/
 
-  fallback () external {
+  fallback () override external {
     revert('ERC1155MetadataMock: INVALID_METHOD');
   }
 }
