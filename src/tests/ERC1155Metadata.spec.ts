@@ -63,6 +63,13 @@ contract('ERC1155Metadata', (accounts: string[]) => {
       await erc1155MetadataContract.functions.setBaseMetadataURI(BASE_URI);
     })
 
+    describe('Getter functions', () => {
+      it('supportsInterface(0x0e89341c) on receiver should return true', async () => {
+        const returnedValue = await erc1155MetadataContract.functions.supportsInterface('0x01ffc9a7')
+        await expect(returnedValue).to.be.equal(true)
+      })  
+    })
+
     describe('_updateBaseMetadataURL() function', () => {
 
       it('should ALLOW inheriting contract to call _updateBaseMetadataURL()', async () => {

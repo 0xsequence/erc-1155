@@ -1,6 +1,7 @@
 pragma solidity ^0.6.8;
 import "../../interfaces/IERC1155.sol";
 import "../../interfaces/IERC1155Metadata.sol";
+import "../../utils/ERC165.sol";
 
 
 /**
@@ -8,7 +9,7 @@ import "../../interfaces/IERC1155Metadata.sol";
  * @dev Methods assume a deterministic generation of URI based on token IDs.
  *      Methods also assume that URI uses hex representation of token IDs.
  */
-contract ERC1155Metadata {
+contract ERC1155Metadata is ERC165 {
   // URI's default URI prefix
   string internal baseMetadataURI;
   event URI(string _uri, uint256 indexed _id);
@@ -52,6 +53,18 @@ contract ERC1155Metadata {
    */
   function _setBaseMetadataURI(string memory _newBaseMetadataURI) internal {
     baseMetadataURI = _newBaseMetadataURI;
+  }
+
+  /**
+   * @notice Query if a contract implements an interface
+   * @param _interfaceID  The interface identifier, as specified in ERC-165
+   * @return `true` if the contract implements `_interfaceID` and
+   */
+  function supportsInterface(bytes4 _interfaceID) public override virtual pure returns (bool) {
+    if (_interfaceID == type(IERC1155Metadata).interfaceId) {
+      return true;
+    }
+    return super.supportsInterface(_interfaceID);
   }
 
 

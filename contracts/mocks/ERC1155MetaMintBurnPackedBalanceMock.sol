@@ -3,9 +3,31 @@ pragma experimental ABIEncoderV2;
 
 import "../tokens/ERC1155PackedBalance/ERC1155MetaPackedBalance.sol";
 import "../tokens/ERC1155PackedBalance/ERC1155MintBurnPackedBalance.sol";
+import "../tokens/ERC1155/ERC1155Metadata.sol";
 
 
-contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, ERC1155MetaPackedBalance {
+contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, ERC1155MetaPackedBalance, ERC1155Metadata {
+
+  /***********************************|
+  |               ERC165              |
+  |__________________________________*/
+
+  /**
+   * @notice Query if a contract implements an interface
+   * @dev Parent contract inheriting multiple contracts with supportsInterface()
+   *      need to implement an overriding supportsInterface() function specifying
+   *      all inheriting contracts that have a supportsInterface() function.
+   * @param _interfaceID The interface identifier, as specified in ERC-165
+   * @return `true` if the contract implements `_interfaceID`
+   */
+  function supportsInterface(
+    bytes4 _interfaceID
+  ) public override(
+    ERC1155PackedBalance,
+    ERC1155Metadata
+  ) pure returns (bool) {
+    return super.supportsInterface(_interfaceID);
+  }
 
   /***********************************|
   |         Minting Functions         |
