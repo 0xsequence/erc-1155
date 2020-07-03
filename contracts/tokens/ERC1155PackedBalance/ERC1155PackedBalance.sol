@@ -3,8 +3,8 @@ pragma solidity ^0.6.8;
 import "../../utils/SafeMath.sol";
 import "../../interfaces/IERC1155TokenReceiver.sol";
 import "../../interfaces/IERC1155.sol";
-import "../../interfaces/IERC165.sol";
 import "../../utils/Address.sol";
+import "../../utils/ERC165.sol";
 
 
 /**
@@ -15,7 +15,7 @@ import "../../utils/Address.sol";
  *      2^IDS_BITS_SIZE, which can be adjusted below. In practice, using IDS_BITS_SIZE smaller than 16
  *      did not lead to major efficiency gains.
  */
-contract ERC1155PackedBalance is IERC1155 {
+contract ERC1155PackedBalance is IERC1155, ERC165 {
   using SafeMath for uint256;
   using Address for address;
 
@@ -392,11 +392,10 @@ contract ERC1155PackedBalance is IERC1155 {
    * @param _interfaceID  The interface identifier, as specified in ERC-165
    * @return `true` if the contract implements `_interfaceID` and
    */
-  function supportsInterface(bytes4 _interfaceID) external virtual pure returns (bool) {
-    if (_interfaceID == type(IERC165).interfaceId ||
-        _interfaceID == type(IERC1155).interfaceId) {
+  function supportsInterface(bytes4 _interfaceID) public override virtual pure returns (bool) {
+    if (_interfaceID == type(IERC1155).interfaceId) {
       return true;
     }
-    return false;
+    return super.supportsInterface(_interfaceID);
   }
 }

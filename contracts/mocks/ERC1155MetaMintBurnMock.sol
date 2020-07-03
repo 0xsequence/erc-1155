@@ -8,6 +8,23 @@ import "../tokens/ERC1155/ERC1155Metadata.sol";
 
 contract ERC1155MetaMintBurnMock is ERC1155Meta, ERC1155MintBurn, ERC1155Metadata {
 
+  /**
+   * @notice Query if a contract implements an interface
+   * @dev Parent contract inheriting multiple contracts with supportsInterface()
+   *      need to implement an overriding supportsInterface() function specifying
+   *      all inheriting contracts that have a supportsInterface() function.
+   * @param _interfaceID The interface identifier, as specified in ERC-165
+   * @return `true` if the contract implements `_interfaceID`
+   */
+  function supportsInterface(
+    bytes4 _interfaceID
+  ) public override(
+    ERC1155,
+    ERC1155Metadata
+  ) pure returns (bool) {
+    return super.supportsInterface(_interfaceID);
+  }
+
   /***********************************|
   |         Minting Functions         |
   |__________________________________*/
@@ -66,7 +83,7 @@ contract ERC1155MetaMintBurnMock is ERC1155Meta, ERC1155MintBurn, ERC1155Metadat
   {
     super._batchBurn(_from, _ids, _values);
   }
-
+  
   /***********************************|
   |       Unsupported Functions       |
   |__________________________________*/
