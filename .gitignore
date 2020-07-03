@@ -4,7 +4,6 @@ node_modules/
 
 *.js.map
 build/
-typings/contracts/*
 
 .DS_Store
 .vscode
