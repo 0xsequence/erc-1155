@@ -1196,7 +1196,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
 
             const tx = operatorERC1155Contract.functions.metaSafeBatchTransferFrom(ownerAddress, receiverContract.address, ids, amounts, isGasReceipt, data)
             await expect(tx).to.be.rejectedWith( RevertError("ERC1155#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE") )
-
           })
 
           it('should PASS if valid response from receiver contract', async () => {
@@ -1207,7 +1206,6 @@ contract('ERC1155Meta', (accounts: string[]) => {
               {gasLimit: 2000000}
             )
 
-            //await expect(tx).to.be.fulfilled
             await expect(tx).to.be.fulfilled
           })
 

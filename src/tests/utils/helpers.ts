@@ -137,7 +137,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
     
     // 2.
     } else {
-      let gasAndTransferData = defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, toUtf8Bytes('')])
+      let gasAndTransferData = defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, []])
       sigData = ethers.utils.keccak256(ethers.utils.solidityPack(
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(gasAndTransferData)] //Hash of _data
@@ -159,7 +159,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
     
     // 4.
     } else { 
-      let emptyTransferData = defaultAbiCoder.encode(['bytes'], [toUtf8Bytes('')])
+      let emptyTransferData = []
       sigData = ethers.utils.keccak256(ethers.utils.solidityPack(
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(emptyTransferData)] //Hash of _data
@@ -240,7 +240,7 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
 
     // 2.
     } else {
-      let gasAndTransferData = defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, toUtf8Bytes('')])
+      let gasAndTransferData = defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, []])
       sigData = ethers.utils.keccak256(ethers.utils.solidityPack(
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(gasAndTransferData)] //Hash of _data
@@ -262,7 +262,7 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
 
     // 4.
     } else { 
-      let emptyTransferData = defaultAbiCoder.encode(['bytes'], [toUtf8Bytes('')])
+      let emptyTransferData = []
       sigData = ethers.utils.keccak256(ethers.utils.solidityPack(
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(emptyTransferData)] //Hash of _data
@@ -321,7 +321,7 @@ export async function encodeMetaApprovalData(a: ApprovalSignature, domainHash: s
     return  defaultAbiCoder.encode(txDataTypes, [sig, gasData])
     
   } else { 
-    let emptyTransferData = defaultAbiCoder.encode(['bytes'], [toUtf8Bytes('')])
+    let emptyTransferData = []
     sigData = ethers.utils.keccak256(ethers.utils.solidityPack(
       ['bytes', 'bytes32'], 
       [sigData, ethers.utils.keccak256(emptyTransferData)] //Hash of _data

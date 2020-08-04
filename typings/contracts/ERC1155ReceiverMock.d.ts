@@ -23,7 +23,7 @@ interface ERC1155ReceiverMockInterface extends Interface {
     shouldReject: TypedFunctionDescription<{ encode([]: []): string }>;
 
     onERC1155Received: TypedFunctionDescription<{
-      encode([_operator, _from, _id, _value, _data]: [
+      encode([, _from, _id, , _data]: [
         string,
         string,
         BigNumberish,
@@ -33,7 +33,7 @@ interface ERC1155ReceiverMockInterface extends Interface {
     }>;
 
     onERC1155BatchReceived: TypedFunctionDescription<{
-      encode([_operator, _from, _ids, _values, _data]: [
+      encode([, _from, _ids, , _data]: [
         string,
         string,
         BigNumberish[],
@@ -100,19 +100,19 @@ export class ERC1155ReceiverMock extends Contract {
     shouldReject(): Promise<boolean>;
 
     onERC1155Received(
-      _operator: string,
+      arg0: string,
       _from: string,
       _id: BigNumberish,
-      _value: BigNumberish,
+      arg3: BigNumberish,
       _data: Arrayish,
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
 
     onERC1155BatchReceived(
-      _operator: string,
+      arg0: string,
       _from: string,
       _ids: BigNumberish[],
-      _values: BigNumberish[],
+      arg3: BigNumberish[],
       _data: Arrayish,
       overrides?: TransactionOverrides
     ): Promise<ContractTransaction>;
@@ -136,19 +136,19 @@ export class ERC1155ReceiverMock extends Contract {
   shouldReject(): Promise<boolean>;
 
   onERC1155Received(
-    _operator: string,
+    arg0: string,
     _from: string,
     _id: BigNumberish,
-    _value: BigNumberish,
+    arg3: BigNumberish,
     _data: Arrayish,
     overrides?: TransactionOverrides
   ): Promise<ContractTransaction>;
 
   onERC1155BatchReceived(
-    _operator: string,
+    arg0: string,
     _from: string,
     _ids: BigNumberish[],
-    _values: BigNumberish[],
+    arg3: BigNumberish[],
     _data: Arrayish,
     overrides?: TransactionOverrides
   ): Promise<ContractTransaction>;
@@ -188,18 +188,18 @@ export class ERC1155ReceiverMock extends Contract {
     shouldReject(): Promise<BigNumber>;
 
     onERC1155Received(
-      _operator: string,
+      arg0: string,
       _from: string,
       _id: BigNumberish,
-      _value: BigNumberish,
+      arg3: BigNumberish,
       _data: Arrayish
     ): Promise<BigNumber>;
 
     onERC1155BatchReceived(
-      _operator: string,
+      arg0: string,
       _from: string,
       _ids: BigNumberish[],
-      _values: BigNumberish[],
+      arg3: BigNumberish[],
       _data: Arrayish
     ): Promise<BigNumber>;
 

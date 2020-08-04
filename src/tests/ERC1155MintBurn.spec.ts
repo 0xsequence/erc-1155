@@ -118,7 +118,7 @@ contract('ERC1155MintBurn', (accounts: string[]) => {
       })
   
       it('should pass if data is not null to receiver contract', async () => {
-        const data = ethers.utils.toUtf8Bytes('hello')
+        const data = ethers.utils.toUtf8Bytes("Hello from the other side")
   
         // NOTE: typechain generates the wrong type for `bytes` type at this time
         // see https://github.com/ethereum-ts/TypeChain/issues/123
@@ -249,7 +249,7 @@ contract('ERC1155MintBurn', (accounts: string[]) => {
       })
   
       it('should pass if data is not null from receiver contract', async () => {
-        const data = ethers.utils.toUtf8Bytes('hello123')
+        const data = ethers.utils.toUtf8Bytes("Hello from the other side")
   
         // TODO: remove ts-ignore when contract declaration is fixed
         // @ts-ignore

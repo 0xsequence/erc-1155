@@ -38,22 +38,28 @@ contract ERC1155ReceiverMock {
    * This function MAY throw to revert and reject the transfer.
    * Return of other than the magic value MUST result in the transaction being reverted.
    * Note: The contract address is always the message sender.
-   * @param _operator  The address which called the `safeTransferFrom` function
    * @param _from      The address which previously owned the token
    * @param _id        The id of the token being transferred
-   * @param _value     The amount of tokens being transferred
    * @param _data      Additional data with no specified format
    * @return           `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`
    */
-  function onERC1155Received(address _operator, address _from, uint256 _id, uint256 _value, bytes memory _data)
+  function onERC1155Received(address, address _from, uint256 _id, uint256, bytes memory _data)
     public returns(bytes4)
   {
     // To check the following conditions;
     //   All the balances in the transfer MUST have been updated to match the senders intent before any hook is called on a recipient.
     //   All the transfer events for the transfer MUST have been emitted to reflect the balance changes before any hook is called on a recipient.
+    //   If data is passed, must be specific
     uint256 fromBalance = IERC1155(msg.sender).balanceOf(_from, _id);
     uint256 toBalance = IERC1155(msg.sender).balanceOf(address(this), _id);
     emit TransferSingleReceiver(_from, address(this), fromBalance, toBalance);
+
+    if (_data.length != 0) {
+      require(
+        keccak256(_data) == keccak256(abi.encodePacked("Hello from the other side")),
+        "ERC1155ReceiverMock#onERC1155Received: UNEXPECTED_DATA"
+      );
+    }
 
     if (shouldReject == true) {
       return ERC1155_RECEIVED_INVALID; // Some random value
@@ -68,19 +74,18 @@ contract ERC1155ReceiverMock {
    * This function MAY throw to revert and reject the transfer.
    * Return of other than the magic value WILL result in the transaction being reverted.
    * Note: The contract address is always the message sender.
-   * @param _operator  The address which called the `safeBatchTransferFrom` function
    * @param _from      The address which previously owned the token
    * @param _ids       An array containing ids of each token being transferred
-   * @param _values    An array containing amounts of each token being transferred
    * @param _data      Additional data with no specified format
    * @return           `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`
    */
-  function onERC1155BatchReceived(address _operator, address _from, uint256[] memory _ids, uint256[] memory _values, bytes memory _data) 
+  function onERC1155BatchReceived(address, address _from, uint256[] memory _ids, uint256[] memory, bytes memory _data)
     public returns(bytes4)
   {
     // To check the following conditions;
     //   All the balances in the transfer MUST have been updated to match the senders intent before any hook is called on a recipient.
     //   All the transfer events for the transfer MUST have been emitted to reflect the balance changes before any hook is called on a recipient.
+    //   If data is passed, must be specific
     address[] memory fromAddressArray = new address[](_ids.length);
     address[] memory toAddressArray = new address[](_ids.length);
     for (uint i = 0; i < _ids.length; i++ ) {
@@ -91,13 +96,18 @@ contract ERC1155ReceiverMock {
     uint256[] memory toBalances = IERC1155(msg.sender).balanceOfBatch(toAddressArray, _ids);
     emit TransferBatchReceiver(_from, address(this), fromBalances, toBalances);
 
+    if (_data.length != 0) {
+      require(
+        keccak256(_data) == keccak256(abi.encodePacked("Hello from the other side")),
+        "ERC1155ReceiverMock#onERC1155Received: UNEXPECTED_DATA");
+    }
+
     if (shouldReject == true) {
       return ERC1155_RECEIVED_INVALID; // Some random value
     } else {
       return ERC1155_BATCH_RECEIVED_SIG;
     }
   }
-
 
   /***********************************|
   |          ERC165 Functions         |
