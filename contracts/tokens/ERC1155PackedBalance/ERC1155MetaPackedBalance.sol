@@ -112,7 +112,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
       // Hence we only pass the gasLimit to the recipient such that the relayer knows the griefing
       // limit. Nothing can prevent the receiver to revert the transaction as close to the gasLimit as
       // possible, but the relayer can now only accept meta-transaction gasLimit within a certain range.
-      _callonERC1155Received(_from, _to, _id, _amount, gasReceipt.gasLimitCallback, signedData);
+      _callonERC1155Received(_from, _to, _id, _amount, gasReceipt.gasLimitCallback, transferData);
 
       // Transfer gas cost
       _transferGasFee(_from, gasReceipt);
@@ -176,7 +176,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
       // Hence we only pass the gasLimit to the recipient such that the relayer knows the griefing
       // limit. Nothing can prevent the receiver to revert the transaction as close to the gasLimit as
       // possible, but the relayer can now only accept meta-transaction gasLimit within a certain range.
-      _callonERC1155BatchReceived(_from, _to, _ids, _amounts, gasReceipt.gasLimitCallback, signedData);
+      _callonERC1155BatchReceived(_from, _to, _ids, _amounts, gasReceipt.gasLimitCallback, transferData);
 
       // Handle gas reimbursement
       _transferGasFee(_from, gasReceipt);
