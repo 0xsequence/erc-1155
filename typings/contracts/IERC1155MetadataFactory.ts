@@ -17,6 +17,25 @@ export class IERC1155MetadataFactory {
 
 const _abi = [
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "string",
+        name: "_uri",
+        type: "string"
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "_id",
+        type: "uint256"
+      }
+    ],
+    name: "URI",
+    type: "event"
+  },
+  {
     inputs: [
       {
         internalType: "uint256",

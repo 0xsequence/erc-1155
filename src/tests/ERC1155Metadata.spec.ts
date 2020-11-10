@@ -65,7 +65,7 @@ contract('ERC1155Metadata', (accounts: string[]) => {
 
     describe('Getter functions', () => {
       it('supportsInterface(0x0e89341c) on receiver should return true', async () => {
-        const returnedValue = await erc1155MetadataContract.functions.supportsInterface('0x01ffc9a7')
+        const returnedValue = await erc1155MetadataContract.functions.supportsInterface('0x0e89341c')
         await expect(returnedValue).to.be.equal(true)
       })  
     })

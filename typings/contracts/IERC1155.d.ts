@@ -77,10 +77,6 @@ interface IERC1155Interface extends Interface {
         null
       ]): string[];
     }>;
-
-    URI: TypedEventDescription<{
-      encodeTopics([_amount, _id]: [null, BigNumberish | null]): string[];
-    }>;
   };
 }
 
@@ -184,8 +180,6 @@ export class IERC1155 extends Contract {
       _id: null,
       _amount: null
     ): EventFilter;
-
-    URI(_amount: null, _id: BigNumberish | null): EventFilter;
   };
 
   estimate: {

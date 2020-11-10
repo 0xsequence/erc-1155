@@ -1,5 +1,4 @@
-pragma solidity ^0.6.8;
-import "../../interfaces/IERC1155.sol";
+pragma solidity 0.7.4;
 import "../../interfaces/IERC1155Metadata.sol";
 import "../../utils/ERC165.sol";
 
@@ -9,10 +8,9 @@ import "../../utils/ERC165.sol";
  * @dev Methods assume a deterministic generation of URI based on token IDs.
  *      Methods also assume that URI uses hex representation of token IDs.
  */
-contract ERC1155Metadata is ERC165 {
+contract ERC1155Metadata is IERC1155Metadata, ERC165 {
   // URI's default URI prefix
   string internal baseMetadataURI;
-  event URI(string _uri, uint256 indexed _id);
 
   /***********************************|
   |     Metadata Public Function s    |
@@ -24,7 +22,7 @@ contract ERC1155Metadata is ERC165 {
    *      URIs are assumed to be deterministically generated based on token ID
    * @return URI string
    */
-  function uri(uint256 _id) public view returns (string memory) {
+  function uri(uint256 _id) public override view returns (string memory) {
     return string(abi.encodePacked(baseMetadataURI, _uint2str(_id), ".json"));
   }
 

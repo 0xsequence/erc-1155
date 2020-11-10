@@ -15,7 +15,11 @@ interface IERC1155MetadataInterface extends Interface {
     uri: TypedFunctionDescription<{ encode([_id]: [BigNumberish]): string }>;
   };
 
-  events: {};
+  events: {
+    URI: TypedEventDescription<{
+      encodeTopics([_uri, _id]: [null, BigNumberish | null]): string[];
+    }>;
+  };
 }
 
 export class IERC1155Metadata extends Contract {
@@ -40,7 +44,9 @@ export class IERC1155Metadata extends Contract {
 
   uri(_id: BigNumberish): Promise<string>;
 
-  filters: {};
+  filters: {
+    URI(_uri: null, _id: BigNumberish | null): EventFilter;
+  };
 
   estimate: {
     uri(_id: BigNumberish): Promise<BigNumber>;

@@ -1,4 +1,4 @@
-pragma solidity ^0.6.8;
+pragma solidity 0.7.4;
 
 
 interface IERC1155 {
@@ -31,13 +31,6 @@ interface IERC1155 {
    * @dev MUST emit when an approval is updated
    */
   event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
-
-  /**
-   * @dev MUST emit when the URI is updated for a token ID
-   *   URIs are defined in RFC 3986
-   *   The URI MUST point a JSON file that conforms to the "ERC-1155 Metadata JSON Schema"
-   */
-  event URI(string _amount, uint256 indexed _id);
 
 
   /****************************************|

@@ -81,10 +81,6 @@ interface ERC1155MintBurnInterface extends Interface {
         null
       ]): string[];
     }>;
-
-    URI: TypedEventDescription<{
-      encodeTopics([_amount, _id]: [null, BigNumberish | null]): string[];
-    }>;
   };
 }
 
@@ -195,8 +191,6 @@ export class ERC1155MintBurn extends Contract {
       _id: null,
       _amount: null
     ): EventFilter;
-
-    URI(_amount: null, _id: BigNumberish | null): EventFilter;
   };
 
   estimate: {

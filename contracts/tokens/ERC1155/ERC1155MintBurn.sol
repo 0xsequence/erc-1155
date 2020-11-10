@@ -1,4 +1,4 @@
-pragma solidity ^0.6.8;
+pragma solidity 0.7.4;
 import "./ERC1155.sol";
 
 
@@ -7,6 +7,7 @@ import "./ERC1155.sol";
  *      a parent contract to be executed as they are `internal` functions
  */
 contract ERC1155MintBurn is ERC1155 {
+  using SafeMath for uint256;
 
   /****************************************|
   |            Minting Functions           |

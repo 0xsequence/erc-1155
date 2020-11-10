@@ -1,4 +1,4 @@
-pragma solidity ^0.6.8;
+pragma solidity 0.7.4;
 
 /**
  * Recommended interface for public facing minting and burning functions.

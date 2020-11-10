@@ -116,25 +116,6 @@ const _abi = [
     type: "event"
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "string",
-        name: "_amount",
-        type: "string"
-      },
-      {
-        indexed: true,
-        internalType: "uint256",
-        name: "_id",
-        type: "uint256"
-      }
-    ],
-    name: "URI",
-    type: "event"
-  },
-  {
     inputs: [
       {
         internalType: "address",
