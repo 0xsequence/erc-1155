@@ -1,5 +1,4 @@
-import { Wallet } from 'ethers'
-import { BigNumber } from 'ethers/utils'
+import { Wallet, BigNumber } from 'ethers'
 
 export type GasReceipt = {
   gasFee: number | string | BigNumber;
