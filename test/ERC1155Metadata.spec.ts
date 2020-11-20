@@ -6,13 +6,13 @@ import * as utils from './utils'
 import { ERC1155MetadataMock } from 'typings/contracts/ERC1155MetadataMock'
 
 // init test wallets from package.json mnemonic
-const web3 = (global as any).web3
+import { web3 } from 'hardhat'
 
 const {
   wallet: ownerWallet,
   provider: ownerProvider,
   signer: ownerSigner
-} = utils.createTestWallet(web3, 0)
+} = utils.createTestWallet(web3, 1)
 
 const {
   wallet: receiverWallet,
@@ -33,7 +33,7 @@ const {
 } = utils.createTestWallet(web3, 4)
 
 
-contract('ERC1155Metadata', (accounts: string[]) => {
+describe('ERC1155Metadata', () => {
 
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
@@ -60,12 +60,12 @@ contract('ERC1155Metadata', (accounts: string[]) => {
       erc1155MetadataContract = await abstract.deploy(ownerWallet) as ERC1155MetadataMock
       anyoneERC1155MetadataContract = await erc1155MetadataContract.connect(anyoneSigner) as ERC1155MetadataMock
 
-      await erc1155MetadataContract.functions.setBaseMetadataURI(BASE_URI);
+      await erc1155MetadataContract.setBaseMetadataURI(BASE_URI);
     })
 
     describe('Getter functions', () => {
       it('supportsInterface(0x0e89341c) on receiver should return true', async () => {
-        const returnedValue = await erc1155MetadataContract.functions.supportsInterface('0x0e89341c')
+        const returnedValue = await erc1155MetadataContract.supportsInterface('0x0e89341c')
         await expect(returnedValue).to.be.equal(true)
       })  
     })
@@ -73,14 +73,14 @@ contract('ERC1155Metadata', (accounts: string[]) => {
     describe('_updateBaseMetadataURL() function', () => {
 
       it('should ALLOW inheriting contract to call _updateBaseMetadataURL()', async () => {
-        const tx = erc1155MetadataContract.functions.setBaseMetadataURI('HELLOTEST/');
+        const tx = erc1155MetadataContract.setBaseMetadataURI('HELLOTEST/');
         await expect(tx).to.be.fulfilled
       })
 
       it('should update baseMetadataURI when successful', async () => {
-        const URI1 = await erc1155MetadataContract.functions.uri(1928374)
-        await erc1155MetadataContract.functions.setBaseMetadataURI('HELLOTEST/');
-        const URI2 = await erc1155MetadataContract.functions.uri(1928374)
+        const URI1 = await erc1155MetadataContract.uri(1928374)
+        await erc1155MetadataContract.setBaseMetadataURI('HELLOTEST/');
+        const URI2 = await erc1155MetadataContract.uri(1928374)
         expect(URI1).to.be.equal(BASE_URI + '1928374.json')
         expect(URI2).to.be.equal('HELLOTEST/1928374.json')
       })
@@ -102,7 +102,7 @@ contract('ERC1155Metadata', (accounts: string[]) => {
       const ids = [1, 44, 19283091823]
 
       it('should ALLOW inheriting contract to call _logURIs()', async () => {
-        const tx = erc1155MetadataContract.functions.logURIsMock(ids);
+        const tx = erc1155MetadataContract.logURIsMock(ids);
         await expect(tx).to.be.fulfilled
       })
 
@@ -120,14 +120,14 @@ contract('ERC1155Metadata', (accounts: string[]) => {
       })
 
       it('should emit N URI events', async () => {
-        const tx = await erc1155MetadataContract.functions.logURIsMock(ids) as ethers.ContractTransaction
+        const tx = await erc1155MetadataContract.logURIsMock(ids) as ethers.ContractTransaction
         const receipt = await tx.wait(1)
         const URIevents = receipt.events!.filter(uri => uri.event === 'URI')
         expect(receipt.events!.length == ids.length)
       })
 
       it('should emit URI events with correct information', async () => {
-        const tx = await erc1155MetadataContract.functions.logURIsMock(ids) as ethers.ContractTransaction
+        const tx = await erc1155MetadataContract.logURIsMock(ids) as ethers.ContractTransaction
         const receipt = await tx.wait(1)
         receipt.events!
           .filter(uri => uri.event === 'URI')

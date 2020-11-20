@@ -8,13 +8,13 @@ import { ERC1155ReceiverMock } from 'typings/contracts/ERC1155ReceiverMock'
 import { ERC1155OperatorMock } from 'typings/contracts/ERC1155OperatorMock'
 
 // init test wallets from package.json mnemonic
-const web3 = (global as any).web3
+import { web3 } from 'hardhat'
 
 const {
   wallet: ownerWallet,
   provider: ownerProvider,
   signer: ownerSigner
-} = utils.createTestWallet(web3, 0)
+} = utils.createTestWallet(web3, 1)
 
 const {
   wallet: receiverWallet,
@@ -29,7 +29,7 @@ const {
 } = utils.createTestWallet(web3, 4)
 
 
-contract('ERC1155PackedBalance', (accounts: string[]) => {
+describe('ERC1155PackedBalance', () => {
 
   const LARGEVAL = BigNumber.from(2).pow(256).sub(2) // 2**256 - 2
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'

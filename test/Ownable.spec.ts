@@ -6,17 +6,17 @@ import * as utils from './utils'
 import { OwnableMock } from 'typings/contracts/OwnableMock'
 
 // init test wallets from package.json mnemonic
-const web3 = (global as any).web3
+import { web3 } from 'hardhat'
 
 const {
   wallet: ownerWallet,
-} = utils.createTestWallet(web3, 0)
+} = utils.createTestWallet(web3, 1)
 
 const {
   wallet: userWallet,
 } = utils.createTestWallet(web3, 2)
 
-contract('Ownable Contract', (accounts: string[]) => {
+describe('Ownable Contract', () => {
 
   let ownableMockAbstract: AbstractContract
   let ownerOwnableMockContract: OwnableMock
@@ -36,7 +36,7 @@ contract('Ownable Contract', (accounts: string[]) => {
   describe('owner() Function', () => {
 
     it('should return current owner', async () => {
-      const orginalOwner = await ownerOwnableMockContract.functions.owner()
+      const orginalOwner = await ownerOwnableMockContract.owner()
       expect(orginalOwner).to.be.equal(ownerWallet.address)
     })
 
@@ -46,12 +46,12 @@ contract('Ownable Contract', (accounts: string[]) => {
 
     it('should REVERT if called by a non-owner address', async () => {
 
-      const tx = userOwnableMockContract.functions.ownerCall()
+      const tx = userOwnableMockContract.ownerCall()
       await expect(tx).to.be.rejectedWith( RevertError("Ownable#onlyOwner: SENDER_IS_NOT_OWNER") )
     })
 
     it('should PASS if called by owner address', async () => {
-      const tx = ownerOwnableMockContract.functions.ownerCall()
+      const tx = ownerOwnableMockContract.ownerCall()
       await expect(tx).to.be.fulfilled
     })
 
@@ -60,12 +60,12 @@ contract('Ownable Contract', (accounts: string[]) => {
   describe('nonOwnerCall() Function', () => { 
 
     it('should PASS if called by a non-owner address', async () => {
-      const tx = userOwnableMockContract.functions.nonOwnerCall()
+      const tx = userOwnableMockContract.nonOwnerCall()
       await expect(tx).to.be.fulfilled
     })
 
     it('should PASS if called by owner address', async () => {
-      const tx = ownerOwnableMockContract.functions.nonOwnerCall()
+      const tx = ownerOwnableMockContract.nonOwnerCall()
       await expect(tx).to.be.fulfilled
     })
   })
@@ -73,19 +73,19 @@ contract('Ownable Contract', (accounts: string[]) => {
   describe('transferOwnership() Function', () => {
 
     it('should REVERT if sender is not owner', async () => {
-      const tx = userOwnableMockContract.functions.transferOwnership(userWallet.address)
+      const tx = userOwnableMockContract.transferOwnership(userWallet.address)
       await expect(tx).to.be.rejectedWith( RevertError("Ownable#onlyOwner: SENDER_IS_NOT_OWNER") )
     })
 
     it('should REVERT if new owner is 0x0', async () => {
-      const tx = ownerOwnableMockContract.functions.transferOwnership(ethers.constants.AddressZero)
+      const tx = ownerOwnableMockContract.transferOwnership(ethers.constants.AddressZero)
       await expect(tx).to.be.rejectedWith( RevertError("Ownable#transferOwnership: INVALID_ADDRESS") )
     })
 
     it('should update owner when it passes', async () => {
-      const oldOwner = await ownerOwnableMockContract.functions.owner()
-      await ownerOwnableMockContract.functions.transferOwnership(userWallet.address)
-      const newOwner = await ownerOwnableMockContract.functions.owner()
+      const oldOwner = await ownerOwnableMockContract.owner()
+      await ownerOwnableMockContract.transferOwnership(userWallet.address)
+      const newOwner = await ownerOwnableMockContract.owner()
 
       expect(oldOwner).to.be.equal(ownerWallet.address)
       expect(newOwner).to.be.equal(userWallet.address)
@@ -95,7 +95,7 @@ contract('Ownable Contract', (accounts: string[]) => {
       let tx: ethers.ContractTransaction
 
       beforeEach(async () => {
-        tx = await ownerOwnableMockContract.functions.transferOwnership(userWallet.address)
+        tx = await ownerOwnableMockContract.transferOwnership(userWallet.address)
       })
 
       it('should emit OwnershipTransferred event when successful', async () => {

@@ -24,13 +24,13 @@ import {
 } from 'typings/txTypes';
 
 // init test wallets from package.json mnemonic
-const web3 = (global as any).web3
+import { web3 } from 'hardhat'
   
 const {
   wallet: ownerWallet,
   provider: ownerProvider,
   signer: ownerSigner
-} = createTestWallet(web3, 0)
+} = createTestWallet(web3, 1)
 
 const {
   wallet: receiverWallet,
@@ -49,7 +49,7 @@ ownerProvider.pollingInterval = 1000;
 operatorProvider.pollingInterval = 1000;
 receiverProvider.pollingInterval = 1000;
 
-contract('ERC1155Meta', (accounts: string[]) => {
+describe('ERC1155Meta', () => {
 
   const MAXVAL = BigNumber.from(2).pow(256).sub(1) // 2**256 - 1
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -182,7 +182,7 @@ contract('ERC1155Meta', (accounts: string[]) => {
           let dataUint8 = utils.toUtf8Bytes("Breakthroughs! over the river! flips and crucifixions! gone down the flood!")
           let data = BigNumber.from(dataUint8).toHexString()
 
-          // Check if data lelngth is more than 69
+          // Check if data length is more than 69
           expect(utils.arrayify(data).length).to.be.at.least(70)
 
           const tx = erc1155Contract.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data)
