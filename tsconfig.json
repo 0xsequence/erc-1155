@@ -37,7 +37,7 @@
   "include": [
     "typings","src", "test"
   ],
-
+  "files": ["./hardhat.config.ts"], 
   "exclude": [
     "node_modules",
     "dist",

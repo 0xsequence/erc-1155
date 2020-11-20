@@ -14,8 +14,3 @@ export const { assert, expect } = chai
   .use(chaiString)
   .use(chaiAsPromised)
   .use(ChaiBigNumber());
-
-describe.if = function (condition: boolean, message: string, func: (this: Mocha.Suite) => void): void {
-  const run: Mocha.PendingSuiteFunction = condition ? this : this.skip;
-  run(message, func);
-}

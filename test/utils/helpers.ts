@@ -28,7 +28,7 @@ export const createTestWallet = (web3: any, addressIndex: number = 0) => {
 // Check if tx was Reverted with specified message
 export function RevertError(errorMessage?: string) {
   let prefix = 'VM Exception while processing transaction: revert'
-  return errorMessage ? RegExp(`^${prefix + ' ' + errorMessage}$`) : RegExp(`^${prefix}$`)
+  return errorMessage ? RegExp(`${prefix + ' ' + errorMessage}`) : RegExp(`${prefix}`)
 }
 
 // Take a message, hash it and sign it with ETH_SIGN SignatureType

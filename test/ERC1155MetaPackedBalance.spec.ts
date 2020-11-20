@@ -27,7 +27,7 @@ import {
 } from 'typings/txTypes';
 
 // init test wallets from package.json mnemonic
-const web3 = (global as any).web3
+import { web3 } from 'hardhat'
   
 const {
   wallet: ownerWallet,
@@ -52,7 +52,7 @@ ownerProvider.pollingInterval = 1000;
 operatorProvider.pollingInterval = 1000;
 receiverProvider.pollingInterval = 1000;
 
-contract('ERC1155MetaPackedBalance', (accounts: string[]) => {
+describe('ERC1155MetaPackedBalance', () => {
 
   const MAXVAL = BigNumber.from(2).pow(32).sub(1) // 2**32 - 1
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
