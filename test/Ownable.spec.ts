@@ -10,7 +10,7 @@ import { web3 } from 'hardhat'
 
 const {
   wallet: ownerWallet,
-} = utils.createTestWallet(web3, 1)
+} = utils.createTestWallet(web3, 0)
 
 const {
   wallet: userWallet,
