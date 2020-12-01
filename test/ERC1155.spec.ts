@@ -14,7 +14,7 @@ const {
   wallet: ownerWallet,
   provider: ownerProvider,
   signer: ownerSigner
-} = utils.createTestWallet(web3, 1)
+} = utils.createTestWallet(web3, 0)
 
 const {
   wallet: receiverWallet,
@@ -62,7 +62,7 @@ describe('ERC1155', () => {
   describe('Getter functions', () => {
 
     beforeEach(async () => {
-      
+
       await erc1155Contract.mintMock(ownerAddress, 5, 256, [])
       await erc1155Contract.mintMock(receiverAddress, 66, 133, [])
     })
@@ -70,7 +70,7 @@ describe('ERC1155', () => {
     it('balanceOf() should return types balance for queried address', async () => {
       let balance5 = await erc1155Contract.balanceOf(ownerAddress, 5)
       expect(balance5).to.be.eql(BigNumber.from(256))
-
+      
       let balance16 = await erc1155Contract.balanceOf(ownerAddress, 16)
       expect(balance16).to.be.eql(BigNumber.from(0))
     })
