@@ -13,13 +13,13 @@ const {
   wallet: signerWallet,
   provider: signerProvider,
   signer: signerSigner
-} = utils.createTestWallet(web3, 1)
+} = utils.createTestWallet(web3, 0)
 
 const {
   wallet: randomSignerWallet,
   provider: randomSignerProvider,
   signer: randomSignerSigner
-} = utils.createTestWallet(web3, 2)
+} = utils.createTestWallet(web3, 1)
 
 describe('SignatureValidator Contract', () => {
 

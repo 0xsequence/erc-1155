@@ -12,7 +12,7 @@ const {
   wallet: ownerWallet,
   provider: ownerProvider,
   signer: ownerSigner
-} = utils.createTestWallet(web3, 1)
+} = utils.createTestWallet(web3, 0)
 
 const {
   wallet: receiverWallet,
