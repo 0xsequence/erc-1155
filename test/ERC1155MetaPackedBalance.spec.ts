@@ -731,7 +731,7 @@ describe('ERC1155MetaPackedBalance', () => {
               })
 
               it('should PASS if gas used in onERC1155Received does not exceed limit', async () => {
-                let okGasLimit = 9000;
+                let okGasLimit = 10000;
                 gasReceipt!.gasLimitCallback = okGasLimit
                 transferObj.receiver = receiverContract.address;
   
@@ -1309,7 +1309,7 @@ describe('ERC1155MetaPackedBalance', () => {
               })
 
               it('should PASS if gas used in onERC1155BatchReceived does not exceed limit', async () => {
-                let okGasLimit = 130000;
+                let okGasLimit = 160000;
                 gasReceipt!.gasLimitCallback = okGasLimit
                 transferObj.receiver = receiverContract.address;
   

@@ -734,8 +734,8 @@ describe('ERC1155Meta', () => {
                 await expect(tx).to.be.rejectedWith(RevertError())
               })
 
-              it.only('should PASS if gas used in onERC1155Received does not exceed limit', async () => {
-                let okGasLimit = 9000;
+              it('should PASS if gas used in onERC1155Received does not exceed limit', async () => {
+                let okGasLimit = 9700;
                 gasReceipt!.gasLimitCallback = okGasLimit
                 transferObj.receiver = receiverContract.address;
   
@@ -966,7 +966,7 @@ describe('ERC1155Meta', () => {
 
           // Gas Receipt
           gasReceipt = {
-            gasLimitCallback: 130000,
+            gasLimitCallback: 160000,
             gasFee: 30000,
             feeRecipient: operatorAddress,
             feeTokenData: feeTokenDataERC1155,
@@ -1305,7 +1305,7 @@ describe('ERC1155Meta', () => {
               })
 
               it('should PASS if gas used in onERC1155BatchReceived does not exceed limit', async () => {
-                let okGasLimit = 120000;
+                let okGasLimit = 160000;
                 gasReceipt!.gasLimitCallback = okGasLimit
                 transferObj.receiver = receiverContract.address;
   
