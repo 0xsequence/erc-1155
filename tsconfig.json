@@ -1,23 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es5",
     "module": "commonjs",
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "resolveJsonModule": true,
-    "downlevelIteration": true,
-    "importHelpers": true,
-    "removeComments": false,
-
+    "noImplicitAny": false,
+    "strictPropertyInitialization": false,
+    
     "strictNullChecks": true,
     "noImplicitUseStrict": true,
-    "noImplicitAny": false,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedParameters": false,
     "noErrorTruncation": true,
-    "esModuleInterop": true,
 
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
@@ -25,22 +20,8 @@
     "checkJs": false,
 
     "baseUrl": ".",
-    "outDir": "build",
-    "lib": ["es2017", "dom"],
-
-    "typeRoots": [
-      "./node_modules/@types"
-    ]
-
+    "outDir": "dist",
   },
-
-  "include": [
-    "typings","src", "test"
-  ],
-  "files": ["./hardhat.config.ts"], 
-  "exclude": [
-    "node_modules",
-    "dist",
-    "typings/contracts/*/**"
-  ]
+  "include": ["test", "typings"],
+  "files": ["./hardhat.config.ts"]
 }

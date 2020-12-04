@@ -1,6 +1,6 @@
 {
   "name": "multi-token-standard",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "ERC1155 Multi-Token Standard implementation for Ethereum",
   "repository": "https://github.com/horizon-games/multi-token-standard",
   "license": "MIT",
@@ -21,7 +21,7 @@
     "typings"
   ],
   "scripts": {
-    "build": "hardhat clean && yarn compile && yarn gen:typings",
+    "build": "rm -rf typings/contracts && hardhat clean && yarn compile && yarn gen:typings",
     "compile": "hardhat --max-memory 4096 compile",
     "gen:typings": "rm -rf typings/contracts/* && typechain --target ethers-v5 --outDir typings/contracts './artifacts/!(build-info)/**/*[^dbg].json'",
     "test": "hardhat --network ganache test",
