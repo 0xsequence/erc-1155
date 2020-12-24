@@ -4,15 +4,6 @@
   "description": "ERC1155 Multi-Token Standard implementation for Ethereum",
   "repository": "https://github.com/horizon-games/multi-token-standard",
   "license": "Apache-2.0",
-  "keywords": [
-    "tokens",
-    "collectibles",
-    "ERC1155",
-    "ERC-1155",
-    "fungible",
-    "non-fungible",
-    "Ethereum"
-  ],
   "scripts": {
     "build": "yarn clean && yarn compile && yarn gen:typings",
     "clean": "rimraf artifacts && rimraf typings/contracts && rimraf cache",
@@ -72,6 +63,15 @@
     "artifacts",
     "contracts",
     "typings"
+  ],
+  "keywords": [
+    "tokens",
+    "collectibles",
+    "ERC1155",
+    "ERC-1155",
+    "fungible",
+    "non-fungible",
+    "Ethereum"
   ],
   "config": {
     "mnemonic": "test test test test test test test test test test test junk",
