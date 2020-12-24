@@ -7,9 +7,6 @@ import 'hardhat-gas-reporter'
 import 'solidity-coverage'
 
 const config: HardhatUserConfig = {
-  paths: {
-    artifacts: './artifacts'
-  },
   solidity: {
     version: '0.7.4',
     settings: {
@@ -24,6 +21,12 @@ const config: HardhatUserConfig = {
     }
   },
   networks: {
+    hardhat: {
+      chainId: 127001,
+      accounts: {
+        mnemonic: 'test test test test test test test test test test test junk'
+      },
+    },
     ganache: {
       url: 'http://127.0.0.1:8545',
       blockGasLimit: 10000000
