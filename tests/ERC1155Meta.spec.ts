@@ -21,7 +21,7 @@ import {
   TransferSignature, 
   ApprovalSignature, 
   BatchTransferSignature 
-} from 'typings/txTypes';
+} from 'typings/tx-types';
 
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'

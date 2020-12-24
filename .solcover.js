@@ -1,6 +1,4 @@
 module.exports = {
-  port: 8555,
-  norpc: true,
   skipFiles: [
     'ERC1155MockNoBalancePacking.sol',
     'ERC1155Mock.sol',

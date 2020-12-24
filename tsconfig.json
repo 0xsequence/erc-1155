@@ -22,6 +22,6 @@
     "baseUrl": ".",
     "outDir": "dist",
   },
-  "include": ["test", "typings"],
+  "include": ["tests", "typings"],
   "files": ["./hardhat.config.ts"]
 }

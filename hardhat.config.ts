@@ -20,6 +20,9 @@ const config: HardhatUserConfig = {
       }
     }
   },
+  paths: {
+    tests: 'tests'
+  },
   networks: {
     hardhat: {
       chainId: 127001,

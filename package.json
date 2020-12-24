@@ -5,13 +5,13 @@
   "repository": "https://github.com/horizon-games/multi-token-standard",
   "license": "Apache-2.0",
   "keywords": [
-    "token",
-    "ERC",
+    "tokens",
+    "collectibles",
     "ERC1155",
     "ERC-1155",
-    "Fungible",
-    "Non-Fungible",
-    "ethereum"
+    "fungible",
+    "non-fungible",
+    "Ethereum"
   ],
   "scripts": {
     "build": "yarn clean && yarn compile && yarn gen:typings",
@@ -22,7 +22,7 @@
     "test:hardhat": "hardhat test",
     "test:ganache": "hardhat --network ganache test",
     "test:concurrently": "concurrently -k --success first 'yarn start:ganache' 'yarn test:ganache'",
-    "coverage": "hardhat coverage --network coverage",
+    "coverage": "COVERAGE=true NET_ID=1 hardhat coverage --network coverage",
     "test:gas-report": "REPORT_GAS=true yarn test",
     "lint": "yarn lint:ts && yarn lint:sol",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
