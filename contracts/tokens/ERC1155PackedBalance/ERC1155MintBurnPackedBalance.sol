@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 pragma solidity 0.7.4;
 
 import "./ERC1155PackedBalance.sol";
@@ -134,4 +135,3 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
     emit TransferBatch(msg.sender, _from, address(0x0), _ids, _amounts);
   }
 }
-

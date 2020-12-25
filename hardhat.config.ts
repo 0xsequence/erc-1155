@@ -33,9 +33,6 @@ const config: HardhatUserConfig = {
     ganache: {
       url: 'http://127.0.0.1:8545',
       blockGasLimit: 10000000
-    },
-    coverage: {
-      url: 'http://localhost:8555'
     }
   },
   gasReporter: {

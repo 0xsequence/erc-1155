@@ -4,6 +4,7 @@ import "../interfaces/IERC1271Wallet.sol";
 import "./LibBytes.sol";
 import "./LibEIP712.sol";
 
+
 /**
  * @dev Contains logic for signature validation.
  * Signatures from wallet contracts assume ERC-1271 support (https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1271.md)

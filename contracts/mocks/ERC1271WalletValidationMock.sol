@@ -1,7 +1,9 @@
+// SPDX-License-Identifier: Apache-2.0
 pragma solidity 0.7.4;
 
 import "../interfaces/IERC1271Wallet.sol";
 import "../utils/LibBytes.sol";
+
 
 // Constructor of this LibEIP712 takes domain hash of mock ERC-1155
 contract LibEIP712 {
@@ -352,4 +354,3 @@ contract ERC1271WalletValidationMock is LibEIP712 {
     return memoryAddress;
   }
 }
-

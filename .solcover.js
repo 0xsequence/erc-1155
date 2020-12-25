@@ -1,11 +1,15 @@
 module.exports = {
+  norpc: true,
+  testCommand: 'yarn test',
+  compileCommand: 'yarn compile',
   skipFiles: [
-    'ERC1155MockNoBalancePacking.sol',
-    'ERC1155Mock.sol',
-    'ERC1155MockX.sol',
-    'ERC1155OperatorMock.sol',
-    'ERC1155ReceiverMock.sol',
-    'ERC20Mock.sol',
-    'ERC721Mock.sol'
-  ]
+    'mocks',
+  ],
+  providerOptions: {
+    default_balance_ether: '10000000000000000000000000',
+  },
+  mocha: {
+    fgrep: '[skip-on-coverage]',
+    invert: true
+  }
 }

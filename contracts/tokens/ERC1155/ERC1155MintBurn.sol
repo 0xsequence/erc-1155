@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 pragma solidity 0.7.4;
 import "./ERC1155.sol";
 
@@ -105,4 +106,3 @@ contract ERC1155MintBurn is ERC1155 {
     emit TransferBatch(msg.sender, _from, address(0x0), _ids, _amounts);
   }
 }
-
