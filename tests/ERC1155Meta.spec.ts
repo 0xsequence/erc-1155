@@ -34,7 +34,9 @@ operatorProvider.pollingInterval = 1000
 receiverProvider.pollingInterval = 1000
 
 describe('ERC1155Meta', () => {
-  const MAXVAL = BigNumber.from(2).pow(256).sub(1) // 2**256 - 1
+  const MAXVAL = BigNumber.from(2)
+    .pow(256)
+    .sub(1) // 2**256 - 1
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
   const DOMAIN_SEPARATOR_TYPEHASH = '0x035aff83d86937d35b32e04f0ddc6ff469290eef2f1b692d8a815c89404d4749'
 
@@ -98,7 +100,7 @@ describe('ERC1155Meta', () => {
       [null, false, 'No Gas receipt & No transfer data']
     ]
 
-    conditions.forEach(function (condition) {
+    conditions.forEach(function(condition) {
       context(condition[2] as string, () => {
         beforeEach(async () => {
           // Get conditions
@@ -482,7 +484,7 @@ describe('ERC1155Meta', () => {
           })
 
           describe('When gas is reimbursed', () => {
-            before(async function () {
+            before(async function() {
               if (!condition[1]) {
                 this.test!.parent!.pending = true
                 this.skip()
@@ -896,7 +898,7 @@ describe('ERC1155Meta', () => {
           })
 
           describe('When gas is NOT reimbursed', () => {
-            before(async function () {
+            before(async function() {
               if (condition[1]) {
                 this.test!.parent!.pending = true
                 this.skip()
@@ -946,7 +948,7 @@ describe('ERC1155Meta', () => {
             })
 
             describe('When gas is reimbursed', () => {
-              before(async function () {
+              before(async function() {
                 if (!condition[1]) {
                   this.test!.parent!.pending = true
                   this.skip()
@@ -1084,7 +1086,7 @@ describe('ERC1155Meta', () => {
       [null, false, 'No Gas receipt & No transfer data']
     ]
 
-    conditions.forEach(function (condition) {
+    conditions.forEach(function(condition) {
       context(condition[2] as string, () => {
         beforeEach(async () => {
           // Get conditions
@@ -1486,7 +1488,7 @@ describe('ERC1155Meta', () => {
           })
 
           describe('When gas is reimbursed', () => {
-            before(async function () {
+            before(async function() {
               if (!condition[1]) {
                 this.test!.parent!.pending = true
                 this.skip()
@@ -1675,7 +1677,7 @@ describe('ERC1155Meta', () => {
           })
 
           describe('When gas is NOT reimbursed', () => {
-            before(async function () {
+            before(async function() {
               if (condition[1]) {
                 this.test!.parent!.pending = true
                 this.skip()
@@ -1749,7 +1751,7 @@ describe('ERC1155Meta', () => {
             })
 
             describe('When gas is reimbursed', () => {
-              before(async function () {
+              before(async function() {
                 if (!condition[1]) {
                   this.test!.parent!.pending = true
                   this.skip()
@@ -1886,7 +1888,7 @@ describe('ERC1155Meta', () => {
       [false, 'No Gas receipt']
     ]
 
-    conditions.forEach(function (condition) {
+    conditions.forEach(function(condition) {
       context(condition[1] as string, () => {
         beforeEach(async () => {
           isGasReceipt = condition[0] as boolean
@@ -2004,7 +2006,7 @@ describe('ERC1155Meta', () => {
         })
 
         describe('When gas is reimbursed', () => {
-          before(async function () {
+          before(async function() {
             if (!condition[0]) {
               this.test!.parent!.pending = true
               this.skip()
@@ -2033,7 +2035,7 @@ describe('ERC1155Meta', () => {
         })
 
         describe('When gas is NOT reimbursed', () => {
-          before(async function () {
+          before(async function() {
             if (condition[0]) {
               this.test!.parent!.pending = true
               this.skip()

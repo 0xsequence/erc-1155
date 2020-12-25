@@ -1,7 +1,7 @@
 
 on: [push]
 
-name: tests
+name: ci
 
 jobs:
   install:

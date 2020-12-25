@@ -17,7 +17,9 @@ const { wallet: receiverWallet, provider: receiverProvider, signer: receiverSign
 const { wallet: operatorWallet, provider: operatorProvider, signer: operatorSigner } = utils.createTestWallet(web3, 4)
 
 describe('ERC1155PackedBalance', () => {
-  const LARGEVAL = BigNumber.from(2).pow(256).sub(2) // 2**256 - 2
+  const LARGEVAL = BigNumber.from(2)
+    .pow(256)
+    .sub(2) // 2**256 - 2
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
   let ownerAddress: string
@@ -47,7 +49,9 @@ describe('ERC1155PackedBalance', () => {
 
   describe('Bitwise functions', () => {
     it('getValueInBin should return expected balance for given types', async () => {
-      const expected = BigNumber.from(2).pow(32).sub(2) // 2**32-2
+      const expected = BigNumber.from(2)
+        .pow(32)
+        .sub(2) // 2**32-2
       const balance = await erc1155Contract.getValueInBin(LARGEVAL.toString(), 0)
       expect(balance).to.be.eql(expected)
     })
@@ -154,7 +158,14 @@ describe('ERC1155PackedBalance', () => {
     })
 
     it('should REVERT if transfer leads to overflow', async () => {
-      await erc1155Contract.mintMock(receiverAddress, 0, BigNumber.from(2).pow(32).sub(1), [])
+      await erc1155Contract.mintMock(
+        receiverAddress,
+        0,
+        BigNumber.from(2)
+          .pow(32)
+          .sub(1),
+        []
+      )
       const tx = erc1155Contract.safeTransferFrom(ownerAddress, receiverAddress, 0, 1, [])
       await expect(tx).to.be.rejectedWith(RevertError('ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW'))
     })
@@ -375,7 +386,14 @@ describe('ERC1155PackedBalance', () => {
     })
 
     it('should REVERT if transfer leads to overflow', async () => {
-      await erc1155Contract.mintMock(receiverAddress, types[0], BigNumber.from(2).pow(32).sub(1), [])
+      await erc1155Contract.mintMock(
+        receiverAddress,
+        types[0],
+        BigNumber.from(2)
+          .pow(32)
+          .sub(1),
+        []
+      )
 
       const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverAddress, [types[0], types[2]], [1, 1], [])
       await expect(tx).to.be.rejectedWith(RevertError('ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW'))

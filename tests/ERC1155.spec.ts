@@ -17,7 +17,9 @@ const { wallet: receiverWallet, provider: receiverProvider, signer: receiverSign
 const { wallet: operatorWallet, provider: operatorProvider, signer: operatorSigner } = utils.createTestWallet(web3, 4)
 
 describe('ERC1155', () => {
-  const MAXVAL = BigNumber.from(2).pow(256).sub(1) // 2**256 - 1
+  const MAXVAL = BigNumber.from(2)
+    .pow(256)
+    .sub(1) // 2**256 - 1
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
   let ownerAddress: string

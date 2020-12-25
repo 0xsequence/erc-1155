@@ -77,7 +77,9 @@ describe('ERC1155MintBurn', () => {
       })
 
       it('should REVERT if added amount leads to overflow', async () => {
-        const val = BigNumber.from(2).pow(256).sub(1)
+        const val = BigNumber.from(2)
+          .pow(256)
+          .sub(1)
         await erc1155MintBurnContract.mintMock(receiverAddress, tokenID, val, [])
         const tx = erc1155MintBurnContract.mintMock(receiverAddress, tokenID, 1, [])
         await expect(tx).to.be.rejectedWith(RevertError('SafeMath#add: OVERFLOW'))
