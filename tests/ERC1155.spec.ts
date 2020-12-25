@@ -10,27 +10,16 @@ import { ERC1155OperatorMock } from 'typings/contracts/ERC1155OperatorMock'
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'
 
-const {
-  wallet: ownerWallet,
-  provider: ownerProvider,
-  signer: ownerSigner
-} = utils.createTestWallet(web3, 0)
+const { wallet: ownerWallet, provider: ownerProvider, signer: ownerSigner } = utils.createTestWallet(web3, 0)
 
-const {
-  wallet: receiverWallet,
-  provider: receiverProvider,
-  signer: receiverSigner
-} = utils.createTestWallet(web3, 2)
+const { wallet: receiverWallet, provider: receiverProvider, signer: receiverSigner } = utils.createTestWallet(web3, 2)
 
-const {
-  wallet: operatorWallet,
-  provider: operatorProvider,
-  signer: operatorSigner
-} = utils.createTestWallet(web3, 4)
+const { wallet: operatorWallet, provider: operatorProvider, signer: operatorSigner } = utils.createTestWallet(web3, 4)
 
 describe('ERC1155', () => {
-
-  const MAXVAL = BigNumber.from(2).pow(256).sub(1) // 2**256 - 1
+  const MAXVAL = BigNumber.from(2)
+    .pow(256)
+    .sub(1) // 2**256 - 1
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
   let ownerAddress: string
@@ -41,7 +30,6 @@ describe('ERC1155', () => {
 
   let erc1155Contract: ERC1155MetaMintBurnMock
   let operatorERC1155Contract: ERC1155MetaMintBurnMock
-
 
   // load contract abi and deploy to test server
   before(async () => {
@@ -55,68 +43,64 @@ describe('ERC1155', () => {
 
   // deploy before each test, to reset state of contract
   beforeEach(async () => {
-    erc1155Contract = await erc1155Abstract.deploy(ownerWallet) as ERC1155MetaMintBurnMock
-    operatorERC1155Contract = await erc1155Contract.connect(operatorSigner) as ERC1155MetaMintBurnMock
+    erc1155Contract = (await erc1155Abstract.deploy(ownerWallet)) as ERC1155MetaMintBurnMock
+    operatorERC1155Contract = (await erc1155Contract.connect(operatorSigner)) as ERC1155MetaMintBurnMock
   })
 
   describe('Getter functions', () => {
-
     beforeEach(async () => {
-
       await erc1155Contract.mintMock(ownerAddress, 5, 256, [])
       await erc1155Contract.mintMock(receiverAddress, 66, 133, [])
     })
 
     it('balanceOf() should return types balance for queried address', async () => {
-      let balance5 = await erc1155Contract.balanceOf(ownerAddress, 5)
+      const balance5 = await erc1155Contract.balanceOf(ownerAddress, 5)
       expect(balance5).to.be.eql(BigNumber.from(256))
-      
-      let balance16 = await erc1155Contract.balanceOf(ownerAddress, 16)
+
+      const balance16 = await erc1155Contract.balanceOf(ownerAddress, 16)
       expect(balance16).to.be.eql(BigNumber.from(0))
     })
 
     it('balanceOfBatch() should return types balance for queried addresses', async () => {
-      let balances = await erc1155Contract.balanceOfBatch([ownerAddress, receiverAddress], [5, 66])
+      const balances = await erc1155Contract.balanceOfBatch([ownerAddress, receiverAddress], [5, 66])
       expect(balances[0]).to.be.eql(BigNumber.from(256))
       expect(balances[1]).to.be.eql(BigNumber.from(133))
 
-      let balancesNull = await erc1155Contract.balanceOfBatch([ownerAddress, receiverAddress], [1337, 1337])
+      const balancesNull = await erc1155Contract.balanceOfBatch([ownerAddress, receiverAddress], [1337, 1337])
       expect(balancesNull[0]).to.be.eql(BigNumber.from(0))
       expect(balancesNull[1]).to.be.eql(BigNumber.from(0))
     })
 
     it('supportsInterface(0x4e2312e0) on receiver should return true', async () => {
-      let abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
-      const receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
+      const abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
+      const receiverContract = (await abstract.deploy(ownerWallet)) as ERC1155ReceiverMock
       const returnedValue = await receiverContract.supportsInterface('0x4e2312e0')
       await expect(returnedValue).to.be.equal(true)
     })
 
     it('supportsInterface(0x01ffc9a7) on receiver should return true', async () => {
-      let abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
-      const receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
+      const abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
+      const receiverContract = (await abstract.deploy(ownerWallet)) as ERC1155ReceiverMock
       const returnedValue = await receiverContract.supportsInterface('0x01ffc9a7')
       await expect(returnedValue).to.be.equal(true)
     })
 
     it('supportsInterface(0x4e2312ee) on receiver should return false', async () => {
-      let abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
-      const receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
+      const abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
+      const receiverContract = (await abstract.deploy(ownerWallet)) as ERC1155ReceiverMock
       const returnedValue = await receiverContract.supportsInterface('0x4e2312ee')
       await expect(returnedValue).to.be.equal(false)
     })
-
   })
 
   describe('safeTransferFrom() function', () => {
-
     let receiverContract: ERC1155ReceiverMock
     let operatorContract: ERC1155OperatorMock
 
     beforeEach(async () => {
-      let abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
-      receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
-      operatorContract = await operatorAbstract.deploy(operatorWallet) as ERC1155OperatorMock
+      const abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
+      receiverContract = (await abstract.deploy(ownerWallet)) as ERC1155ReceiverMock
+      operatorContract = (await operatorAbstract.deploy(operatorWallet)) as ERC1155OperatorMock
       await erc1155Contract.mintMock(ownerAddress, 0, 256, [])
     })
 
@@ -127,17 +111,17 @@ describe('ERC1155', () => {
 
     it('should REVERT if insufficient balance', async () => {
       const tx = erc1155Contract.safeTransferFrom(ownerAddress, receiverAddress, 0, 257, [])
-      await  expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") )
+      await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
     })
 
     it('should REVERT if sending to 0x0', async () => {
       const tx = erc1155Contract.safeTransferFrom(ownerAddress, ZERO_ADDRESS, 0, 1, [])
-      await expect(tx).to.be.rejectedWith( RevertError("ERC1155#safeTransferFrom: INVALID_RECIPIENT") )
+      await expect(tx).to.be.rejectedWith(RevertError('ERC1155#safeTransferFrom: INVALID_RECIPIENT'))
     })
 
     it('should REVERT if operator not approved', async () => {
       const tx = operatorERC1155Contract.safeTransferFrom(ownerAddress, receiverAddress, 0, 1, [])
-      await expect(tx).to.be.rejectedWith( RevertError("ERC1155#safeTransferFrom: INVALID_OPERATOR") )
+      await expect(tx).to.be.rejectedWith(RevertError('ERC1155#safeTransferFrom: INVALID_OPERATOR'))
     })
 
     it('should be able to transfer via operator if operator is approved', async () => {
@@ -152,19 +136,19 @@ describe('ERC1155', () => {
     it('should REVERT if transfer leads to overflow', async () => {
       await erc1155Contract.mintMock(receiverAddress, 0, MAXVAL, [])
       const tx = erc1155Contract.safeTransferFrom(ownerAddress, receiverAddress, 0, 1, [])
-      expect(tx).to.be.rejectedWith( RevertError("SafeMath#add: OVERFLOW") )
+      expect(tx).to.be.rejectedWith(RevertError('SafeMath#add: OVERFLOW'))
     })
 
     it('should REVERT when sending to non-receiver contract', async () => {
       const tx = erc1155Contract.safeTransferFrom(ownerAddress, erc1155Contract.address, 0, 1, [])
-      await expect(tx).to.be.rejectedWith(RevertError("ERC1155MetaMintBurnMock: INVALID_METHOD"));
+      await expect(tx).to.be.rejectedWith(RevertError('ERC1155MetaMintBurnMock: INVALID_METHOD'))
     })
 
     it('should REVERT if invalid response from receiver contract', async () => {
       await receiverContract.setShouldReject(true)
 
       const tx = erc1155Contract.safeTransferFrom(ownerAddress, receiverContract.address, 0, 1, [])
-      await expect(tx).to.be.rejectedWith( RevertError("ERC1155#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE") )
+      await expect(tx).to.be.rejectedWith(RevertError('ERC1155#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE'))
     })
 
     it('should pass if valid response from receiver contract', async () => {
@@ -173,7 +157,7 @@ describe('ERC1155', () => {
     })
 
     it('should pass if data is not null to receiver contract', async () => {
-      const data = ethers.utils.toUtf8Bytes("Hello from the other side")
+      const data = ethers.utils.toUtf8Bytes('Hello from the other side')
 
       // NOTE: typechain generates the wrong type for `bytes` type at this time
       // see https://github.com/ethereum-ts/TypeChain/issues/123
@@ -183,22 +167,24 @@ describe('ERC1155', () => {
     })
 
     it('should have balances updated before onERC1155Received is called', async () => {
-      let filterFromReceiverContract: ethers.ethers.EventFilter
-
-      const fromPreBalance = await erc1155Contract.balanceOf(ownerAddress, 0);
-      const toPreBalance = await erc1155Contract.balanceOf(receiverContract.address, 0);
+      const fromPreBalance = await erc1155Contract.balanceOf(ownerAddress, 0)
+      const toPreBalance = await erc1155Contract.balanceOf(receiverContract.address, 0)
 
       // Get event filter to get internal tx event
-      filterFromReceiverContract = receiverContract.filters.TransferSingleReceiver(null, null, null, null);
+      const filterFromReceiverContract = receiverContract.filters.TransferSingleReceiver(null, null, null, null)
 
       await erc1155Contract.safeTransferFrom(ownerAddress, receiverContract.address, 0, 1, [])
 
       // Get logs from internal transaction event
       // @ts-ignore (https://github.com/ethers-io/ethers.js/issues/204#issuecomment-427059031)
-      filterFromReceiverContract.fromBlock = 0;
-      
-      let logs = await ownerProvider.getLogs(filterFromReceiverContract);
-      let args = receiverContract.interface.decodeEventLog(receiverContract.interface.events["TransferSingleReceiver(address,address,uint256,uint256)"], logs[0].data, logs[0].topics)
+      filterFromReceiverContract.fromBlock = 0
+
+      const logs = await ownerProvider.getLogs(filterFromReceiverContract)
+      const args = receiverContract.interface.decodeEventLog(
+        receiverContract.interface.events['TransferSingleReceiver(address,address,uint256,uint256)'],
+        logs[0].data,
+        logs[0].topics
+      )
 
       expect(args._from).to.be.eql(ownerAddress)
       expect(args._to).to.be.eql(receiverContract.address)
@@ -208,14 +194,22 @@ describe('ERC1155', () => {
 
     it('should have TransferSingle event emitted before onERC1155Received is called', async () => {
       // Get event filter to get internal tx event
-      let tx = await erc1155Contract.safeTransferFrom(ownerAddress, receiverContract.address, 0, 1, [])
+      const tx = await erc1155Contract.safeTransferFrom(ownerAddress, receiverContract.address, 0, 1, [])
       const receipt = await tx.wait(1)
 
       const firstEventTopic = receipt.logs![0].topics[0]
       const secondEventTopic = receipt.logs![1].topics[0]
 
-      expect(firstEventTopic).to.be.equal(erc1155Contract.interface.getEventTopic(erc1155Contract.interface.events["TransferSingle(address,address,address,uint256,uint256)"]))
-      expect(secondEventTopic).to.be.equal(receiverContract.interface.getEventTopic(receiverContract.interface.events["TransferSingleReceiver(address,address,uint256,uint256)"]))
+      expect(firstEventTopic).to.be.equal(
+        erc1155Contract.interface.getEventTopic(
+          erc1155Contract.interface.events['TransferSingle(address,address,address,uint256,uint256)']
+        )
+      )
+      expect(secondEventTopic).to.be.equal(
+        receiverContract.interface.getEventTopic(
+          receiverContract.interface.events['TransferSingleReceiver(address,address,uint256,uint256)']
+        )
+      )
     })
 
     context('When successful transfer', () => {
@@ -236,7 +230,6 @@ describe('ERC1155', () => {
       })
 
       describe('TransferSingle event', async () => {
-
         let filterFromOperatorContract: ethers.ethers.EventFilter
 
         it('should emit TransferSingle event', async () => {
@@ -257,45 +250,50 @@ describe('ERC1155', () => {
         })
 
         it('should have `msg.sender` as `_operator` field, not tx.origin', async () => {
-
           // Get event filter to get internal tx event
-          filterFromOperatorContract = erc1155Contract.filters.TransferSingle(operatorContract.address, null, null, null, null);
+          filterFromOperatorContract = erc1155Contract.filters.TransferSingle(operatorContract.address, null, null, null, null)
 
           // Set approval to operator contract
           await erc1155Contract.setApprovalForAll(operatorContract.address, true)
 
           // Execute transfer from operator contract
           // @ts-ignore (https://github.com/ethereum-ts/TypeChain/issues/118)
-          await operatorContract.safeTransferFrom(erc1155Contract.address, ownerAddress, receiverAddress, 0, 1, [],
-            {gasLimit: 1000000} // INCORRECT GAS ESTIMATION
+          await operatorContract.safeTransferFrom(
+            erc1155Contract.address,
+            ownerAddress,
+            receiverAddress,
+            0,
+            1,
+            [],
+            { gasLimit: 1000000 } // INCORRECT GAS ESTIMATION
           )
 
           // Get logs from internal transaction event
           // @ts-ignore (https://github.com/ethers-io/ethers.js/issues/204#issuecomment-427059031)
-          filterFromOperatorContract.fromBlock = 0;
-          let logs = await operatorProvider.getLogs(filterFromOperatorContract);
-          let args = erc1155Contract.interface.decodeEventLog(erc1155Contract.interface.events["TransferSingle(address,address,address,uint256,uint256)"], logs[0].data, logs[0].topics)
+          filterFromOperatorContract.fromBlock = 0
+          const logs = await operatorProvider.getLogs(filterFromOperatorContract)
+          const args = erc1155Contract.interface.decodeEventLog(
+            erc1155Contract.interface.events['TransferSingle(address,address,address,uint256,uint256)'],
+            logs[0].data,
+            logs[0].topics
+          )
 
           // operator arg should be equal to msg.sender, not tx.origin
           expect(args._operator).to.be.eql(operatorContract.address)
         })
-
       })
-
     })
   })
 
-
   describe('safeBatchTransferFrom() function', () => {
-
     let types: any[], values: any[]
-    let nTokenTypes    = 30 //560
-    let nTokensPerType = 10
+    const nTokenTypes = 30 //560
+    const nTokensPerType = 10
 
     let receiverContract: ERC1155ReceiverMock
 
     beforeEach(async () => {
-      types = [], values = []
+      ;(types = []), (values = [])
 
       // Minting enough values for transfer for each types
       for (let i = 0; i < nTokenTypes; i++) {
@@ -305,7 +303,7 @@ describe('ERC1155', () => {
       await erc1155Contract.batchMintMock(ownerAddress, types, values, [])
 
       const abstract = await AbstractContract.fromArtifactName('ERC1155ReceiverMock')
-      receiverContract = await abstract.deploy(ownerWallet) as ERC1155ReceiverMock
+      receiverContract = (await abstract.deploy(ownerWallet)) as ERC1155ReceiverMock
     })
 
     it('should be able to transfer tokens if sufficient balances', async () => {
@@ -320,30 +318,30 @@ describe('ERC1155', () => {
 
     it('should REVERT if insufficient balance', async () => {
       const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverAddress, [0], [11], [])
-      await expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") )
+      await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
     })
 
     it('should REVERT if single insufficient balance', async () => {
-      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverAddress, [0, 15, 30], [1,  9,  11], [])
-      await expect(tx).to.be.rejectedWith( RevertError("SafeMath#sub: UNDERFLOW") )
+      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverAddress, [0, 15, 30], [1, 9, 11], [])
+      await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
     })
 
     it('should REVERT if operator not approved', async () => {
       const tx = operatorERC1155Contract.safeBatchTransferFrom(ownerAddress, receiverAddress, types, values, [])
-      expect(tx).to.be.rejectedWith( RevertError( "ERC1155#safeBatchTransferFrom: INVALID_OPERATOR") )
+      expect(tx).to.be.rejectedWith(RevertError('ERC1155#safeBatchTransferFrom: INVALID_OPERATOR'))
     })
 
     it('should REVERT if length of ids and values are not equal', async () => {
       const tx1 = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverAddress, [0, 15, 30, 0], [1, 9, 10], [])
-      await expect(tx1).to.be.rejectedWith( RevertError("ERC1155#_safeBatchTransferFrom: INVALID_ARRAYS_LENGTH") )
+      await expect(tx1).to.be.rejectedWith(RevertError('ERC1155#_safeBatchTransferFrom: INVALID_ARRAYS_LENGTH'))
 
       const tx2 = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverAddress, [0, 15, 30], [1, 9, 10, 0], [])
-      await expect(tx2).to.be.rejectedWith( RevertError("ERC1155#_safeBatchTransferFrom: INVALID_ARRAYS_LENGTH") )
+      await expect(tx2).to.be.rejectedWith(RevertError('ERC1155#_safeBatchTransferFrom: INVALID_ARRAYS_LENGTH'))
     })
 
     it('should REVERT if sending to 0x0', async () => {
       const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, ZERO_ADDRESS, types, values, [])
-      await expect(tx).to.be.rejectedWith( RevertError("ERC1155#safeBatchTransferFrom: INVALID_RECIPIENT") )
+      await expect(tx).to.be.rejectedWith(RevertError('ERC1155#safeBatchTransferFrom: INVALID_RECIPIENT'))
     })
 
     it('should be able to transfer via operator if operator is approved', async () => {
@@ -357,7 +355,7 @@ describe('ERC1155', () => {
       await erc1155Contract.mintMock(receiverAddress, 5, MAXVAL, [])
 
       const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverAddress, [5], [1], [])
-      await expect(tx).to.be.rejectedWith( RevertError("SafeMath#add: OVERFLOW") )
+      await expect(tx).to.be.rejectedWith(RevertError('SafeMath#add: OVERFLOW'))
     })
 
     it('should update balances of sender and receiver', async () => {
@@ -368,7 +366,7 @@ describe('ERC1155', () => {
 
       for (let i = 0; i < types.length; i++) {
         balanceFrom = await erc1155Contract.balanceOf(ownerAddress, types[i])
-        balanceTo   = await erc1155Contract.balanceOf(receiverAddress, types[i])
+        balanceTo = await erc1155Contract.balanceOf(receiverAddress, types[i])
 
         expect(balanceFrom).to.be.eql(BigNumber.from(0))
         expect(balanceTo).to.be.eql(BigNumber.from(values[i]))
@@ -376,61 +374,62 @@ describe('ERC1155', () => {
     })
 
     it('should REVERT when sending to non-receiver contract', async () => {
-      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, erc1155Contract.address, types, values, [],
-        {gasLimit: 2000000}
-      )
-      await expect(tx).to.be.rejectedWith(RevertError("ERC1155MetaMintBurnMock: INVALID_METHOD"));
+      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, erc1155Contract.address, types, values, [], {
+        gasLimit: 2000000
+      })
+      await expect(tx).to.be.rejectedWith(RevertError('ERC1155MetaMintBurnMock: INVALID_METHOD'))
     })
 
     it('should REVERT if invalid response from receiver contract', async () => {
       await receiverContract.setShouldReject(true)
-      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [],
-        {gasLimit: 2000000}
-      )
-      await expect(tx).to.be.rejectedWith( RevertError("ERC1155#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE") )
+      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [], {
+        gasLimit: 2000000
+      })
+      await expect(tx).to.be.rejectedWith(RevertError('ERC1155#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE'))
     })
 
-
     it('should pass if valid response from receiver contract', async () => {
-      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [],
-        {gasLimit: 2000000}
-      )
+      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [], {
+        gasLimit: 2000000
+      })
       await expect(tx).to.be.fulfilled
     })
 
     it('should pass if data is not null from receiver contract', async () => {
-      const data = ethers.utils.toUtf8Bytes("Hello from the other side")
+      const data = ethers.utils.toUtf8Bytes('Hello from the other side')
 
       // TODO: remove ts-ignore when contract declaration is fixed
       // @ts-ignore
-      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, data,
-        {gasLimit: 2000000}
-      )
+      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, data, {
+        gasLimit: 2000000
+      })
       await expect(tx).to.be.fulfilled
     })
 
     it('should have balances updated before onERC1155BatchReceived is called', async () => {
-      let filterFromReceiverContract: ethers.ethers.EventFilter
+      const fromAddresses = Array(types.length).fill(ownerAddress)
+      const toAddresses = Array(types.length).fill(receiverContract.address)
 
-      let fromAddresses = Array(types.length).fill(ownerAddress)
-      let toAddresses = Array(types.length).fill(receiverContract.address)
-
-      const fromPreBalances = await erc1155Contract.balanceOfBatch(fromAddresses, types);
-      const toPreBalances = await erc1155Contract.balanceOfBatch(toAddresses, types);
+      const fromPreBalances = await erc1155Contract.balanceOfBatch(fromAddresses, types)
+      const toPreBalances = await erc1155Contract.balanceOfBatch(toAddresses, types)
 
       // Get event filter to get internal tx event
-      filterFromReceiverContract = receiverContract.filters.TransferBatchReceiver(null, null, null, null);
+      const filterFromReceiverContract = receiverContract.filters.TransferBatchReceiver(null, null, null, null)
 
-      await erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [], 
-        {gasLimit: 2000000}
-      )
+      await erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [], {
+        gasLimit: 2000000
+      })
 
       // Get logs from internal transaction event
       // @ts-ignore (https://github.com/ethers-io/ethers.js/issues/204#issuecomment-427059031)
-      filterFromReceiverContract.fromBlock = 0;
-      
-      let logs = await ownerProvider.getLogs(filterFromReceiverContract);
-      let args = receiverContract.interface.decodeEventLog(receiverContract.interface.events["TransferBatchReceiver(address,address,uint256[],uint256[])"], logs[0].data, logs[0].topics)
+      filterFromReceiverContract.fromBlock = 0
+
+      const logs = await ownerProvider.getLogs(filterFromReceiverContract)
+      const args = receiverContract.interface.decodeEventLog(
+        receiverContract.interface.events['TransferBatchReceiver(address,address,uint256[],uint256[])'],
+        logs[0].data,
+        logs[0].topics
+      )
 
       expect(args._from).to.be.eql(ownerAddress)
       expect(args._to).to.be.eql(receiverContract.address)
@@ -442,26 +441,33 @@ describe('ERC1155', () => {
 
     it('should have TransferBatch event emitted before onERC1155BatchReceived is called', async () => {
       // Get event filter to get internal tx event
-      let tx = await erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [],
-        {gasLimit: 2000000}
-      )
+      const tx = await erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [], {
+        gasLimit: 2000000
+      })
       const receipt = await tx.wait(1)
 
       const firstEventTopic = receipt.logs![0].topics[0]
       const secondEventTopic = receipt.logs![1].topics[0]
 
-      expect(firstEventTopic).to.be.equal(erc1155Contract.interface.getEventTopic(erc1155Contract.interface.events["TransferBatch(address,address,address,uint256[],uint256[])"]))
-      expect(secondEventTopic).to.be.equal(receiverContract.interface.getEventTopic(receiverContract.interface.events["TransferBatchReceiver(address,address,uint256[],uint256[])"]))
+      expect(firstEventTopic).to.be.equal(
+        erc1155Contract.interface.getEventTopic(
+          erc1155Contract.interface.events['TransferBatch(address,address,address,uint256[],uint256[])']
+        )
+      )
+      expect(secondEventTopic).to.be.equal(
+        receiverContract.interface.getEventTopic(
+          receiverContract.interface.events['TransferBatchReceiver(address,address,uint256[],uint256[])']
+        )
+      )
     })
 
     describe('TransferBatch event', async () => {
-
       let tx: ethers.ContractTransaction
       let filterFromOperatorContract: ethers.ethers.EventFilter
       let operatorContract: ERC1155OperatorMock
 
       beforeEach(async () => {
-        operatorContract = await operatorAbstract.deploy(operatorWallet) as ERC1155OperatorMock
+        operatorContract = (await operatorAbstract.deploy(operatorWallet)) as ERC1155OperatorMock
       })
 
       it('should emit 1 TransferBatch events of N transfers', async () => {
@@ -486,36 +492,41 @@ describe('ERC1155', () => {
       })
 
       it('should have `msg.sender` as `_operator` field, not tx.origin', async () => {
-
         // Get event filter to get internal tx event
-        filterFromOperatorContract = erc1155Contract.filters.TransferBatch(operatorContract.address, null, null, null, null);
+        filterFromOperatorContract = erc1155Contract.filters.TransferBatch(operatorContract.address, null, null, null, null)
 
         // Set approval to operator contract
         await erc1155Contract.setApprovalForAll(operatorContract.address, true)
 
         // Execute transfer from operator contract
         // @ts-ignore (https://github.com/ethereum-ts/TypeChain/issues/118)
-        await operatorContract.safeBatchTransferFrom(erc1155Contract.address, ownerAddress, receiverAddress, types, values, [], 
-          {gasLimit: 2000000} // INCORRECT GAS ESTIMATION
+        await operatorContract.safeBatchTransferFrom(
+          erc1155Contract.address,
+          ownerAddress,
+          receiverAddress,
+          types,
+          values,
+          [],
+          { gasLimit: 2000000 } // INCORRECT GAS ESTIMATION
         )
 
         // Get logs from internal transaction event
         // @ts-ignore (https://github.com/ethers-io/ethers.js/issues/204#issuecomment-427059031)
-        filterFromOperatorContract.fromBlock = 0;
-        let logs = await operatorProvider.getLogs(filterFromOperatorContract);
-        let args = erc1155Contract.interface.decodeEventLog(erc1155Contract.interface.events["TransferBatch(address,address,address,uint256[],uint256[])"], logs[0].data, logs[0].topics)
-
+        filterFromOperatorContract.fromBlock = 0
+        const logs = await operatorProvider.getLogs(filterFromOperatorContract)
+        const args = erc1155Contract.interface.decodeEventLog(
+          erc1155Contract.interface.events['TransferBatch(address,address,address,uint256[],uint256[])'],
+          logs[0].data,
+          logs[0].topics
+        )
 
         // operator arg should be equal to msg.sender, not tx.origin
         expect(args._operator).to.be.eql(operatorContract.address)
       })
     })
-
   })
 
-
   describe('setApprovalForAll() function', () => {
-
     it('should emit an ApprovalForAll event', async () => {
       const tx = await erc1155Contract.setApprovalForAll(operatorAddress, true)
       const receipt = await tx.wait(1)
@@ -530,7 +541,6 @@ describe('ERC1155', () => {
       const status = await erc1155Contract.isApprovedForAll(ownerAddress, operatorAddress)
       expect(status).to.be.eql(true)
     })
-
 
     context('When the operator was already an operator', () => {
       beforeEach(async () => {
@@ -553,7 +563,6 @@ describe('ERC1155', () => {
         expect(status).to.be.eql(false)
       })
     })
-
   })
 
   describe('Supports ERC165', () => {
@@ -569,5 +578,4 @@ describe('ERC1155', () => {
       })
     })
   })
-
 })

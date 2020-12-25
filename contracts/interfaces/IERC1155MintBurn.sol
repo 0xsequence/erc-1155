@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 pragma solidity 0.7.4;
 
 /**
@@ -49,4 +50,3 @@ interface IERC1155MintBurn {
    */
   function batchBurn(address _from, uint256[] calldata _ids, uint256[] calldata _amounts) external;
 }
-

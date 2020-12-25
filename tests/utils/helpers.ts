@@ -27,15 +27,15 @@ export const createTestWallet = (web3: any, addressIndex: number = 0) => {
 
 // Check if tx was Reverted with specified message
 export function RevertError(errorMessage?: string) {
-  let prefix = 'VM Exception while processing transaction: revert'
+  const prefix = 'VM Exception while processing transaction: revert'
   return errorMessage ? RegExp(`${prefix + ' ' + errorMessage}`) : RegExp(`${prefix}`)
 }
 
 // Take a message, hash it and sign it with ETH_SIGN SignatureType
 export async function ethSign(wallet: ethers.Wallet, message: string | Uint8Array) {
-  let hash = ethers.utils.keccak256(message)
-  let hashArray = ethers.utils.arrayify(hash) 
-  let ethsigNoType = await wallet.signMessage(hashArray)
+  const hash = ethers.utils.keccak256(message)
+  const hashArray = ethers.utils.arrayify(hash) 
+  const ethsigNoType = await wallet.signMessage(hashArray)
   return ethsigNoType + '02' 
 }
 
@@ -54,9 +54,9 @@ export async function ethSignTypedData(
     ))
 
   const hashArray = ethers.utils.arrayify(hash) 
-  let ethsigNoType = await wallet.signMessage(hashArray)
-  let paddedNonce = ethers.utils.solidityPack(['uint256'], [nonce])
-  let ethsigNoType_nonce = ethsigNoType + paddedNonce.slice(2) // encode packed the nonce
+  const ethsigNoType = await wallet.signMessage(hashArray)
+  const paddedNonce = ethers.utils.solidityPack(['uint256'], [nonce])
+  const ethsigNoType_nonce = ethsigNoType + paddedNonce.slice(2) // encode packed the nonce
   return sigType ? ethsigNoType_nonce + sigType : ethsigNoType_nonce + '02'
 }
 
@@ -107,8 +107,8 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
  // 'bytes32', // hash of transfer data (added below, if any)
     ];
   
-  let signer = s.from ? s.from : await s.signerWallet.getAddress()
-  let is_gas_Fee_hex = s.isGasFee ? '0x1' : '0x0'
+  const signer = s.from ? s.from : await s.signerWallet.getAddress()
+  const is_gas_Fee_hex = s.isGasFee ? '0x1' : '0x0'
 
   // Packed encoding of transfer signature message
   sigData = ethers.utils.solidityPack(sigArgTypes, [
@@ -128,7 +128,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
 
     // 1. 
     if (s.transferData !== null) {
-      let gasAndTransferData = utils.defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, s.transferData])   
+      const gasAndTransferData = utils.defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, s.transferData])   
       sigData = ethers.utils.keccak256(ethers.utils.solidityPack(
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(gasAndTransferData)] //Hash of _data
@@ -138,7 +138,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
     
     // 2.
     } else {
-      let gasAndTransferData = utils.defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, []])
+      const gasAndTransferData = utils.defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, []])
       sigData = ethers.utils.keccak256(ethers.utils.solidityPack(
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(gasAndTransferData)] //Hash of _data
@@ -160,7 +160,7 @@ export async function encodeMetaTransferFromData(s: TransferSignature, domainHas
     
     // 4.
     } else { 
-      let emptyTransferData = []
+      const emptyTransferData = []
       sigData = ethers.utils.keccak256(ethers.utils.solidityPack(
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(emptyTransferData)] //Hash of _data
@@ -210,8 +210,8 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
     ];
   
 
-  let signer = s.from ? s.from : await s.signerWallet.getAddress()
-  let is_gas_Fee_hex = s.isGasFee ? '0x1' : '0x0'
+  const signer = s.from ? s.from : await s.signerWallet.getAddress()
+  const is_gas_Fee_hex = s.isGasFee ? '0x1' : '0x0'
 
   // Packed encoding of transfer signature message
   sigData = ethers.utils.solidityPack(sigArgTypes, [
@@ -231,7 +231,7 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
 
     // 1. 
     if (s.transferData !== null) {
-      let gasAndTransferData = utils.defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, s.transferData])   
+      const gasAndTransferData = utils.defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, s.transferData])   
       sigData = ethers.utils.keccak256(ethers.utils.solidityPack(
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(gasAndTransferData)] //Hash of _data
@@ -241,7 +241,7 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
 
     // 2.
     } else {
-      let gasAndTransferData = utils.defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, []])
+      const gasAndTransferData = utils.defaultAbiCoder.encode([GasReceiptType, 'bytes'], [gasReceipt, []])
       sigData = ethers.utils.keccak256(ethers.utils.solidityPack(
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(gasAndTransferData)] //Hash of _data
@@ -263,7 +263,7 @@ export async function encodeMetaBatchTransferFromData(s: BatchTransferSignature,
 
     // 4.
     } else { 
-      let emptyTransferData = []
+      const emptyTransferData = []
       sigData = ethers.utils.keccak256(ethers.utils.solidityPack(
         ['bytes', 'bytes32'], 
         [sigData, ethers.utils.keccak256(emptyTransferData)] //Hash of _data
@@ -283,8 +283,8 @@ export async function encodeMetaApprovalData(a: ApprovalSignature, domainHash: s
   let txDataTypes: string[]; // Types of data to encode
   let sig: string; // Signature
 
-  let approved_hex = a.approved ? '0x1' : '0x0'
-  let is_gas_Fee_hex = a.isGasFee ? '0x1' : '0x0'
+  const approved_hex = a.approved ? '0x1' : '0x0'
+  const is_gas_Fee_hex = a.isGasFee ? '0x1' : '0x0'
 
   // Struct Data type
   const sigArgTypes = [
@@ -297,7 +297,7 @@ export async function encodeMetaApprovalData(a: ApprovalSignature, domainHash: s
   ];
   
   // Get signer
-  let signer = a.owner ? a.owner : await a.signerWallet.getAddress()
+  const signer = a.owner ? a.owner : await a.signerWallet.getAddress()
 
   // Packed encoding of transfer signature message
   sigData = ethers.utils.solidityPack(sigArgTypes, [
@@ -313,7 +313,7 @@ export async function encodeMetaApprovalData(a: ApprovalSignature, domainHash: s
   
   // When gas receipt is included
   if (gasReceipt && gasReceipt !== null) {
-    let gasData = utils.defaultAbiCoder.encode([GasReceiptType], [gasReceipt])
+    const gasData = utils.defaultAbiCoder.encode([GasReceiptType], [gasReceipt])
     sigData = ethers.utils.keccak256(ethers.utils.solidityPack(
       ['bytes', 'bytes32'], 
       [sigData, ethers.utils.keccak256(gasData)] //Hash of _data
@@ -322,7 +322,7 @@ export async function encodeMetaApprovalData(a: ApprovalSignature, domainHash: s
     return  utils.defaultAbiCoder.encode(txDataTypes, [sig, gasData])
     
   } else { 
-    let emptyTransferData = []
+    const emptyTransferData = []
     sigData = ethers.utils.keccak256(ethers.utils.solidityPack(
       ['bytes', 'bytes32'], 
       [sigData, ethers.utils.keccak256(emptyTransferData)] //Hash of _data
@@ -336,9 +336,9 @@ export async function encodeMetaApprovalData(a: ApprovalSignature, domainHash: s
 
 // Take a message, hash it and sign it with EIP_712_SIG SignatureType
 export function eip712Sign(wallet: ethers.Wallet, message: string | Uint8Array) {
-  let hash = ethers.utils.keccak256(message)
-  let signerSigningKey = new utils.SigningKey(wallet.privateKey)
-  let eip712sig = utils.joinSignature(signerSigningKey.signDigest(hash))
+  const hash = ethers.utils.keccak256(message)
+  const signerSigningKey = new utils.SigningKey(wallet.privateKey)
+  const eip712sig = utils.joinSignature(signerSigningKey.signDigest(hash))
   return eip712sig + '01'
 }
 
@@ -385,7 +385,7 @@ export class Web3DebugProvider extends ethers.providers.JsonRpcProvider {
     this.reqCounter++
 
     return new Promise((resolve, reject) => {
-      let request = {
+      const request = {
         method: method,
         params: params,
         id: this.reqCounter,
@@ -401,7 +401,7 @@ export class Web3DebugProvider extends ethers.providers.JsonRpcProvider {
 
         if (result.error) {
           // @TODO: not any
-          let error: any = new Error(result.error.message)
+          const error: any = new Error(result.error.message)
           error.code = result.error.code
           error.data = result.error.data
           reject(error)
