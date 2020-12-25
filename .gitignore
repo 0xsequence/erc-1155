@@ -2,13 +2,16 @@
 
 node_modules/
 
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
 *.js.map
 build
 cache
 coverage
 coverage.json
 
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
+artifacts/build-info
+artifacts/**/*.dbg.json
