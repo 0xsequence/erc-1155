@@ -24,10 +24,7 @@ multi-token-standard has been audited by two independant parties and all issues 
 # Usage
 
 ## Dependencies
-1. Install node v11, 
-2. Install yarn : `npm install -g yarn`
-3. Install Truffle npm package: `npm install truffle` or `yarn add truffle`
-2. Install the multi-token-standard npm package `npm install multi-token-standard` or `yarn add multi-token-standard` 
+Install the multi-token-standard npm package `npm install multi-token-standard` or `yarn add multi-token-standard` 
 
 ## Dev / running the tests
 1. `yarn install`
@@ -39,7 +36,7 @@ multi-token-standard has been audited by two independant parties and all issues 
 To write your custom contracts, import ours and extend them through inheritance.
 
 ```solidity
-pragma solidity ^0.5.14;
+pragma solidity ^0.7.4;
 
 import 'multi-token-standard/contracts/tokens/ERC1155/ERC1155.sol';
 
