@@ -9,7 +9,3 @@ lerna-debug.log*
 *.js.map
 coverage
 coverage.json
-
-src/cache
-src/artifacts/build-info
-src/artifacts/**/*.dbg.json
