@@ -9,7 +9,7 @@ The ERC-1155 token standard contains multiple classes of tokens referenced by ID
 
 ### Install
 
-`npm install @0xsequence/erc-1155` or `yarn add @0xsequence/erc-1155`,
+`yarn add @0xsequence/erc-1155` or `npm install @0xsequence/erc-1155`
 
 ### Usage
 
