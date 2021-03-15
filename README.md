@@ -1,6 +1,6 @@
 # ERC-1155: Multi-Token Standard implementation
 
-This repository maintains a secure, efficient and standards-compliant implementation of the ERC-1155 token standard for Ethereum. The implementation was created during Horizon Blockchain Games' participation in the coauthoring of the [ERC-1155](https://github.com/ethereum/EIPs/issues/1155) and is used by [Skyweaver](https://www.skyweaver.net), [Opensea](https://www.opensea.io), and many other projects since its release.
+This repository maintains a secure, efficient and standards-compliant implementation of the ERC-1155 token standard for Ethereum. The implementation was created during Horizon Blockchain Games' participation in the coauthoring of the [ERC-1155](https://github.com/ethereum/EIPs/issues/1155) and is used by [Skyweaver](https://www.skyweaver.net), [Opensea](https://github.com/ProjectOpenSea/opensea-erc1155#erc1155-implementation), and many other projects since its release.
 
 The ERC-1155 token standard contains multiple classes of tokens referenced by IDs from non-fungible (max supply=1), to semi-fungible (supply=low), to highly fungible (supply=high). Standard interface discussion at [ERC-1155](https://github.com/ethereum/EIPs/issues/1155). 
 
