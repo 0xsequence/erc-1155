@@ -2,8 +2,6 @@
   "name": "erc-1155",
   "private": true,
   "workspaces": ["src"],
-  "description": "ERC1155 Multi-Token Standard implementation for Ethereum",
-  "repository": "https://github.com/0xsequence/erc-1155",
   "license": "Apache-2.0",
   "scripts": {
     "build": "yarn clean && yarn compile && yarn gen:typings",
@@ -66,16 +64,6 @@
     "typechain": "^4.0.1",
     "typescript": "^4.1.3"
   },
-  "keywords": [
-    "tokens",
-    "collectibles",
-    "ERC1155",
-    "ERC-1155",
-    "fungible",
-    "non-fungible",
-    "semi-fungible",
-    "Ethereum"
-  ],
   "config": {
     "mnemonic": "test test test test test test test test test test test junk",
     "ganacheChainID": 127001,
