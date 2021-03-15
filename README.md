@@ -42,6 +42,18 @@ A detailed specification document can be found at [SPECIFICATIONS.md](<https://g
 
 ** Agustín was hired as a full-time employee at Horizon after the audit was completed. Agustín did not take part in the writing of multi-token-standard contracts.
 
+
+## Dev env & release
+
+This repository is configured as a yarn workspace, and has multiple pacakge.json files. Specifically,
+we have the root ./package.json for the development environment, contract compilation and testing. Contract
+source code and distribution files are packaged in "src/package.json".
+
+To release a new version, make sure to the version, tag it, and run `yarn release`. The `release` command
+will publish the `0xsequence/erc-1155` package in the "src/" folder, separate from the root package. The advantage
+here is that application developers who consume `0xsequence/erc-1155` aren't required to install any of the devDependenies
+in their toolchains as our build and contract packages are separated.
+
 ## LICENSE
 
 Copyright (c) 2017-present [Horizon Blockchain Games Inc](https://horizon.io).

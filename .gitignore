@@ -7,10 +7,9 @@ yarn-error.log*
 lerna-debug.log*
 
 *.js.map
-build
-cache
 coverage
 coverage.json
 
-artifacts/build-info
-artifacts/**/*.dbg.json
+src/cache
+src/artifacts/build-info
+src/artifacts/**/*.dbg.json
