@@ -268,7 +268,7 @@ Since each of these balance values are limited to IDS_BITS_SIZE bits per token I
 
 ## Relevant Methods
 
-Most important methods that handle the balance packing logic can be found in the [ERC1155PackedBalance.sol](https://github.com/0xsequence/multi-token-standard/blob/master/contracts/tokens/ERC1155PackedBalance/ERC1155PackedBalance.sol) contract.
+Most important methods that handle the balance packing logic can be found in the [ERC1155PackedBalance.sol](https://github.com/0xsequence/erc-1155/blob/master/contracts/tokens/ERC1155PackedBalance/ERC1155PackedBalance.sol) contract.
 
 ### *getIDBinIndex(uint256 _id)*
 
@@ -306,7 +306,7 @@ This method will directly update the corresponding storage slot where `_id` is r
 
 ### _safeBatchTransferFrom(...) and _batchMint(...)
 
-These method in the [ERC1155PackedBalance](https://github.com/0xsequence/multi-token-standard/blob/master/contracts/tokens/ERC1155PackedBalance/ERC1155PackedBalance.sol)  and [ERC1155MintBurnPackedBalance.sol](https://github.com/0xsequence/multi-token-standard/blob/master/contracts/tokens/ERC1155PackedBalance/ERC1155MintBurnPackedBalance.sol) contracts (respectively) take advantage of the packed balances by trying to only read and write once per storage slot when transferring or minting multiple assets. To achieve this, the methods assume the `_ids` provided as argument are sorted in such a way that ids in the same storage slots are consecutive. 
+These method in the [ERC1155PackedBalance](https://github.com/0xsequence/erc-1155/blob/master/contracts/tokens/ERC1155PackedBalance/ERC1155PackedBalance.sol)  and [ERC1155MintBurnPackedBalance.sol](https://github.com/0xsequence/erc-1155/blob/master/contracts/tokens/ERC1155PackedBalance/ERC1155MintBurnPackedBalance.sol) contracts (respectively) take advantage of the packed balances by trying to only read and write once per storage slot when transferring or minting multiple assets. To achieve this, the methods assume the `_ids` provided as argument are sorted in such a way that ids in the same storage slots are consecutive. 
 
 ```solidity
 for (uint256 i = 1; i < nTransfer; i++) {
