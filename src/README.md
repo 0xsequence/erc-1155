@@ -1,4 +1,5 @@
-# @0xsequence/erc-1155
+@0xsequence/erc-1155
+====================
 
 Sequence ERC-1155 contracts. For more information see, [github.com/0xsequence/erc-1155](https://github.com/0xsequence/erc-1155).
 
@@ -7,7 +8,7 @@ Sequence ERC-1155 contracts. For more information see, [github.com/0xsequence/er
 
 ### Install
 
-`npm install @0xsequence/erc-1155` or `yarn add @0xsequence/erc-1155`
+`yarn add @0xsequence/erc-1155` or `npm install @0xsequence/erc-1155`
 
 ### Usage from Solidity
 
