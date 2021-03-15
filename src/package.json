@@ -1,0 +1,22 @@
+{
+  "name": "@0xsequence/erc-1155",
+  "version": "3.0.2",
+  "homepage": "https://sequence.build",
+  "description": "ERC1155 Multi-Token Standard implementation for Ethereum",
+  "repository": "https://github.com/0xsequence/erc-1155",
+  "license": "Apache-2.0",
+  "scripts": {
+  },
+  "keywords": [
+    "tokens",
+    "collectibles",
+    "ERC1155",
+    "ERC-1155",
+    "fungible",
+    "non-fungible",
+    "semi-fungible",
+    "Ethereum"
+  ],
+  "dependencies": {},
+  "devDependencies": {}
+}

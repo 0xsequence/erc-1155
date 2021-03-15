@@ -1,14 +1,15 @@
 {
-  "name": "@0xsequence/erc-1155",
-  "version": "2.3.0",
+  "name": "erc-1155",
+  "private": true,
+  "workspaces": ["src"],
   "description": "ERC1155 Multi-Token Standard implementation for Ethereum",
   "repository": "https://github.com/0xsequence/erc-1155",
   "license": "Apache-2.0",
   "scripts": {
     "build": "yarn clean && yarn compile && yarn gen:typings",
-    "clean": "rimraf artifacts && rimraf typings/contracts && rimraf cache",
+    "clean": "rimraf src/artifacts && rimraf src/typings/contracts && rimraf cache",
     "compile": "hardhat --max-memory 4096 compile",
-    "gen:typings": "rimraf typings/contracts && typechain --target ethers-v5 --outDir typings/contracts './artifacts/!(build-info)/**/*[^dbg].json'",
+    "gen:typings": "rimraf src/typings/contracts && typechain --target ethers-v5 --outDir src/typings/contracts './src/artifacts/!(build-info)/**/*[^dbg].json'",
     "test": "yarn build && yarn concurrently -k --success first 'yarn start:ganache' 'yarn test:ganache'",
     "test:hardhat": "hardhat test",
     "test:ganache": "hardhat --network ganache test",
@@ -16,14 +17,15 @@
     "test:gas-report": "REPORT_GAS=true yarn test",
     "lint": "yarn lint:ts && yarn lint:sol",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
-    "lint:sol": "solhint './contracts/**/*.sol'",
-    "lint:sol:fix": "solhint './contracts/**/*.sol' --fix",
+    "lint:sol": "solhint './src/contracts/**/*.sol'",
+    "lint:sol:fix": "solhint './src/contracts/**/*.sol' --fix",
     "lint:ts": "eslint -c .eslintrc.js './**/*.ts'",
     "lint:ts:fix": "eslint -c .eslintrc.js --fix './**/*.ts'",
     "format": "prettier --write ./**/*.ts",
     "start:ganache": "ganache-cli --chainId ${npm_package_config_ganacheChainID} --networkId ${npm_package_config_ganacheChainID} --port ${npm_package_config_ganachePort} --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --defaultBalanceEther ${npm_package_config_etherBalance} --deterministic --mnemonic \"${npm_package_config_mnemonic}\" ${npm_package_config_extra}",
     "start:ganache:verbose": "yarn run start:ganache --verbose",
-    "stop:start:ganache": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9"
+    "stop:start:ganache": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
+    "release": "yarn publish src"
   },
   "husky": {
     "hooks": {
@@ -64,13 +66,6 @@
     "typechain": "^4.0.1",
     "typescript": "^4.1.3"
   },
-  "files": [
-    "README.md",
-    "LICENSE",
-    "artifacts",
-    "contracts",
-    "typings"
-  ],
   "keywords": [
     "tokens",
     "collectibles",
@@ -78,6 +73,7 @@
     "ERC-1155",
     "fungible",
     "non-fungible",
+    "semi-fungible",
     "Ethereum"
   ],
   "config": {
