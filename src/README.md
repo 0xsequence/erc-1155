@@ -5,7 +5,7 @@ Sequence ERC-1155 contracts. For more information see, [github.com/0xsequence/er
 
 ## Getting started
 
-### Install to your project
+### Install
 
 `npm install @0xsequence/erc-1155` or `yarn add @0xsequence/erc-1155`
 
