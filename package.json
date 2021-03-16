@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "yarn clean && yarn compile && yarn adapter",
-    "clean": "rimraf src/artifacts && rimraf src/gen/types && rimraf cache",
+    "clean": "rimraf src/artifacts && rimraf src/gen && rimraf cache",
     "compile": "hardhat --max-memory 4096 compile",
     "adapter": "yarn adapter:gen && yarn adapter:build",
     "adapter:gen": "rimraf src/gen/typechain && typechain --target ethers-v5 --outDir src/gen/typechain './src/artifacts/!(build-info)/**/*[^dbg].json'",
