@@ -1,10 +1,12 @@
 {
   "name": "@0xsequence/erc-1155",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "ERC1155 Multi-Token Standard implementation for Ethereum",
   "repository": "https://github.com/0xsequence/erc-1155",
   "homepage": "https://sequence.build",
   "license": "Apache-2.0",
+  "source": "typings/contracts/index.ts",
+  "types": "typings/contracts/index.ts",
   "scripts": {
   },
   "keywords": [
