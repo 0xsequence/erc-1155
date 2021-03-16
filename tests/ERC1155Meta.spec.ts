@@ -12,12 +12,15 @@ import {
 
 import { BigNumber, utils, ContractTransaction, EventFilter } from 'ethers'
 
-import { ERC1155MetaMintBurnMock } from 'typings/contracts/ERC1155MetaMintBurnMock'
-import { ERC1271WalletValidationMock } from 'typings/contracts/ERC1271WalletValidationMock'
-import { ERC1155ReceiverMock } from 'typings/contracts/ERC1155ReceiverMock'
-import { ERC1155OperatorMock } from 'typings/contracts/ERC1155OperatorMock'
-import { ERC20Mock } from 'typings/contracts/ERC20Mock'
-import { GasReceipt, TransferSignature, ApprovalSignature, BatchTransferSignature } from 'typings/tx-types'
+import {
+  ERC1155MetaMintBurnMock,
+  ERC1271WalletValidationMock,
+  ERC1155ReceiverMock,
+  ERC1155OperatorMock,
+  ERC20Mock
+} from 'src/gen/typechain'
+
+import { GasReceipt, TransferSignature, ApprovalSignature, BatchTransferSignature } from 'src/typings/tx-types'
 
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'

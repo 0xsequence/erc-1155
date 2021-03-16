@@ -3,8 +3,10 @@ import * as ethers from 'ethers'
 import { AbstractContract, RevertError, expect, BigNumber } from './utils'
 import * as utils from './utils'
 
-import { ERC1155MetaMintBurnPackedBalanceMock } from 'typings/contracts/ERC1155MetaMintBurnPackedBalanceMock'
-import { ERC1155ReceiverMock } from 'typings/contracts/ERC1155ReceiverMock'
+import {
+  ERC1155MetaMintBurnPackedBalanceMock,
+  ERC1155ReceiverMock
+} from 'src/gen/typechain'
 
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'

@@ -19,12 +19,8 @@
     "checkJs": false,
 
     "baseUrl": ".",
-    "outDir": "dist",
-
-    "paths": {
-      "typings/*": ["src/typings/*"],
-    }
+    "outDir": "dist"
   },
-  "include": ["tests", "src/typings"],
+  "include": ["tests", "src/gen/typechain"],
   "files": ["hardhat.config.ts"]
 }

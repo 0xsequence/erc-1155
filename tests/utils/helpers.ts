@@ -7,7 +7,7 @@ import {
   TransferSignature,
   ApprovalSignature, 
   BatchTransferSignature 
-} from 'typings/tx-types'
+} from 'src/typings/tx-types'
 
 export const UNIT_ETH = ethers.utils.parseEther('1')
 export const HIGH_GAS_LIMIT = { gasLimit: 6e9 }

@@ -3,7 +3,7 @@ import * as ethers from 'ethers'
 import { AbstractContract, expect, RevertError } from './utils'
 import * as utils from './utils'
 
-import { OwnableMock } from 'typings/contracts/OwnableMock'
+import { OwnableMock } from 'src/gen/typechain'
 
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'
