@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity 0.7.4;
-import "./IERC165.sol";
+import './IERC165.sol';
+
 
 interface IERC1155 is IERC165 {
 
