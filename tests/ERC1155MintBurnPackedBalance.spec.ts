@@ -44,7 +44,7 @@ describe('ERC1155MintBurnPackedBalance', () => {
       receiverContract = (await abstractReceiver.deploy(ownerWallet)) as ERC1155ReceiverMock
 
       const abstract = await AbstractContract.fromArtifactName('ERC1155MetaMintBurnPackedBalanceMock')
-      erc1155MintBurnContract = (await abstract.deploy(ownerWallet)) as ERC1155MetaMintBurnPackedBalanceMock
+      erc1155MintBurnContract = (await abstract.deploy(ownerWallet, [16])) as ERC1155MetaMintBurnPackedBalanceMock
       anyoneERC1155MintBurnContract = (await erc1155MintBurnContract.connect(
         anyoneSigner
       )) as ERC1155MetaMintBurnPackedBalanceMock

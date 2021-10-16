@@ -67,7 +67,7 @@ describe('ERC1155MetaPackedBalance', () => {
 
   // deploy before each test, to reset state of contract
   beforeEach(async () => {
-    erc1155Contract = (await erc1155Abstract.deploy(ownerWallet)) as ERC1155MetaMintBurnPackedBalanceMock
+    erc1155Contract = (await erc1155Abstract.deploy(ownerWallet, [32])) as ERC1155MetaMintBurnPackedBalanceMock
     operatorERC1155Contract = (await erc1155Contract.connect(operatorSigner)) as ERC1155MetaMintBurnPackedBalanceMock
     receiverERC1155Contract = (await erc1155Contract.connect(receiverSigner)) as ERC1155MetaMintBurnPackedBalanceMock
   })
@@ -568,7 +568,7 @@ describe('ERC1155MetaPackedBalance', () => {
             })
 
             it('should PASS if another approved ERC-1155 is used for fee', async () => {
-              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet)) as ERC1155MetaMintBurnPackedBalanceMock
+              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet, [32])) as ERC1155MetaMintBurnPackedBalanceMock
               await erc1155Contract2.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance, [])
               await erc1155Contract2.setApprovalForAll(operatorERC1155Contract.address, true)
 
@@ -603,7 +603,7 @@ describe('ERC1155MetaPackedBalance', () => {
             })
 
             it('should REVERT if NOT approved ERC-1155 is used for fee', async () => {
-              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet)) as ERC1155MetaMintBurnPackedBalanceMock
+              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet, [32])) as ERC1155MetaMintBurnPackedBalanceMock
               await erc1155Contract2.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance, [])
 
               feeTokenDataERC1155 = ethers.utils.defaultAbiCoder.encode(
@@ -637,7 +637,7 @@ describe('ERC1155MetaPackedBalance', () => {
             })
 
             it('should REVERT if another ERC-1155 is used for fee without sufficient balance', async () => {
-              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet)) as ERC1155MetaMintBurnPackedBalanceMock
+              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet, [32])) as ERC1155MetaMintBurnPackedBalanceMock
               await erc1155Contract2.mintMock(ownerAddress, feeTokenID, 100, [])
               await erc1155Contract2.setApprovalForAll(operatorERC1155Contract.address, true)
 

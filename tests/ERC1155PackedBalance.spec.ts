@@ -45,7 +45,7 @@ describe('ERC1155PackedBalance', () => {
 
   // deploy before each test, to reset state of contract
   beforeEach(async () => {
-    erc1155Contract = (await erc1155Abstract.deploy(ownerWallet)) as ERC1155MetaMintBurnPackedBalanceMock
+    erc1155Contract = (await erc1155Abstract.deploy(ownerWallet, [32])) as ERC1155MetaMintBurnPackedBalanceMock
     operatorERC1155Contract = (await erc1155Contract.connect(operatorSigner)) as ERC1155MetaMintBurnPackedBalanceMock
   })
 

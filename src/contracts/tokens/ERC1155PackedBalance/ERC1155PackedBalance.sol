@@ -29,9 +29,9 @@ contract ERC1155PackedBalance is IERC1155, ERC165 {
   bytes4 constant internal ERC1155_BATCH_RECEIVED_VALUE = 0xbc197c81;
 
   // Constants regarding bin sizes for balance packing
-  // IDS_BITS_SIZE **MUST** be a power of 2 (e.g. 2, 4, 8, 16, 32, 64, 128)
-  uint256 internal constant IDS_BITS_SIZE   = 32;                  // Max balance amount in bits per token ID
-  uint256 internal constant IDS_PER_UINT256 = 256 / IDS_BITS_SIZE; // Number of ids per uint256
+  // IDS_BITS_SIZE **MUST** be a divisor of 256 (e.g. 1, 2, 4, 8, 16, 32, 64, 128, 256)
+  uint256 internal immutable IDS_BITS_SIZE;     // Max balance amount in bits per token ID
+  uint256 internal immutable IDS_PER_UINT256;   // Number of ids per uint256
 
   // Operations for _updateIDBalance
   enum Operations { Add, Sub }
@@ -42,6 +42,15 @@ contract ERC1155PackedBalance is IERC1155, ERC165 {
   // Operators
   mapping (address => mapping(address => bool)) internal operators;
 
+  /**
+   * @notice Cretes a new ERC1155PackedBalance contract
+   * @param _idsBitsSize Bits used for storing balances (determines the maximum balance amount for a token ID)
+   */
+  constructor(uint256 _idsBitsSize) {
+    require((256 % _idsBitsSize) == 0, "ERC1155PackedBalance#constructor: Invalid IDS_BITS_SIZE");
+    IDS_BITS_SIZE = _idsBitsSize;
+    IDS_PER_UINT256 = 256 / _idsBitsSize;
+  }
 
   /***********************************|
   |     Public Transfer Functions     |
@@ -323,7 +332,7 @@ contract ERC1155PackedBalance is IERC1155, ERC165 {
    *   Operations.Sub: Substract _amount from value in _binValues at _index
    */
   function _viewUpdateBinValue(uint256 _binValues, uint256 _index, uint256 _amount, Operations _operation)
-    internal pure returns (uint256 newBinValues)
+    internal view returns (uint256 newBinValues)
   {
     uint256 shift = IDS_BITS_SIZE * _index;
     uint256 mask = (uint256(1) << IDS_BITS_SIZE) - 1;
@@ -357,7 +366,7 @@ contract ERC1155PackedBalance is IERC1155, ERC165 {
   * @return bin index (Bin number, ID"s index within that bin)
   */
   function getIDBinIndex(uint256 _id)
-    public pure returns (uint256 bin, uint256 index)
+    public view returns (uint256 bin, uint256 index)
   {
     bin = _id / IDS_PER_UINT256;
     index = _id % IDS_PER_UINT256;
@@ -371,7 +380,7 @@ contract ERC1155PackedBalance is IERC1155, ERC165 {
    * @return amount at given _index in _bin
    */
   function getValueInBin(uint256 _binValues, uint256 _index)
-    public pure returns (uint256)
+    public view returns (uint256)
   {
     // require(_index < IDS_PER_UINT256) is not required since getIDBinIndex ensures `_index < IDS_PER_UINT256`
 
