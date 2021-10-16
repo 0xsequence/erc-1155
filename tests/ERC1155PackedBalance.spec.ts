@@ -50,7 +50,7 @@ describe('ERC1155PackedBalance', () => {
   })
 
   describe('Custom bits', () => {
-    INVALID_ID_BITS.map((v) => it(`should fail to create nft with ${v} bits values`, async () => {
+    INVALID_ID_BITS.map((v) => it(`should fail to create nft with ${v} bit size values`, async () => {
       const tx = erc1155Abstract.deploy(ownerWallet, [v])
       await expect(tx).to.be.rejected
     }))

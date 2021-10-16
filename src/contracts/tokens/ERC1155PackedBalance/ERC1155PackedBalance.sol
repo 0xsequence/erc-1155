@@ -47,7 +47,7 @@ contract ERC1155PackedBalance is IERC1155, ERC165 {
    * @param _idsBitsSize Bits used for storing balances (determines the maximum balance amount for a token ID)
    */
   constructor(uint256 _idsBitsSize) {
-    require(_idsBitsSize >= 256 || (256 % _idsBitsSize) == 0, "ERC1155PackedBalance#constructor: Invalid IDS_BITS_SIZE");
+    require(_idsBitsSize < 256 && (256 % _idsBitsSize) == 0, "ERC1155PackedBalance#constructor: Invalid IDS_BITS_SIZE");
     IDS_BITS_SIZE = _idsBitsSize;
     IDS_PER_UINT256 = 256 / _idsBitsSize;
   }
