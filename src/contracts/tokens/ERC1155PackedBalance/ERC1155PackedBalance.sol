@@ -29,7 +29,7 @@ contract ERC1155PackedBalance is IERC1155, ERC165 {
   bytes4 constant internal ERC1155_BATCH_RECEIVED_VALUE = 0xbc197c81;
 
   // Constants regarding bin sizes for balance packing
-  // IDS_BITS_SIZE **MUST** be a divisor of 256 (e.g. 1, 2, 4, 8, 16, 32, 64, 128, 256)
+  // IDS_BITS_SIZE **MUST** be a divisor of 256 (e.g. 1, 2, 4, 8, 16, 32, 64, 128)
   uint256 internal immutable IDS_BITS_SIZE;     // Max balance amount in bits per token ID
   uint256 internal immutable IDS_PER_UINT256;   // Number of ids per uint256
 
@@ -47,7 +47,7 @@ contract ERC1155PackedBalance is IERC1155, ERC165 {
    * @param _idsBitsSize Bits used for storing balances (determines the maximum balance amount for a token ID)
    */
   constructor(uint256 _idsBitsSize) {
-    require((256 % _idsBitsSize) == 0, "ERC1155PackedBalance#constructor: Invalid IDS_BITS_SIZE");
+    require(_idsBitsSize >= 256 || (256 % _idsBitsSize) == 0, "ERC1155PackedBalance#constructor: Invalid IDS_BITS_SIZE");
     IDS_BITS_SIZE = _idsBitsSize;
     IDS_PER_UINT256 = 256 / _idsBitsSize;
   }
