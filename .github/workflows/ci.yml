@@ -74,7 +74,8 @@ jobs:
             node_modules
             */*/node_modules
           key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
-      - run: yarn test
+      - run: yarn start:ganache &
+      - run: yarn test:ganache
 
   # coverage:
   #   name: Coverage
