@@ -41,6 +41,9 @@ const config: HardhatUserConfig = {
     currency: 'USD',
     gasPrice: 10,
     showTimeSpent: true
+  },
+  mocha: {
+    timeout: 60000
   }
 }
 
