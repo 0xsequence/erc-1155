@@ -16,7 +16,7 @@ import "../../utils/SignatureValidator.sol";
  * Note: This contract is identical to the ERC1155Meta.sol contract,
  *       except for the ERC1155PackedBalance parent contract.
  */
-contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
+abstract contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
   using LibBytes for bytes;
 
   /***********************************|

@@ -74,7 +74,178 @@ jobs:
             node_modules
             */*/node_modules
           key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
-      - run: yarn test
+      - run: yarn start:ganache &
+      - run: yarn test:ganache
+        env:
+          TEST_BIT: -1
+
+  test-1:
+    name: Test contracts (1 bit)
+    runs-on: ubuntu-latest
+    needs: [install]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - uses: actions/cache@master
+        id: yarn-cache
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
+      - run: yarn start:ganache &
+      - run: yarn test:ganache
+        env:
+          TEST_BIT: 1
+
+  test-2:
+    name: Test contracts (2 bits)
+    runs-on: ubuntu-latest
+    needs: [install]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - uses: actions/cache@master
+        id: yarn-cache
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
+      - run: yarn start:ganache &
+      - run: yarn test:ganache
+        env:
+          TEST_BIT: 2
+
+  test-4:
+    name: Test contracts (4 bits)
+    runs-on: ubuntu-latest
+    needs: [install]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - uses: actions/cache@master
+        id: yarn-cache
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
+      - run: yarn start:ganache &
+      - run: yarn test:ganache
+        env:
+          TEST_BIT: 4
+
+  test-8:
+    name: Test contracts (8 bits)
+    runs-on: ubuntu-latest
+    needs: [install]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - uses: actions/cache@master
+        id: yarn-cache
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
+      - run: yarn start:ganache &
+      - run: yarn test:ganache
+        env:
+          TEST_BIT: 8
+
+  test-16:
+    name: Test contracts (16 bits)
+    runs-on: ubuntu-latest
+    needs: [install]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - uses: actions/cache@master
+        id: yarn-cache
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
+      - run: yarn start:ganache &
+      - run: yarn test:ganache
+        env:
+          TEST_BIT: 16
+
+  test-32:
+    name: Test contracts (32 bits)
+    runs-on: ubuntu-latest
+    needs: [install]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - uses: actions/cache@master
+        id: yarn-cache
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
+      - run: yarn start:ganache &
+      - run: yarn test:ganache
+        env:
+          TEST_BIT: 32
+
+  test-64:
+    name: Test contracts (64 bits)
+    runs-on: ubuntu-latest
+    needs: [install]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - uses: actions/cache@master
+        id: yarn-cache
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
+      - run: yarn start:ganache &
+      - run: yarn test:ganache
+        env:
+          TEST_BIT: 64
+
+  test-128:
+    name: Test contracts (128 bits)
+    runs-on: ubuntu-latest
+    needs: [install]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - uses: actions/cache@master
+        id: yarn-cache
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
+      - run: yarn start:ganache &
+      - run: yarn test:ganache
+        env:
+          TEST_BIT: 128
 
   # coverage:
   #   name: Coverage

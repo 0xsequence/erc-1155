@@ -10,6 +10,12 @@ import "./ERC1155PackedBalance.sol";
  */
 contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
 
+  /**
+   * @notice Cretes a new ERC1155PackedBalance contract
+   * @param _idsBitsSize Bits used for storing balances (determines the maximum balance amount for a token ID)
+   */
+  constructor(uint256 _idsBitsSize) ERC1155PackedBalance(_idsBitsSize) { }
+
   /****************************************|
   |            Minting Functions           |
   |_______________________________________*/

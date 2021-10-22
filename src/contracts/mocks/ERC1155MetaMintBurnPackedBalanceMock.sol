@@ -9,6 +9,12 @@ import "../tokens/ERC1155/ERC1155Metadata.sol";
 
 contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, ERC1155MetaPackedBalance, ERC1155Metadata {
 
+  /**
+   * @notice Cretes a new ERC1155PackedBalance contract
+   * @param _idsBitsSize Bits used for storing balances (determines the maximum balance amount for a token ID)
+   */
+  constructor(uint256 _idsBitsSize) ERC1155MintBurnPackedBalance(_idsBitsSize) { }
+
   /***********************************|
   |               ERC165              |
   |__________________________________*/

@@ -1,6 +1,6 @@
 import * as ethers from 'ethers'
 
-import { AbstractContract, expect, BigNumber, RevertError } from './utils'
+import { AbstractContract, expect, BigNumber, RevertError, INVALID_ID_BITS } from './utils'
 import * as utils from './utils'
 
 import {
@@ -45,8 +45,15 @@ describe('ERC1155PackedBalance', () => {
 
   // deploy before each test, to reset state of contract
   beforeEach(async () => {
-    erc1155Contract = (await erc1155Abstract.deploy(ownerWallet)) as ERC1155MetaMintBurnPackedBalanceMock
+    erc1155Contract = (await erc1155Abstract.deploy(ownerWallet, [32])) as ERC1155MetaMintBurnPackedBalanceMock
     operatorERC1155Contract = (await erc1155Contract.connect(operatorSigner)) as ERC1155MetaMintBurnPackedBalanceMock
+  })
+
+  describe('Custom bits', () => {
+    INVALID_ID_BITS.map((v) => it(`should fail to create nft with ${v} bit size values`, async () => {
+      const tx = erc1155Abstract.deploy(ownerWallet, [v])
+      await expect(tx).to.be.rejected
+    }))
   })
 
   describe('Bitwise functions', () => {
