@@ -76,7 +76,8 @@ describe('ERC1155MetaPackedBalance', () => {
       .pow(bits)
       .sub(1) // 2**bits - 1
 
-    context(`With ${bits} bits for values`, () => {
+    const c = process.env.TEST_BIT ? context.only : context
+    c(`With ${bits} bits for values`, () => {
       let erc1155Contract: ERC1155MetaMintBurnPackedBalanceMock
       let operatorERC1155Contract: ERC1155MetaMintBurnPackedBalanceMock
       let receiverERC1155Contract: ERC1155MetaMintBurnPackedBalanceMock

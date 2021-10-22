@@ -32,7 +32,8 @@ describe('ERC1155MintBurnPackedBalance', () => {
   let receiverContract: ERC1155ReceiverMock
 
   VALID_ID_BITS.map((bits) => {
-    context(`With ${bits} bits for values`, () => {
+    const c = process.env.TEST_BIT ? context.only : context
+    c(`With ${bits} bits for values`, () => {
       context('When ERC1155MintBurn contract is deployed', () => {
         before(async () => {
           ownerAddress = await ownerWallet.getAddress()
