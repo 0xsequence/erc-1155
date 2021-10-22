@@ -10,7 +10,7 @@ import {
   GasReceiptType,
   ethSign,
   createTestWallet,
-  VALID_ID_BITS
+  FILTERED_VALID_ID_BITS
 } from './utils'
 
 import { utils, BigNumber } from 'ethers'
@@ -71,7 +71,7 @@ describe('ERC1155MetaPackedBalance', () => {
     operatorAbstract = await AbstractContract.fromArtifactName('ERC1155OperatorMock')
   })
 
-  VALID_ID_BITS.map((bits) => {
+  FILTERED_VALID_ID_BITS.map((bits) => {
     const MAXVAL = BigNumber.from(2)
       .pow(bits)
       .sub(1) // 2**bits - 1

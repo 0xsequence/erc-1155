@@ -422,7 +422,9 @@ export class Web3DebugProvider extends ethers.providers.JsonRpcProvider {
 
 }
 
-export const VALID_ID_BITS = [1, 2, 4, 8, 16, 32, 64, 128].filter((v) => {
+export const VALID_ID_BITS = [1, 2, 4, 8, 16, 32, 64, 128]
+
+export const FILTERED_VALID_ID_BITS = VALID_ID_BITS.filter((v) => {
   if (!process.env.TEST_BIT) return true
   return process.env.TEST_BIT === v.toString()
 })

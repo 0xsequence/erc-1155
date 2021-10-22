@@ -1,6 +1,6 @@
 import * as ethers from 'ethers'
 
-import { AbstractContract, RevertError, expect, BigNumber, VALID_ID_BITS } from './utils'
+import { AbstractContract, RevertError, expect, BigNumber, FILTERED_VALID_ID_BITS } from './utils'
 import * as utils from './utils'
 
 import {
@@ -31,7 +31,7 @@ describe('ERC1155MintBurnPackedBalance', () => {
   let anyoneERC1155MintBurnContract: ERC1155MetaMintBurnPackedBalanceMock
   let receiverContract: ERC1155ReceiverMock
 
-  VALID_ID_BITS.map((bits) => {
+  FILTERED_VALID_ID_BITS.map((bits) => {
     const c = process.env.TEST_BIT ? context.only : context
     c(`With ${bits} bits for values`, () => {
       context('When ERC1155MintBurn contract is deployed', () => {
