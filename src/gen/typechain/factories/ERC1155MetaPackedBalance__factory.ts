@@ -140,6 +140,19 @@ const _abi = [
     type: "event",
   },
   {
+    inputs: [],
+    name: "IDS_BITS_SIZE",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",

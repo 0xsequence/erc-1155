@@ -22,6 +22,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface ERC1155MetaMintBurnPackedBalanceMockInterface
   extends ethers.utils.Interface {
   functions: {
+    "IDS_BITS_SIZE()": FunctionFragment;
     "balanceOf(address,uint256)": FunctionFragment;
     "balanceOfBatch(address[],uint256[])": FunctionFragment;
     "batchBurnMock(address,uint256[],uint256[])": FunctionFragment;
@@ -43,6 +44,10 @@ interface ERC1155MetaMintBurnPackedBalanceMockInterface
     "uri(uint256)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "IDS_BITS_SIZE",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "balanceOf",
     values: [string, BigNumberish]
@@ -114,6 +119,10 @@ interface ERC1155MetaMintBurnPackedBalanceMockInterface
   ): string;
   encodeFunctionData(functionFragment: "uri", values: [BigNumberish]): string;
 
+  decodeFunctionResult(
+    functionFragment: "IDS_BITS_SIZE",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "balanceOfBatch",
@@ -235,6 +244,10 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
   interface: ERC1155MetaMintBurnPackedBalanceMockInterface;
 
   functions: {
+    IDS_BITS_SIZE(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "IDS_BITS_SIZE()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     balanceOf(
       _owner: string,
       _id: BigNumberish,
@@ -503,6 +516,10 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
     ): Promise<[string]>;
   };
 
+  IDS_BITS_SIZE(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "IDS_BITS_SIZE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
   balanceOf(
     _owner: string,
     _id: BigNumberish,
@@ -765,6 +782,10 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
   "uri(uint256)"(_id: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
+    IDS_BITS_SIZE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "IDS_BITS_SIZE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     balanceOf(
       _owner: string,
       _id: BigNumberish,
@@ -1089,6 +1110,10 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
   };
 
   estimateGas: {
+    IDS_BITS_SIZE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "IDS_BITS_SIZE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     balanceOf(
       _owner: string,
       _id: BigNumberish,
@@ -1355,6 +1380,10 @@ export class ERC1155MetaMintBurnPackedBalanceMock extends Contract {
   };
 
   populateTransaction: {
+    IDS_BITS_SIZE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "IDS_BITS_SIZE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     balanceOf(
       _owner: string,
       _id: BigNumberish,

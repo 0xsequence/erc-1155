@@ -53,6 +53,11 @@ describe('ERC1155MintBurnPackedBalance', () => {
           )) as ERC1155MetaMintBurnPackedBalanceMock
         })
 
+        it('should return bits value', async () => {
+          const b = await erc1155MintBurnContract.IDS_BITS_SIZE()
+          expect(b.toNumber()).to.equal(bits)
+        })
+
         describe('_mint() function', () => {
           const tokenID = 666
           const amount = bits > 4 ? 11 : 1
