@@ -11,7 +11,7 @@ import "../../utils/ERC165.sol";
  */
 contract ERC1155Metadata is IERC1155Metadata, ERC165 {
   // URI's default URI prefix
-  string internal baseMetadataURI;
+  string public baseURI;
 
   /***********************************|
   |     Metadata Public Function s    |
@@ -24,7 +24,7 @@ contract ERC1155Metadata is IERC1155Metadata, ERC165 {
    * @return URI string
    */
   function uri(uint256 _id) public override view returns (string memory) {
-    return string(abi.encodePacked(baseMetadataURI, _uint2str(_id), ".json"));
+    return string(abi.encodePacked(baseURI, _uint2str(_id), ".json"));
   }
 
 
@@ -37,7 +37,7 @@ contract ERC1155Metadata is IERC1155Metadata, ERC165 {
    * @param _tokenIDs Array of IDs of tokens to log default URI
    */
   function _logURIs(uint256[] memory _tokenIDs) internal {
-    string memory baseURL = baseMetadataURI;
+    string memory baseURL = baseURI;
     string memory tokenURI;
 
     for (uint256 i = 0; i < _tokenIDs.length; i++) {
@@ -51,7 +51,7 @@ contract ERC1155Metadata is IERC1155Metadata, ERC165 {
    * @param _newBaseMetadataURI New base URL of token's URI
    */
   function _setBaseMetadataURI(string memory _newBaseMetadataURI) internal {
-    baseMetadataURI = _newBaseMetadataURI;
+    baseURI = _newBaseMetadataURI;
   }
 
   /**
