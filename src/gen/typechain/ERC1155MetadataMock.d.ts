@@ -23,17 +23,10 @@ interface ERC1155MetadataMockInterface extends ethers.utils.Interface {
   functions: {
     "balanceOf(address,uint256)": FunctionFragment;
     "balanceOfBatch(address[],uint256[])": FunctionFragment;
-    "batchBurnMock(address,uint256[],uint256[])": FunctionFragment;
-    "batchMintMock(address,uint256[],uint256[],bytes)": FunctionFragment;
-    "burnMock(address,uint256,uint256)": FunctionFragment;
-    "getNonce(address)": FunctionFragment;
+    "baseURI()": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
-    "isValidSignature(address,bytes32,bytes,bytes)": FunctionFragment;
     "logURIsMock(uint256[])": FunctionFragment;
-    "metaSafeBatchTransferFrom(address,address,uint256[],uint256[],bool,bytes)": FunctionFragment;
-    "metaSafeTransferFrom(address,address,uint256,uint256,bool,bytes)": FunctionFragment;
-    "metaSetApprovalForAll(address,address,bool,bool,bytes)": FunctionFragment;
-    "mintMock(address,uint256,uint256,bytes)": FunctionFragment;
+    "name()": FunctionFragment;
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)": FunctionFragment;
     "safeTransferFrom(address,address,uint256,uint256,bytes)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
@@ -50,47 +43,16 @@ interface ERC1155MetadataMockInterface extends ethers.utils.Interface {
     functionFragment: "balanceOfBatch",
     values: [string[], BigNumberish[]]
   ): string;
-  encodeFunctionData(
-    functionFragment: "batchBurnMock",
-    values: [string, BigNumberish[], BigNumberish[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "batchMintMock",
-    values: [string, BigNumberish[], BigNumberish[], BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "burnMock",
-    values: [string, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "getNonce", values: [string]): string;
+  encodeFunctionData(functionFragment: "baseURI", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [string, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "isValidSignature",
-    values: [string, BytesLike, BytesLike, BytesLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "logURIsMock",
     values: [BigNumberish[]]
   ): string;
-  encodeFunctionData(
-    functionFragment: "metaSafeBatchTransferFrom",
-    values: [string, string, BigNumberish[], BigNumberish[], boolean, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "metaSafeTransferFrom",
-    values: [string, string, BigNumberish, BigNumberish, boolean, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "metaSetApprovalForAll",
-    values: [string, string, boolean, boolean, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "mintMock",
-    values: [string, BigNumberish, BigNumberish, BytesLike]
-  ): string;
+  encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "safeBatchTransferFrom",
     values: [string, string, BigNumberish[], BigNumberish[], BytesLike]
@@ -118,41 +80,16 @@ interface ERC1155MetadataMockInterface extends ethers.utils.Interface {
     functionFragment: "balanceOfBatch",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "batchBurnMock",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "batchMintMock",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "burnMock", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getNonce", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "baseURI", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isApprovedForAll",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isValidSignature",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "logURIsMock",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "metaSafeBatchTransferFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "metaSafeTransferFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "metaSetApprovalForAll",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "mintMock", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "safeBatchTransferFrom",
     data: BytesLike
@@ -177,14 +114,12 @@ interface ERC1155MetadataMockInterface extends ethers.utils.Interface {
 
   events: {
     "ApprovalForAll(address,address,bool)": EventFragment;
-    "NonceChange(address,uint256)": EventFragment;
     "TransferBatch(address,address,address,uint256[],uint256[])": EventFragment;
     "TransferSingle(address,address,address,uint256,uint256)": EventFragment;
     "URI(string,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NonceChange"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferBatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferSingle"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "URI"): EventFragment;
@@ -258,59 +193,9 @@ export class ERC1155MetadataMock extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber[]]>;
 
-    batchBurnMock(
-      _from: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    baseURI(overrides?: CallOverrides): Promise<[string]>;
 
-    "batchBurnMock(address,uint256[],uint256[])"(
-      _from: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    batchMintMock(
-      _to: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "batchMintMock(address,uint256[],uint256[],bytes)"(
-      _to: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    burnMock(
-      _from: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "burnMock(address,uint256,uint256)"(
-      _from: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    getNonce(
-      _signer: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { nonce: BigNumber }>;
-
-    "getNonce(address)"(
-      _signer: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { nonce: BigNumber }>;
+    "baseURI()"(overrides?: CallOverrides): Promise<[string]>;
 
     isApprovedForAll(
       _owner: string,
@@ -324,22 +209,6 @@ export class ERC1155MetadataMock extends Contract {
       overrides?: CallOverrides
     ): Promise<[boolean] & { isOperator: boolean }>;
 
-    isValidSignature(
-      _signerAddress: string,
-      _hash: BytesLike,
-      _data: BytesLike,
-      _sig: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[boolean] & { isValid: boolean }>;
-
-    "isValidSignature(address,bytes32,bytes,bytes)"(
-      _signerAddress: string,
-      _hash: BytesLike,
-      _data: BytesLike,
-      _sig: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[boolean] & { isValid: boolean }>;
-
     logURIsMock(
       _tokenIDs: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -350,79 +219,9 @@ export class ERC1155MetadataMock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    metaSafeBatchTransferFrom(
-      _from: string,
-      _to: string,
-      _ids: BigNumberish[],
-      _amounts: BigNumberish[],
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    name(overrides?: CallOverrides): Promise<[string]>;
 
-    "metaSafeBatchTransferFrom(address,address,uint256[],uint256[],bool,bytes)"(
-      _from: string,
-      _to: string,
-      _ids: BigNumberish[],
-      _amounts: BigNumberish[],
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    metaSafeTransferFrom(
-      _from: string,
-      _to: string,
-      _id: BigNumberish,
-      _amount: BigNumberish,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "metaSafeTransferFrom(address,address,uint256,uint256,bool,bytes)"(
-      _from: string,
-      _to: string,
-      _id: BigNumberish,
-      _amount: BigNumberish,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    metaSetApprovalForAll(
-      _owner: string,
-      _operator: string,
-      _approved: boolean,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "metaSetApprovalForAll(address,address,bool,bool,bytes)"(
-      _owner: string,
-      _operator: string,
-      _approved: boolean,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    mintMock(
-      _to: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "mintMock(address,uint256,uint256,bytes)"(
-      _to: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    "name()"(overrides?: CallOverrides): Promise<[string]>;
 
     safeBatchTransferFrom(
       _from: string,
@@ -524,56 +323,9 @@ export class ERC1155MetadataMock extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber[]>;
 
-  batchBurnMock(
-    _from: string,
-    _ids: BigNumberish[],
-    _values: BigNumberish[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  baseURI(overrides?: CallOverrides): Promise<string>;
 
-  "batchBurnMock(address,uint256[],uint256[])"(
-    _from: string,
-    _ids: BigNumberish[],
-    _values: BigNumberish[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  batchMintMock(
-    _to: string,
-    _ids: BigNumberish[],
-    _values: BigNumberish[],
-    _data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "batchMintMock(address,uint256[],uint256[],bytes)"(
-    _to: string,
-    _ids: BigNumberish[],
-    _values: BigNumberish[],
-    _data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  burnMock(
-    _from: string,
-    _id: BigNumberish,
-    _value: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "burnMock(address,uint256,uint256)"(
-    _from: string,
-    _id: BigNumberish,
-    _value: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  getNonce(_signer: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  "getNonce(address)"(
-    _signer: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  "baseURI()"(overrides?: CallOverrides): Promise<string>;
 
   isApprovedForAll(
     _owner: string,
@@ -587,22 +339,6 @@ export class ERC1155MetadataMock extends Contract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isValidSignature(
-    _signerAddress: string,
-    _hash: BytesLike,
-    _data: BytesLike,
-    _sig: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isValidSignature(address,bytes32,bytes,bytes)"(
-    _signerAddress: string,
-    _hash: BytesLike,
-    _data: BytesLike,
-    _sig: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   logURIsMock(
     _tokenIDs: BigNumberish[],
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -613,79 +349,9 @@ export class ERC1155MetadataMock extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  metaSafeBatchTransferFrom(
-    _from: string,
-    _to: string,
-    _ids: BigNumberish[],
-    _amounts: BigNumberish[],
-    _isGasFee: boolean,
-    _data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  name(overrides?: CallOverrides): Promise<string>;
 
-  "metaSafeBatchTransferFrom(address,address,uint256[],uint256[],bool,bytes)"(
-    _from: string,
-    _to: string,
-    _ids: BigNumberish[],
-    _amounts: BigNumberish[],
-    _isGasFee: boolean,
-    _data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  metaSafeTransferFrom(
-    _from: string,
-    _to: string,
-    _id: BigNumberish,
-    _amount: BigNumberish,
-    _isGasFee: boolean,
-    _data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "metaSafeTransferFrom(address,address,uint256,uint256,bool,bytes)"(
-    _from: string,
-    _to: string,
-    _id: BigNumberish,
-    _amount: BigNumberish,
-    _isGasFee: boolean,
-    _data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  metaSetApprovalForAll(
-    _owner: string,
-    _operator: string,
-    _approved: boolean,
-    _isGasFee: boolean,
-    _data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "metaSetApprovalForAll(address,address,bool,bool,bytes)"(
-    _owner: string,
-    _operator: string,
-    _approved: boolean,
-    _isGasFee: boolean,
-    _data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  mintMock(
-    _to: string,
-    _id: BigNumberish,
-    _value: BigNumberish,
-    _data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "mintMock(address,uint256,uint256,bytes)"(
-    _to: string,
-    _id: BigNumberish,
-    _value: BigNumberish,
-    _data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  "name()"(overrides?: CallOverrides): Promise<string>;
 
   safeBatchTransferFrom(
     _from: string,
@@ -784,56 +450,9 @@ export class ERC1155MetadataMock extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber[]>;
 
-    batchBurnMock(
-      _from: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<void>;
+    baseURI(overrides?: CallOverrides): Promise<string>;
 
-    "batchBurnMock(address,uint256[],uint256[])"(
-      _from: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    batchMintMock(
-      _to: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      _data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "batchMintMock(address,uint256[],uint256[],bytes)"(
-      _to: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      _data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    burnMock(
-      _from: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "burnMock(address,uint256,uint256)"(
-      _from: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    getNonce(_signer: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getNonce(address)"(
-      _signer: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    "baseURI()"(overrides?: CallOverrides): Promise<string>;
 
     isApprovedForAll(
       _owner: string,
@@ -847,22 +466,6 @@ export class ERC1155MetadataMock extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isValidSignature(
-      _signerAddress: string,
-      _hash: BytesLike,
-      _data: BytesLike,
-      _sig: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isValidSignature(address,bytes32,bytes,bytes)"(
-      _signerAddress: string,
-      _hash: BytesLike,
-      _data: BytesLike,
-      _sig: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     logURIsMock(
       _tokenIDs: BigNumberish[],
       overrides?: CallOverrides
@@ -873,79 +476,9 @@ export class ERC1155MetadataMock extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    metaSafeBatchTransferFrom(
-      _from: string,
-      _to: string,
-      _ids: BigNumberish[],
-      _amounts: BigNumberish[],
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    name(overrides?: CallOverrides): Promise<string>;
 
-    "metaSafeBatchTransferFrom(address,address,uint256[],uint256[],bool,bytes)"(
-      _from: string,
-      _to: string,
-      _ids: BigNumberish[],
-      _amounts: BigNumberish[],
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    metaSafeTransferFrom(
-      _from: string,
-      _to: string,
-      _id: BigNumberish,
-      _amount: BigNumberish,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "metaSafeTransferFrom(address,address,uint256,uint256,bool,bytes)"(
-      _from: string,
-      _to: string,
-      _id: BigNumberish,
-      _amount: BigNumberish,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    metaSetApprovalForAll(
-      _owner: string,
-      _operator: string,
-      _approved: boolean,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "metaSetApprovalForAll(address,address,bool,bool,bytes)"(
-      _owner: string,
-      _operator: string,
-      _approved: boolean,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    mintMock(
-      _to: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      _data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "mintMock(address,uint256,uint256,bytes)"(
-      _to: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      _data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    "name()"(overrides?: CallOverrides): Promise<string>;
 
     safeBatchTransferFrom(
       _from: string,
@@ -1033,14 +566,6 @@ export class ERC1155MetadataMock extends Contract {
       { _owner: string; _operator: string; _approved: boolean }
     >;
 
-    NonceChange(
-      signer: string | null,
-      newNonce: null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { signer: string; newNonce: BigNumber }
-    >;
-
     TransferBatch(
       _operator: string | null,
       _from: string | null,
@@ -1106,56 +631,9 @@ export class ERC1155MetadataMock extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    batchBurnMock(
-      _from: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    baseURI(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "batchBurnMock(address,uint256[],uint256[])"(
-      _from: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    batchMintMock(
-      _to: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "batchMintMock(address,uint256[],uint256[],bytes)"(
-      _to: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    burnMock(
-      _from: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "burnMock(address,uint256,uint256)"(
-      _from: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    getNonce(_signer: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getNonce(address)"(
-      _signer: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    "baseURI()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     isApprovedForAll(
       _owner: string,
@@ -1169,22 +647,6 @@ export class ERC1155MetadataMock extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isValidSignature(
-      _signerAddress: string,
-      _hash: BytesLike,
-      _data: BytesLike,
-      _sig: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isValidSignature(address,bytes32,bytes,bytes)"(
-      _signerAddress: string,
-      _hash: BytesLike,
-      _data: BytesLike,
-      _sig: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     logURIsMock(
       _tokenIDs: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1195,79 +657,9 @@ export class ERC1155MetadataMock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    metaSafeBatchTransferFrom(
-      _from: string,
-      _to: string,
-      _ids: BigNumberish[],
-      _amounts: BigNumberish[],
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    name(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "metaSafeBatchTransferFrom(address,address,uint256[],uint256[],bool,bytes)"(
-      _from: string,
-      _to: string,
-      _ids: BigNumberish[],
-      _amounts: BigNumberish[],
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    metaSafeTransferFrom(
-      _from: string,
-      _to: string,
-      _id: BigNumberish,
-      _amount: BigNumberish,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "metaSafeTransferFrom(address,address,uint256,uint256,bool,bytes)"(
-      _from: string,
-      _to: string,
-      _id: BigNumberish,
-      _amount: BigNumberish,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    metaSetApprovalForAll(
-      _owner: string,
-      _operator: string,
-      _approved: boolean,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "metaSetApprovalForAll(address,address,bool,bool,bytes)"(
-      _owner: string,
-      _operator: string,
-      _approved: boolean,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    mintMock(
-      _to: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "mintMock(address,uint256,uint256,bytes)"(
-      _to: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    "name()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     safeBatchTransferFrom(
       _from: string,
@@ -1370,59 +762,9 @@ export class ERC1155MetadataMock extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    batchBurnMock(
-      _from: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    baseURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "batchBurnMock(address,uint256[],uint256[])"(
-      _from: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    batchMintMock(
-      _to: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "batchMintMock(address,uint256[],uint256[],bytes)"(
-      _to: string,
-      _ids: BigNumberish[],
-      _values: BigNumberish[],
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    burnMock(
-      _from: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "burnMock(address,uint256,uint256)"(
-      _from: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getNonce(
-      _signer: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getNonce(address)"(
-      _signer: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    "baseURI()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isApprovedForAll(
       _owner: string,
@@ -1436,22 +778,6 @@ export class ERC1155MetadataMock extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isValidSignature(
-      _signerAddress: string,
-      _hash: BytesLike,
-      _data: BytesLike,
-      _sig: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isValidSignature(address,bytes32,bytes,bytes)"(
-      _signerAddress: string,
-      _hash: BytesLike,
-      _data: BytesLike,
-      _sig: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     logURIsMock(
       _tokenIDs: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1462,79 +788,9 @@ export class ERC1155MetadataMock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    metaSafeBatchTransferFrom(
-      _from: string,
-      _to: string,
-      _ids: BigNumberish[],
-      _amounts: BigNumberish[],
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "metaSafeBatchTransferFrom(address,address,uint256[],uint256[],bool,bytes)"(
-      _from: string,
-      _to: string,
-      _ids: BigNumberish[],
-      _amounts: BigNumberish[],
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    metaSafeTransferFrom(
-      _from: string,
-      _to: string,
-      _id: BigNumberish,
-      _amount: BigNumberish,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "metaSafeTransferFrom(address,address,uint256,uint256,bool,bytes)"(
-      _from: string,
-      _to: string,
-      _id: BigNumberish,
-      _amount: BigNumberish,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    metaSetApprovalForAll(
-      _owner: string,
-      _operator: string,
-      _approved: boolean,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "metaSetApprovalForAll(address,address,bool,bool,bytes)"(
-      _owner: string,
-      _operator: string,
-      _approved: boolean,
-      _isGasFee: boolean,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    mintMock(
-      _to: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "mintMock(address,uint256,uint256,bytes)"(
-      _to: string,
-      _id: BigNumberish,
-      _value: BigNumberish,
-      _data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    "name()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     safeBatchTransferFrom(
       _from: string,

@@ -18,38 +18,34 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface ERC1155MetadataInterface extends ethers.utils.Interface {
+interface IERC2981Interface extends ethers.utils.Interface {
   functions: {
-    "baseURI()": FunctionFragment;
-    "name()": FunctionFragment;
+    "royaltyInfo(uint256,uint256)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
-    "uri(uint256)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "baseURI", values?: undefined): string;
-  encodeFunctionData(functionFragment: "name", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "royaltyInfo",
+    values: [BigNumberish, BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
   ): string;
-  encodeFunctionData(functionFragment: "uri", values: [BigNumberish]): string;
 
-  decodeFunctionResult(functionFragment: "baseURI", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "royaltyInfo",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "uri", data: BytesLike): Result;
 
-  events: {
-    "URI(string,uint256)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "URI"): EventFragment;
+  events: {};
 }
 
-export class ERC1155Metadata extends Contract {
+export class IERC2981 extends Contract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -90,144 +86,136 @@ export class ERC1155Metadata extends Contract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: ERC1155MetadataInterface;
+  interface: IERC2981Interface;
 
   functions: {
-    baseURI(overrides?: CallOverrides): Promise<[string]>;
+    royaltyInfo(
+      _tokenId: BigNumberish,
+      _saleCost: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber] & { receiver: string; royaltyAmount: BigNumber }
+    >;
 
-    "baseURI()"(overrides?: CallOverrides): Promise<[string]>;
-
-    name(overrides?: CallOverrides): Promise<[string]>;
-
-    "name()"(overrides?: CallOverrides): Promise<[string]>;
+    "royaltyInfo(uint256,uint256)"(
+      _tokenId: BigNumberish,
+      _saleCost: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber] & { receiver: string; royaltyAmount: BigNumber }
+    >;
 
     supportsInterface(
-      _interfaceID: BytesLike,
+      _interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
     "supportsInterface(bytes4)"(
-      _interfaceID: BytesLike,
+      _interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    uri(_id: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
-
-    "uri(uint256)"(
-      _id: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
   };
 
-  baseURI(overrides?: CallOverrides): Promise<string>;
+  royaltyInfo(
+    _tokenId: BigNumberish,
+    _saleCost: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    [string, BigNumber] & { receiver: string; royaltyAmount: BigNumber }
+  >;
 
-  "baseURI()"(overrides?: CallOverrides): Promise<string>;
-
-  name(overrides?: CallOverrides): Promise<string>;
-
-  "name()"(overrides?: CallOverrides): Promise<string>;
+  "royaltyInfo(uint256,uint256)"(
+    _tokenId: BigNumberish,
+    _saleCost: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    [string, BigNumber] & { receiver: string; royaltyAmount: BigNumber }
+  >;
 
   supportsInterface(
-    _interfaceID: BytesLike,
+    _interfaceId: BytesLike,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   "supportsInterface(bytes4)"(
-    _interfaceID: BytesLike,
+    _interfaceId: BytesLike,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  uri(_id: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
-  "uri(uint256)"(_id: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
   callStatic: {
-    baseURI(overrides?: CallOverrides): Promise<string>;
+    royaltyInfo(
+      _tokenId: BigNumberish,
+      _saleCost: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber] & { receiver: string; royaltyAmount: BigNumber }
+    >;
 
-    "baseURI()"(overrides?: CallOverrides): Promise<string>;
-
-    name(overrides?: CallOverrides): Promise<string>;
-
-    "name()"(overrides?: CallOverrides): Promise<string>;
+    "royaltyInfo(uint256,uint256)"(
+      _tokenId: BigNumberish,
+      _saleCost: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber] & { receiver: string; royaltyAmount: BigNumber }
+    >;
 
     supportsInterface(
-      _interfaceID: BytesLike,
+      _interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "supportsInterface(bytes4)"(
-      _interfaceID: BytesLike,
+      _interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    uri(_id: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
-    "uri(uint256)"(
-      _id: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<string>;
   };
 
-  filters: {
-    URI(
-      _uri: null,
-      _id: BigNumberish | null
-    ): TypedEventFilter<[string, BigNumber], { _uri: string; _id: BigNumber }>;
-  };
+  filters: {};
 
   estimateGas: {
-    baseURI(overrides?: CallOverrides): Promise<BigNumber>;
+    royaltyInfo(
+      _tokenId: BigNumberish,
+      _saleCost: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    "baseURI()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    name(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "name()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "royaltyInfo(uint256,uint256)"(
+      _tokenId: BigNumberish,
+      _saleCost: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     supportsInterface(
-      _interfaceID: BytesLike,
+      _interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     "supportsInterface(bytes4)"(
-      _interfaceID: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    uri(_id: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "uri(uint256)"(
-      _id: BigNumberish,
+      _interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    baseURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    royaltyInfo(
+      _tokenId: BigNumberish,
+      _saleCost: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    "baseURI()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "name()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "royaltyInfo(uint256,uint256)"(
+      _tokenId: BigNumberish,
+      _saleCost: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     supportsInterface(
-      _interfaceID: BytesLike,
+      _interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     "supportsInterface(bytes4)"(
-      _interfaceID: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    uri(
-      _id: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "uri(uint256)"(
-      _id: BigNumberish,
+      _interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
