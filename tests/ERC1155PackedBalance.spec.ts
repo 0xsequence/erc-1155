@@ -23,6 +23,8 @@ describe('ERC1155PackedBalance', () => {
     .pow(256)
     .sub(2) // 2**256 - 2
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+  const NAME = "MyERC1155"
+  const METADATA_URI = "https://example.com/"
 
   let ownerAddress: string
   let receiverAddress: string
@@ -45,7 +47,7 @@ describe('ERC1155PackedBalance', () => {
 
   // deploy before each test, to reset state of contract
   beforeEach(async () => {
-    erc1155Contract = (await erc1155Abstract.deploy(ownerWallet)) as ERC1155MetaMintBurnPackedBalanceMock
+    erc1155Contract = (await erc1155Abstract.deploy(ownerWallet, [NAME, METADATA_URI])) as ERC1155MetaMintBurnPackedBalanceMock
     operatorERC1155Contract = (await erc1155Contract.connect(operatorSigner)) as ERC1155MetaMintBurnPackedBalanceMock
   })
 

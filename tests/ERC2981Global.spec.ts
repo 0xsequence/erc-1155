@@ -26,6 +26,8 @@ describe('ERC2981Global', () => {
   let anyoneERC1155MetadataContract
 
   const BASE_FEE = 20 // 2%
+  const NAME = "MyERC1155"
+  const METADATA_URI = "https://example.com/"
 
   context('When ERC2981GlobalMock contract is deployed', () => {
     before(async () => {
@@ -37,7 +39,7 @@ describe('ERC2981Global', () => {
 
     beforeEach(async () => {
       const abstract = await AbstractContract.fromArtifactName('ERC2981GlobalMock')
-      tokenContract = (await abstract.deploy(ownerWallet)) as ERC2981GlobalMock
+      tokenContract = (await abstract.deploy(ownerWallet, [NAME, METADATA_URI])) as ERC2981GlobalMock
       anyoneERC1155MetadataContract = (await tokenContract.connect(anyoneSigner)) as ERC2981GlobalMock
     })
 

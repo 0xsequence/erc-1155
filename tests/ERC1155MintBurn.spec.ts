@@ -21,6 +21,8 @@ const { wallet: operatorWallet, provider: operatorProvider, signer: operatorSign
 
 describe('ERC1155MintBurn', () => {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+  const NAME = "MyERC1155"
+  const METADATA_URI = "https://example.com/"
 
   let ownerAddress: string
   let receiverAddress: string
@@ -44,7 +46,7 @@ describe('ERC1155MintBurn', () => {
       receiverContract = (await abstractReceiver.deploy(ownerWallet)) as ERC1155ReceiverMock
 
       const abstract = await AbstractContract.fromArtifactName('ERC1155MetaMintBurnMock')
-      erc1155MintBurnContract = (await abstract.deploy(ownerWallet)) as ERC1155MetaMintBurnMock
+      erc1155MintBurnContract = (await abstract.deploy(ownerWallet, [NAME, METADATA_URI])) as ERC1155MetaMintBurnMock
       anyoneERC1155MintBurnContract = (await erc1155MintBurnContract.connect(anyoneSigner)) as ERC1155MetaMintBurnMock
     })
 

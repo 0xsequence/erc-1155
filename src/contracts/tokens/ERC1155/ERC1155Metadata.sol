@@ -12,6 +12,13 @@ import "../../utils/ERC165.sol";
 contract ERC1155Metadata is IERC1155Metadata, ERC165 {
   // URI's default URI prefix
   string public baseURI;
+  string public name;
+
+  // set the initial name and base URI
+  constructor(string memory _name, string memory _baseURI) {
+    name = _name;
+    baseURI = _baseURI;
+  }
 
   /***********************************|
   |     Metadata Public Functions     |
@@ -52,6 +59,14 @@ contract ERC1155Metadata is IERC1155Metadata, ERC165 {
    */
   function _setBaseMetadataURI(string memory _newBaseMetadataURI) internal {
     baseURI = _newBaseMetadataURI;
+  }
+
+  /**
+   * @notice Will update the name of the contract
+   * @param _newName New contract name
+   */
+  function _setContractName(string memory _newName) internal {
+    name = _newName;
   }
 
   /**

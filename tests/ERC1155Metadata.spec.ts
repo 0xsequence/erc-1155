@@ -29,6 +29,7 @@ describe('ERC1155Metadata', () => {
 
   context('When ERC1155MetadataMock contract is deployed', () => {
     const BASE_URI = 'https://assets.skyweaver.net/c679a6577c12c47948084dd61a79b9598db17cc5/full-cards/'
+    const CONTRACT_NAME = 'MyERC1155'
 
     before(async () => {
       ownerAddress = await ownerWallet.getAddress()
@@ -39,7 +40,7 @@ describe('ERC1155Metadata', () => {
 
     beforeEach(async () => {
       const abstract = await AbstractContract.fromArtifactName('ERC1155MetadataMock')
-      erc1155MetadataContract = (await abstract.deploy(ownerWallet)) as ERC1155MetadataMock
+      erc1155MetadataContract = (await abstract.deploy(ownerWallet, [BASE_URI, CONTRACT_NAME])) as ERC1155MetadataMock
       anyoneERC1155MetadataContract = (await erc1155MetadataContract.connect(anyoneSigner)) as ERC1155MetadataMock
 
       await erc1155MetadataContract.setBaseMetadataURI(BASE_URI)

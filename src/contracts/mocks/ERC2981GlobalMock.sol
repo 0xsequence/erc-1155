@@ -5,6 +5,9 @@ import "../tokens/ERC2981/ERC2981Global.sol";
 
 contract ERC2981GlobalMock is ERC1155MintBurnMock, ERC2981Global {
 
+  // set the initial name and base URI
+  constructor(string memory _name, string memory _baseURI) ERC1155MintBurnMock(_name, _baseURI) {}
+
   /***********************************|
   |         Base URI Functions        |
   |__________________________________*/
