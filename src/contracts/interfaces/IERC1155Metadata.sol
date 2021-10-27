@@ -18,10 +18,4 @@ interface IERC1155Metadata {
    * @return URI string
    */
   function uri(uint256 _id) external view returns (string memory);
-
-  /**
-   * @notice returns the baseURI 
-   * @return base URI
-   */
-  function baseURI() external returns (string memory);
 }

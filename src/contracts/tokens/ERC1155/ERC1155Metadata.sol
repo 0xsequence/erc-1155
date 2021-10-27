@@ -14,7 +14,7 @@ contract ERC1155Metadata is IERC1155Metadata, ERC165 {
   string public baseURI;
 
   /***********************************|
-  |     Metadata Public Function s    |
+  |     Metadata Public Functions     |
   |__________________________________*/
 
   /**
