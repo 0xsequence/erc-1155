@@ -8,6 +8,9 @@ import "../tokens/ERC1155/ERC1155Metadata.sol";
 
 contract ERC1155MintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, ERC1155Metadata {
 
+  // set the initial name and base URI
+  constructor(string memory _name, string memory _baseURI) ERC1155Metadata(_name, _baseURI) {}
+
   /***********************************|
   |               ERC165              |
   |__________________________________*/

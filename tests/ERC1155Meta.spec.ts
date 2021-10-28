@@ -43,6 +43,9 @@ describe('ERC1155Meta', () => {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
   const DOMAIN_SEPARATOR_TYPEHASH = '0x035aff83d86937d35b32e04f0ddc6ff469290eef2f1b692d8a815c89404d4749'
 
+  const NAME = "MyERC1155"
+  const METADATA_URI = "https://example.com/"
+
   // Pass gas since ganache can't figure it out
   const TX_PARAM = { gasLimit: 2000000 }
 
@@ -68,7 +71,7 @@ describe('ERC1155Meta', () => {
 
   // deploy before each test, to reset state of contract
   beforeEach(async () => {
-    erc1155Contract = (await erc1155Abstract.deploy(ownerWallet)) as ERC1155MetaMintBurnMock
+    erc1155Contract = (await erc1155Abstract.deploy(ownerWallet, [NAME, METADATA_URI])) as ERC1155MetaMintBurnMock
     operatorERC1155Contract = (await erc1155Contract.connect(operatorSigner)) as ERC1155MetaMintBurnMock
     receiverERC1155Contract = (await erc1155Contract.connect(receiverSigner)) as ERC1155MetaMintBurnMock
   })
@@ -561,7 +564,7 @@ describe('ERC1155Meta', () => {
             })
 
             it('should PASS if another approved ERC-1155 is used for fee', async () => {
-              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet)) as ERC1155MetaMintBurnMock
+              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet, [NAME, METADATA_URI])) as ERC1155MetaMintBurnMock
               await erc1155Contract2.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance, [])
               await erc1155Contract2.setApprovalForAll(operatorERC1155Contract.address, true)
 
@@ -596,7 +599,7 @@ describe('ERC1155Meta', () => {
             })
 
             it('should REVERT if NOT approved ERC-1155 is used for fee', async () => {
-              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet)) as ERC1155MetaMintBurnMock
+              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet, [NAME, METADATA_URI])) as ERC1155MetaMintBurnMock
               await erc1155Contract2.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance, [])
 
               feeTokenDataERC1155 = utils.defaultAbiCoder.encode(
@@ -630,7 +633,7 @@ describe('ERC1155Meta', () => {
             })
 
             it('should REVERT if another ERC-1155 is used for fee without sufficient balance', async () => {
-              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet)) as ERC1155MetaMintBurnMock
+              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet, [NAME, METADATA_URI])) as ERC1155MetaMintBurnMock
               await erc1155Contract2.mintMock(ownerAddress, feeTokenID, 100, [])
               await erc1155Contract2.setApprovalForAll(operatorERC1155Contract.address, true)
 

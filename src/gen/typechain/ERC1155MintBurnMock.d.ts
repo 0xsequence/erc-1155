@@ -23,11 +23,13 @@ interface ERC1155MintBurnMockInterface extends ethers.utils.Interface {
   functions: {
     "balanceOf(address,uint256)": FunctionFragment;
     "balanceOfBatch(address[],uint256[])": FunctionFragment;
+    "baseURI()": FunctionFragment;
     "batchBurnMock(address,uint256[],uint256[])": FunctionFragment;
     "batchMintMock(address,uint256[],uint256[],bytes)": FunctionFragment;
     "burnMock(address,uint256,uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "mintMock(address,uint256,uint256,bytes)": FunctionFragment;
+    "name()": FunctionFragment;
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)": FunctionFragment;
     "safeTransferFrom(address,address,uint256,uint256,bytes)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
@@ -43,6 +45,7 @@ interface ERC1155MintBurnMockInterface extends ethers.utils.Interface {
     functionFragment: "balanceOfBatch",
     values: [string[], BigNumberish[]]
   ): string;
+  encodeFunctionData(functionFragment: "baseURI", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "batchBurnMock",
     values: [string, BigNumberish[], BigNumberish[]]
@@ -63,6 +66,7 @@ interface ERC1155MintBurnMockInterface extends ethers.utils.Interface {
     functionFragment: "mintMock",
     values: [string, BigNumberish, BigNumberish, BytesLike]
   ): string;
+  encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "safeBatchTransferFrom",
     values: [string, string, BigNumberish[], BigNumberish[], BytesLike]
@@ -86,6 +90,7 @@ interface ERC1155MintBurnMockInterface extends ethers.utils.Interface {
     functionFragment: "balanceOfBatch",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "baseURI", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "batchBurnMock",
     data: BytesLike
@@ -100,6 +105,7 @@ interface ERC1155MintBurnMockInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "mintMock", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "safeBatchTransferFrom",
     data: BytesLike
@@ -199,6 +205,10 @@ export class ERC1155MintBurnMock extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber[]]>;
 
+    baseURI(overrides?: CallOverrides): Promise<[string]>;
+
+    "baseURI()"(overrides?: CallOverrides): Promise<[string]>;
+
     batchBurnMock(
       _from: string,
       _ids: BigNumberish[],
@@ -270,6 +280,10 @@ export class ERC1155MintBurnMock extends Contract {
       _data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    name(overrides?: CallOverrides): Promise<[string]>;
+
+    "name()"(overrides?: CallOverrides): Promise<[string]>;
 
     safeBatchTransferFrom(
       _from: string,
@@ -361,6 +375,10 @@ export class ERC1155MintBurnMock extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber[]>;
 
+  baseURI(overrides?: CallOverrides): Promise<string>;
+
+  "baseURI()"(overrides?: CallOverrides): Promise<string>;
+
   batchBurnMock(
     _from: string,
     _ids: BigNumberish[],
@@ -432,6 +450,10 @@ export class ERC1155MintBurnMock extends Contract {
     _data: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  name(overrides?: CallOverrides): Promise<string>;
+
+  "name()"(overrides?: CallOverrides): Promise<string>;
 
   safeBatchTransferFrom(
     _from: string,
@@ -520,6 +542,10 @@ export class ERC1155MintBurnMock extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber[]>;
 
+    baseURI(overrides?: CallOverrides): Promise<string>;
+
+    "baseURI()"(overrides?: CallOverrides): Promise<string>;
+
     batchBurnMock(
       _from: string,
       _ids: BigNumberish[],
@@ -591,6 +617,10 @@ export class ERC1155MintBurnMock extends Contract {
       _data: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    name(overrides?: CallOverrides): Promise<string>;
+
+    "name()"(overrides?: CallOverrides): Promise<string>;
 
     safeBatchTransferFrom(
       _from: string,
@@ -733,6 +763,10 @@ export class ERC1155MintBurnMock extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    baseURI(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "baseURI()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     batchBurnMock(
       _from: string,
       _ids: BigNumberish[],
@@ -804,6 +838,10 @@ export class ERC1155MintBurnMock extends Contract {
       _data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    name(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "name()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     safeBatchTransferFrom(
       _from: string,
@@ -896,6 +934,10 @@ export class ERC1155MintBurnMock extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    baseURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "baseURI()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     batchBurnMock(
       _from: string,
       _ids: BigNumberish[],
@@ -967,6 +1009,10 @@ export class ERC1155MintBurnMock extends Contract {
       _data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "name()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     safeBatchTransferFrom(
       _from: string,
