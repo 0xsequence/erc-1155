@@ -31,22 +31,20 @@ interface IERC1155MintBurn {
 
 
   /***************************************|
-  |        Public Minting Functions       |
+  |        Public Burning Functions       |
   |______________________________________*/
 
   /**
-   * @notice Burn _amount of tokens of a given token id
-   * @param _from    The address to burn tokens from
+   * @notice Burn _amount of tokens of a given token id from msg.sender
    * @param _id      Token id to burn
    * @param _amount  The amount to be burned
    */
-  function burn(address _from, uint256 _id, uint256 _amount) external;
+  function burn(uint256 _id, uint256 _amount) external;
 
   /**
-   * @notice Burn tokens of given token id for each (_ids[i], _amounts[i]) pair
-   * @param _from     The address to burn tokens from
+   * @notice Burn tokens of given token id for each (_ids[i], _amounts[i]) pair from msg.sender
    * @param _ids      Array of token ids to burn
    * @param _amounts  Array of the amount to be burned
    */
-  function batchBurn(address _from, uint256[] calldata _ids, uint256[] calldata _amounts) external;
+  function batchBurn(uint256[] calldata _ids, uint256[] calldata _amounts) external;
 }
