@@ -1,14 +1,13 @@
 {
   "name": "@0xsequence/erc-1155",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "ERC1155 Multi-Token Standard implementation for Ethereum",
   "repository": "https://github.com/0xsequence/erc-1155",
   "homepage": "https://sequence.build",
   "license": "Apache-2.0",
   "main": "gen/adapter/index.js",
   "types": "gen/typechain/index.ts",
-  "scripts": {
-  },
+  "scripts": {},
   "keywords": [
     "tokens",
     "collectibles",
