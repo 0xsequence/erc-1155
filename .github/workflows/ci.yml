@@ -10,7 +10,13 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 18
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: false
       - uses: actions/cache@master
         id: pnpm-cache
         with:
@@ -29,7 +35,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 18
       - uses: actions/cache@master
         id: pnpm-cache
         with:
@@ -47,7 +53,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 18
       - uses: actions/cache@master
         id: pnpm-cache
         with:
@@ -65,7 +71,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 18
       - uses: actions/cache@master
         id: pnpm-cache
         with:
@@ -83,7 +89,7 @@ jobs:
   #     - uses: actions/checkout@v1
   #     - uses: actions/setup-node@v1
   #       with:
-  #         node-version: 12
+  #         node-version: 18
   #     - uses: actions/cache@master
   #       id: pnpm-cache
   #       with:
