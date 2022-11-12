@@ -1,4 +1,3 @@
-
 on: [push]
 
 name: ci
@@ -19,7 +18,7 @@ jobs:
             node_modules
             */*/node_modules
           key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/pnpm-lock.yaml') }}
-      - run: pnpm install --network-concurrency 1
+      - run: pnpm install
         if: ${{ steps.pnpm-cache.outputs.cache-hit != 'true' }}
 
   lint-ts:
