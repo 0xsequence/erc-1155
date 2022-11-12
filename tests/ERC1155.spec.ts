@@ -1,9 +1,9 @@
-import * as ethers from 'ethers'
+import { ethers } from 'ethers'
 
 import { AbstractContract, expect, BigNumber, RevertError } from './utils'
 import * as utils from './utils'
 
-import { ERC1155MetaMintBurnMock, ERC1155ReceiverMock, ERC1155OperatorMock } from 'src/gen/typechain'
+import { ERC1155MetaMintBurnMock, ERC1155ReceiverMock, ERC1155OperatorMock } from 'src'
 
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'
@@ -115,7 +115,7 @@ describe('ERC1155', () => {
     })
 
     it('should REVERT if sending to 0x0', async () => {
-      const tx = erc1155Contract.safeTransferFrom(ownerAddress, ZERO_ADDRESS, 0, 1, [])
+      const tx = erc1155Contract.safeTransferFrom(ownerAddress, ZERO_ADDRESS, 0, 1, [], { gasLimit: 100_000 })
       await expect(tx).to.be.rejectedWith(RevertError('ERC1155#safeTransferFrom: INVALID_RECIPIENT'))
     })
 
@@ -230,7 +230,7 @@ describe('ERC1155', () => {
       })
 
       describe('TransferSingle event', async () => {
-        let filterFromOperatorContract: ethers.ethers.EventFilter
+        let filterFromOperatorContract: ethers.EventFilter
 
         it('should emit TransferSingle event', async () => {
           const receipt = await tx.wait(1)
@@ -463,7 +463,7 @@ describe('ERC1155', () => {
 
     describe('TransferBatch event', async () => {
       let tx: ethers.ContractTransaction
-      let filterFromOperatorContract: ethers.ethers.EventFilter
+      let filterFromOperatorContract: ethers.EventFilter
       let operatorContract: ERC1155OperatorMock
 
       beforeEach(async () => {

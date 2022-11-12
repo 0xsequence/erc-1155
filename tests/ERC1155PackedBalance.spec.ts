@@ -1,4 +1,4 @@
-import * as ethers from 'ethers'
+import { ethers } from 'ethers'
 
 import { AbstractContract, expect, BigNumber, RevertError } from './utils'
 import * as utils from './utils'
@@ -7,7 +7,7 @@ import {
   ERC1155MetaMintBurnPackedBalanceMock,
   ERC1155ReceiverMock,
   ERC1155OperatorMock
-} from 'src/gen/typechain'
+} from 'src'
 
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'
@@ -265,7 +265,7 @@ describe('ERC1155PackedBalance', () => {
       })
 
       describe('TransferSingle event', async () => {
-        let filterFromOperatorContract: ethers.ethers.EventFilter
+        let filterFromOperatorContract: ethers.EventFilter
 
         it('should emit TransferSingle event', async () => {
           const receipt = await tx.wait(1)
@@ -509,7 +509,7 @@ describe('ERC1155PackedBalance', () => {
 
     describe('TransferBatch event', async () => {
       let tx: ethers.ContractTransaction
-      let filterFromOperatorContract: ethers.ethers.EventFilter
+      let filterFromOperatorContract: ethers.EventFilter
       let operatorContract: ERC1155OperatorMock
 
       beforeEach(async () => {
