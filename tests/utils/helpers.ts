@@ -1,4 +1,4 @@
-import * as ethers from 'ethers'
+import { ethers } from 'ethers'
 import { BigNumber, utils } from 'ethers'
 import { ExternalProvider } from '@ethersproject/providers'
 import { Networkish } from '@ethersproject/networks'
@@ -27,8 +27,16 @@ export const createTestWallet = (web3: any, addressIndex: number = 0) => {
 
 // Check if tx was Reverted with specified message
 export function RevertError(errorMessage?: string) {
-  const prefix = 'VM Exception while processing transaction: revert'
-  return errorMessage ? RegExp(`${prefix + ' ' + errorMessage}`) : RegExp(`${prefix}`)
+  if (!errorMessage) {
+    return /Transaction reverted and Hardhat couldn't infer the reason/
+  } else {
+    // return new RegExp(`${errorMessage}`)
+    return new RegExp(`VM Exception while processing transaction: reverted with reason string ["']${errorMessage}["']`)
+  }
+}
+
+export function RevertOutOfGasError() {
+  return /out of gas/
 }
 
 // Take a message, hash it and sign it with ETH_SIGN SignatureType

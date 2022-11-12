@@ -1,9 +1,9 @@
-import * as ethers from 'ethers'
+import { ethers } from 'ethers'
 
 import { AbstractContract, assert, expect, RevertError, BigNumber } from './utils'
 import * as utils from './utils'
 
-import { ERC2981GlobalMock } from 'src/gen/typechain'
+import { ERC2981GlobalMock } from 'src'
 
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'

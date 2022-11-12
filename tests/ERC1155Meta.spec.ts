@@ -1,6 +1,7 @@
 import {
   AbstractContract,
   RevertError,
+  RevertOutOfGasError,
   expect,
   encodeMetaTransferFromData,
   encodeMetaBatchTransferFromData,
@@ -18,7 +19,7 @@ import {
   ERC1155ReceiverMock,
   ERC1155OperatorMock,
   ERC20Mock
-} from 'src/gen/typechain'
+} from 'src'
 
 import { GasReceipt, TransferSignature, ApprovalSignature, BatchTransferSignature } from 'src/typings/tx-types'
 
@@ -163,14 +164,14 @@ describe('ERC1155Meta', () => {
           data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
         })
 
-        it("should REVERT if data is 'random", async () => {
+        it("should REVERT if data is random", async () => {
           const dataUint8 = utils.toUtf8Bytes('Breakthroughs! over the river! flips and crucifixions! gone down the flood!')
           const data = BigNumber.from(dataUint8).toHexString()
 
           // Check if data length is more than 69
           expect(utils.arrayify(data).length).to.be.at.least(70)
 
-          const tx = erc1155Contract.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data)
+          const tx = erc1155Contract.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data, { gasLimit: 100_000 })
           await expect(tx).to.be.rejectedWith(RevertError())
         })
 
@@ -466,10 +467,10 @@ describe('ERC1155Meta', () => {
               id,
               amount,
               isGasReceipt,
-              data
+              data,
+              { gasLimit: 100_000 }
             )
-
-            await expect(tx).to.be.rejectedWith(RevertError())
+            await expect(tx).to.be.rejectedWith(/ERC1155#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE|out of gas/)
           })
 
           it('should PASS if valid response from receiver contract', async () => {
@@ -860,7 +861,7 @@ describe('ERC1155Meta', () => {
                   data,
                   { gasLimit: 2000000 }
                 )
-                await expect(tx).to.be.rejectedWith(RevertError())
+                await expect(tx).to.be.rejectedWith(RevertOutOfGasError())
               })
 
               it('should PASS if gas used in onERC1155Received does not exceed limit', async () => {
@@ -1471,9 +1472,10 @@ describe('ERC1155Meta', () => {
               ids,
               amounts,
               isGasReceipt,
-              data
+              data,
+              { gasLimit: 200_000 }
             )
-            await expect(tx).to.be.rejectedWith(RevertError())
+            await expect(tx).to.be.rejectedWith(/ERC1155#_callonERC1155Received: INVALID_ON_RECEIVE_MESSAGE|out of gas/)
           })
 
           it('should PASS if valid response from receiver contract', async () => {
@@ -1637,9 +1639,9 @@ describe('ERC1155Meta', () => {
                   amounts,
                   isGasReceipt,
                   data,
-                  { gasLimit: 2000000 }
+                  { gasLimit: 2_000_000 }
                 )
-                await expect(tx).to.be.rejectedWith(RevertError())
+                await expect(tx).to.be.rejectedWith(RevertOutOfGasError())
               })
 
               it('should PASS if gas used in onERC1155BatchReceived does not exceed limit', async () => {

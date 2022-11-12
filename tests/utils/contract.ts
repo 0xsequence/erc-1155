@@ -3,7 +3,7 @@
 // adapted this utility from the handy work by the counterfactual team at:
 // https://github.com/counterfactual/monorepo/blob/d9be8524a691c45b6aac1b5e1cf2ff81059203df/packages/contracts/utils/contract.ts
 
-import * as ethers from 'ethers'
+import { ethers } from 'ethers'
 import { artifacts } from 'hardhat'
 
 interface NetworkMapping {

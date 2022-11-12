@@ -1,4 +1,4 @@
-import * as ethers from 'ethers'
+import { ethers } from 'ethers'
 
 import { AbstractContract, expect, RevertError, BigNumber } from './utils'
 import * as utils from './utils'
@@ -6,7 +6,7 @@ import * as utils from './utils'
 import {
   ERC1155MetaMintBurnMock,
   ERC1155ReceiverMock
-} from 'src/gen/typechain'
+} from 'src'
 
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'

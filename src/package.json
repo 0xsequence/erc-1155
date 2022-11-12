@@ -1,12 +1,12 @@
 {
   "name": "@0xsequence/erc-1155",
-  "version": "3.1.1",
-  "description": "ERC1155 Multi-Token Standard implementation for Ethereum",
+  "version": "3.2.0",
+  "description": "ERC-1155 implementation for Ethereum",
   "repository": "https://github.com/0xsequence/erc-1155",
   "homepage": "https://sequence.build",
   "license": "Apache-2.0",
-  "main": "gen/adapter/index.js",
-  "types": "gen/typechain/index.ts",
+  "main": "adapter/index.js",
+  "types": "adapter/index.d.ts",
   "scripts": {},
   "keywords": [
     "tokens",
@@ -18,8 +18,10 @@
     "semi-fungible",
     "Ethereum"
   ],
-  "peerDependencies": {
-    "ethers": "^5.0.32"
+  "optionalDependencies": {
+    "@ethersproject/abi": "^5.7.2",
+    "@ethersproject/providers": "^5.7.2",
+    "ethers": "^5.7.2"
   },
   "dependencies": {},
   "devDependencies": {}

@@ -1,8 +1,9 @@
-import * as ethers from 'ethers'
+import { ethers } from 'ethers'
 
 import {
   AbstractContract,
   RevertError,
+  RevertOutOfGasError,
   expect,
   encodeMetaTransferFromData,
   encodeMetaBatchTransferFromData,
@@ -20,7 +21,7 @@ import {
   ERC1155ReceiverMock,
   ERC1155OperatorMock,
   ERC20Mock
-} from 'src/gen/typechain'
+} from 'src'
 
 import { GasReceipt, TransferSignature, ApprovalSignature, BatchTransferSignature } from 'src/typings/tx-types'
 
@@ -866,7 +867,7 @@ describe('ERC1155MetaPackedBalance', () => {
                   data,
                   { gasLimit: 2000000 }
                 )
-                await expect(tx).to.be.rejectedWith(RevertError())
+                await expect(tx).to.be.rejectedWith(RevertOutOfGasError())
               })
 
               it('should PASS if gas used in onERC1155Received does not exceed limit', async () => {
@@ -979,7 +980,7 @@ describe('ERC1155MetaPackedBalance', () => {
             })
 
             describe('TransferSingle event', async () => {
-              let filterFromOperatorContract: ethers.ethers.EventFilter
+              let filterFromOperatorContract: ethers.EventFilter
 
               it('should emit TransferSingle event', async () => {
                 const receipt = await tx.wait(1)
@@ -1658,7 +1659,7 @@ describe('ERC1155MetaPackedBalance', () => {
                   data,
                   { gasLimit: 2000000 }
                 )
-                await expect(tx).to.be.rejectedWith(RevertError())
+                await expect(tx).to.be.rejectedWith(RevertOutOfGasError())
               })
 
               it('should PASS if gas used in onERC1155BatchReceived does not exceed limit', async () => {
@@ -1795,7 +1796,7 @@ describe('ERC1155MetaPackedBalance', () => {
             })
 
             describe('TransferBatch event', async () => {
-              let filterFromOperatorContract: ethers.ethers.EventFilter
+              let filterFromOperatorContract: ethers.EventFilter
               let operatorContract: ERC1155OperatorMock
 
               beforeEach(async () => {

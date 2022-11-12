@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "declaration": true,
+    "sourceMap": false,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "downlevelIteration": true,
+    "removeComments": false,
+    "skipLibCheck": true,
+
+    "strictNullChecks": true,
+    "noImplicitUseStrict": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedParameters": false,
+    "noErrorTruncation": true,
+    "esModuleInterop": true,
+
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": false,
+    "checkJs": false,
+
+    "baseUrl": ".",
+    "outDir": "adapter",
+    "lib": ["es2020"],
+  },
+
+  "include": [
+    "./cache/typechain"
+  ]
+}
