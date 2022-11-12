@@ -13,14 +13,14 @@ jobs:
         with:
           node-version: 12
       - uses: actions/cache@master
-        id: yarn-cache
+        id: pnpm-cache
         with:
           path: |
             node_modules
             */*/node_modules
-          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
-      - run: yarn install --network-concurrency 1
-        if: ${{ steps.yarn-cache.outputs.cache-hit != 'true' }}
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/pnpm-lock.yaml') }}
+      - run: pnpm install --network-concurrency 1
+        if: ${{ steps.pnpm-cache.outputs.cache-hit != 'true' }}
 
   lint-ts:
     name: Typescript lint
@@ -32,13 +32,13 @@ jobs:
         with:
           node-version: 12
       - uses: actions/cache@master
-        id: yarn-cache
+        id: pnpm-cache
         with:
           path: |
             node_modules
             */*/node_modules
-          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
-      - run: yarn lint:ts
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/pnpm-lock.yaml') }}
+      - run: pnpm lint:ts
 
   lint-sol:
     name: Solidity lint
@@ -50,13 +50,13 @@ jobs:
         with:
           node-version: 12
       - uses: actions/cache@master
-        id: yarn-cache
+        id: pnpm-cache
         with:
           path: |
             node_modules
             */*/node_modules
-          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
-      - run: yarn lint:sol
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/pnpm-lock.yaml') }}
+      - run: pnpm lint:sol
 
   test:
     name: Test contracts
@@ -68,13 +68,13 @@ jobs:
         with:
           node-version: 12
       - uses: actions/cache@master
-        id: yarn-cache
+        id: pnpm-cache
         with:
           path: |
             node_modules
             */*/node_modules
-          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
-      - run: yarn test
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/pnpm-lock.yaml') }}
+      - run: pnpm test
 
   # coverage:
   #   name: Coverage
@@ -86,13 +86,13 @@ jobs:
   #       with:
   #         node-version: 12
   #     - uses: actions/cache@master
-  #       id: yarn-cache
+  #       id: pnpm-cache
   #       with:
   #         path: |
   #           node_modules
   #           */*/node_modules
-  #         key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/yarn.lock') }}
-  #     - run: yarn coverage || true
+  #         key: ${{ runner.os }}-lerna-${{ hashFiles('**/package.json', '**/pnpm-lock.yaml') }}
+  #     - run: pnpm coverage || true
   #     - name: Coveralls
   #       uses: coverallsapp/github-action@master
   #       with:
