@@ -1,6 +1,6 @@
 {
   "name": "@0xsequence/erc-1155",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "ERC-1155 implementation for Ethereum",
   "repository": "https://github.com/0xsequence/erc-1155",
   "homepage": "https://sequence.build",
@@ -19,7 +19,7 @@
     "Ethereum"
   ],
   "optionalDependencies": {
-    "@ethersproject/abi": "^5.7.2",
+    "@ethersproject/abi": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
     "ethers": "^5.7.2"
   },
