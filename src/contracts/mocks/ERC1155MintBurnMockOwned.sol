@@ -93,6 +93,6 @@ contract ERC1155MintBurnMockOwned is ERC1155MintBurn, Ownable, ERC1155Metadata {
   |__________________________________*/
 
   fallback () virtual external {
-    revert("ERC1155MetaMintBurnMock: INVALID_METHOD");
+    revert("ERC1155MintBurnMockOwned: INVALID_METHOD");
   }
 }

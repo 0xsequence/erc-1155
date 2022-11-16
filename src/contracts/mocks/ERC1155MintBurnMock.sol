@@ -92,6 +92,6 @@ contract ERC1155MintBurnMock is ERC1155MintBurn, ERC1155Metadata {
   |__________________________________*/
 
   fallback () virtual external {
-    revert("ERC1155MetaMintBurnMock: INVALID_METHOD");
+    revert("ERC1155MintBurnMock: INVALID_METHOD");
   }
 }
