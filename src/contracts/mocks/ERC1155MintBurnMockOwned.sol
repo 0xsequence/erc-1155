@@ -66,26 +66,24 @@ contract ERC1155MintBurnMockOwned is ERC1155MintBurn, Ownable, ERC1155Metadata {
 
   /**
    * @dev burn _value of tokens of a given token id
-   * @param _from The address to burn tokens from.
    * @param _id token id to burn
    * @param _value The amount to be burned
    */
-  function burn(address _from, uint256 _id, uint256 _value)
+  function burn(uint256 _id, uint256 _value)
     public
   {
-    super._burn(_from, _id, _value);
+    super._burn(msg.sender, _id, _value);
   }
 
   /**
    * @dev burn _value of tokens of a given token id
-   * @param _from The address to burn tokens from.
    * @param _ids Array of token ids to burn
    * @param _values Array of the amount to be burned
    */
-  function batchBurn(address _from, uint256[] memory _ids, uint256[] memory _values)
+  function batchBurn(uint256[] memory _ids, uint256[] memory _values)
     public
   {
-    super._batchBurn(_from, _ids, _values);
+    super._batchBurn(msg.sender, _ids, _values);
   }
   
   /***********************************|
