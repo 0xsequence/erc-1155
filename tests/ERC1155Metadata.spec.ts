@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 
-import { AbstractContract, assert, expect, RevertError, BigNumber } from './utils'
+import { AbstractContract, assert, expect, RevertError, BigNumber, HIGH_GAS_LIMIT } from './utils'
 import * as utils from './utils'
 
 import { ERC1155MetadataMock } from 'src'
@@ -84,7 +84,7 @@ describe('ERC1155Metadata', () => {
       const ids = [1, 44, 19283091823]
 
       it('should ALLOW inheriting contract to call _logURIs()', async () => {
-        const tx = erc1155MetadataContract.logURIsMock(ids)
+        const tx = erc1155MetadataContract.logURIsMock(ids, HIGH_GAS_LIMIT)
         await expect(tx).to.be.fulfilled
       })
 
@@ -103,14 +103,14 @@ describe('ERC1155Metadata', () => {
       })
 
       it('should emit N URI events', async () => {
-        const tx = (await erc1155MetadataContract.logURIsMock(ids)) as ethers.ContractTransaction
+        const tx = (await erc1155MetadataContract.logURIsMock(ids, HIGH_GAS_LIMIT)) as ethers.ContractTransaction
         const receipt = await tx.wait(1)
         const URIevents = receipt.events!.filter(uri => uri.event === 'URI')
         expect(receipt.events!.length == ids.length)
       })
 
       it('should emit URI events with correct information', async () => {
-        const tx = (await erc1155MetadataContract.logURIsMock(ids)) as ethers.ContractTransaction
+        const tx = (await erc1155MetadataContract.logURIsMock(ids, HIGH_GAS_LIMIT)) as ethers.ContractTransaction
         const receipt = await tx.wait(1)
         receipt
           .events!.filter(uri => uri.event === 'URI')

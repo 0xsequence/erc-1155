@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity 0.7.4;
+pragma solidity ^0.8.0;
 
-import "../../utils/SafeMath.sol";
 import "../../interfaces/IERC1155TokenReceiver.sol";
 import "../../interfaces/IERC1155.sol";
 import "../../utils/Address.sol";
 import "../../utils/ERC165.sol";
-
 
 /**
  * @dev Implementation of Multi-Token Standard contract. This implementation of the ERC-1155 standard
@@ -17,7 +15,6 @@ import "../../utils/ERC165.sol";
  *      did not lead to major efficiency gains.
  */
 contract ERC1155PackedBalance is IERC1155, ERC165 {
-  using SafeMath for uint256;
   using Address for address;
 
   /***********************************|
@@ -330,7 +327,6 @@ contract ERC1155PackedBalance is IERC1155, ERC165 {
 
     if (_operation == Operations.Add) {
       newBinValues = _binValues + (_amount << shift);
-      require(newBinValues >= _binValues, "ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW");
       require(
         ((_binValues >> shift) & mask) + _amount < 2**IDS_BITS_SIZE, // Checks that no other id changed
         "ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW"
@@ -338,7 +334,6 @@ contract ERC1155PackedBalance is IERC1155, ERC165 {
 
     } else if (_operation == Operations.Sub) {
       newBinValues = _binValues - (_amount << shift);
-      require(newBinValues <= _binValues, "ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW");
       require(
         ((_binValues >> shift) & mask) >= _amount, // Checks that no other id changed
         "ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW"

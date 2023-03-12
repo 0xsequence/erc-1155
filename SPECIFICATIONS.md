@@ -457,10 +457,10 @@ Towards the end of a transaction, the fee to be paid is calculated as follow:
 
 ```solidity
 // Amount of gas consumed so far
-gasUsed = _startGas.sub(gasleft()).add(_g.baseGas);
+gasUsed = _startGas - gasleft() + _g.baseGas;
 
 // Reimburse up to gasLimit (instead of throwing)
-fee = gasUsed > _g.gasLimit ? _g.gasLimit.mul(_g.gasPrice) : gasUsed.mul(_g.gasPrice);
+fee = gasUsed > _g.gasLimit ? (_g.gasLimit * _g.gasPrice) : (gasUsed * _g.gasPrice);
 ```
 
 The `baseGas` value is there to account for gas that was not accounted for by the gas counter, such as the CALLDATA, the expected cost of reimbursing the gas, a supplementary fee required by operator, etc. 

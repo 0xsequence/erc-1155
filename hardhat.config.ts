@@ -8,7 +8,7 @@ import 'solidity-coverage'
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.7.4',
+    version: '0.8.18',
     settings: {
       optimizer: {
         enabled: true,

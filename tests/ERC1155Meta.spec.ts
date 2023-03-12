@@ -8,7 +8,9 @@ import {
   encodeMetaApprovalData,
   GasReceiptType,
   ethSign,
-  createTestWallet
+  createTestWallet,
+  RevertUnsafeMathError,
+  HIGH_GAS_LIMIT
 } from './utils'
 
 import { BigNumber, utils, ContractTransaction, EventFilter } from 'ethers'
@@ -420,9 +422,10 @@ describe('ERC1155Meta', () => {
               id,
               initBalance + 1,
               isGasReceipt,
-              data
+              data,
+              HIGH_GAS_LIMIT
             )
-            await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
+            await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
           })
 
           it('should REVERT if sending to 0x0', async () => {
@@ -435,8 +438,8 @@ describe('ERC1155Meta', () => {
 
           it('should REVERT if transfer leads to overflow', async () => {
             await erc1155Contract.mintMock(receiverAddress, id, MAXVAL, [])
-            const tx = operatorERC1155Contract.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data)
-            await expect(tx).to.be.rejectedWith(RevertError('SafeMath#add: OVERFLOW'))
+            const tx = operatorERC1155Contract.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, HIGH_GAS_LIMIT)
+            await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
           })
 
           it('should REVERT when sending to non-receiver contract', async () => {
@@ -663,9 +666,9 @@ describe('ERC1155Meta', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
-              await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
+              await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
             })
 
             it('should PASS if approved ERC20 is used for fee', async () => {
@@ -728,9 +731,9 @@ describe('ERC1155Meta', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
-              await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
+              await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
             })
 
             it('should REVERT if approved ERC20 balance is insufficient', async () => {
@@ -761,9 +764,9 @@ describe('ERC1155Meta', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
-              await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
+              await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
             })
 
             it('should REVERT if FeeTokenType is not supported', async () => {
@@ -1411,9 +1414,10 @@ describe('ERC1155Meta', () => {
               ids,
               amounts,
               isGasReceipt,
-              data
+              data,
+              HIGH_GAS_LIMIT
             )
-            await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
+            await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
           })
 
           it('should REVERT if sending to 0x0', async () => {
@@ -1439,9 +1443,10 @@ describe('ERC1155Meta', () => {
               ids,
               amounts,
               isGasReceipt,
-              data
+              data,
+              HIGH_GAS_LIMIT
             )
-            await expect(tx).to.be.rejectedWith(RevertError('SafeMath#add: OVERFLOW'))
+            await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
           })
 
           it('should REVERT when sending to non-receiver contract', async () => {

@@ -13,7 +13,7 @@ Sequence ERC-1155 contracts. For more information see, [github.com/0xsequence/er
 ### Usage from Solidity
 
 ```solidity
-pragma solidity ^0.7.4;
+pragma solidity ^0.8.0;
 
 import '@0xsequence/erc-1155/contracts/tokens/ERC1155/ERC1155.sol';
 

@@ -1,18 +1,17 @@
 import { ethers } from 'ethers'
 
-import { AbstractContract, expect, BigNumber, RevertError } from './utils'
-import * as utils from './utils'
+import { AbstractContract, expect, BigNumber, RevertError, RevertUnsafeMathError, createTestWallet, HIGH_GAS_LIMIT } from './utils'
 
 import { ERC1155MetaMintBurnMock, ERC1155ReceiverMock, ERC1155OperatorMock } from 'src'
 
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'
 
-const { wallet: ownerWallet, provider: ownerProvider, signer: ownerSigner } = utils.createTestWallet(web3, 0)
+const { wallet: ownerWallet, provider: ownerProvider, signer: ownerSigner } = createTestWallet(web3, 0)
 
-const { wallet: receiverWallet, provider: receiverProvider, signer: receiverSigner } = utils.createTestWallet(web3, 2)
+const { wallet: receiverWallet, provider: receiverProvider, signer: receiverSigner } = createTestWallet(web3, 2)
 
-const { wallet: operatorWallet, provider: operatorProvider, signer: operatorSigner } = utils.createTestWallet(web3, 4)
+const { wallet: operatorWallet, provider: operatorProvider, signer: operatorSigner } = createTestWallet(web3, 4)
 
 describe('ERC1155', () => {
   const MAXVAL = BigNumber.from(2)
@@ -110,12 +109,12 @@ describe('ERC1155', () => {
     })
 
     it('should REVERT if insufficient balance', async () => {
-      const tx = erc1155Contract.safeTransferFrom(ownerAddress, receiverAddress, 0, 257, [])
-      await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
+      const tx = erc1155Contract.safeTransferFrom(ownerAddress, receiverAddress, 0, 257, [], HIGH_GAS_LIMIT)
+      await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
     })
 
     it('should REVERT if sending to 0x0', async () => {
-      const tx = erc1155Contract.safeTransferFrom(ownerAddress, ZERO_ADDRESS, 0, 1, [], { gasLimit: 100_000 })
+      const tx = erc1155Contract.safeTransferFrom(ownerAddress, ZERO_ADDRESS, 0, 1, [], HIGH_GAS_LIMIT)
       await expect(tx).to.be.rejectedWith(RevertError('ERC1155#safeTransferFrom: INVALID_RECIPIENT'))
     })
 
@@ -135,8 +134,8 @@ describe('ERC1155', () => {
 
     it('should REVERT if transfer leads to overflow', async () => {
       await erc1155Contract.mintMock(receiverAddress, 0, MAXVAL, [])
-      const tx = erc1155Contract.safeTransferFrom(ownerAddress, receiverAddress, 0, 1, [])
-      expect(tx).to.be.rejectedWith(RevertError('SafeMath#add: OVERFLOW'))
+      const tx = erc1155Contract.safeTransferFrom(ownerAddress, receiverAddress, 0, 1, [], HIGH_GAS_LIMIT)
+      expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
     })
 
     it('should REVERT when sending to non-receiver contract', async () => {
@@ -265,7 +264,7 @@ describe('ERC1155', () => {
             0,
             1,
             [],
-            { gasLimit: 1000000 } // INCORRECT GAS ESTIMATION
+            HIGH_GAS_LIMIT // INCORRECT GAS ESTIMATION
           )
 
           // Get logs from internal transaction event
@@ -317,13 +316,13 @@ describe('ERC1155', () => {
     })
 
     it('should REVERT if insufficient balance', async () => {
-      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverAddress, [0], [11], [])
-      await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
+      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverAddress, [0], [11], [], HIGH_GAS_LIMIT)
+      await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
     })
 
     it('should REVERT if single insufficient balance', async () => {
-      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverAddress, [0, 15, 30], [1, 9, 11], [])
-      await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
+      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverAddress, [0, 15, 30], [1, 9, 11], [], HIGH_GAS_LIMIT)
+      await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
     })
 
     it('should REVERT if operator not approved', async () => {
@@ -354,8 +353,8 @@ describe('ERC1155', () => {
     it('should REVERT if transfer leads to overflow', async () => {
       await erc1155Contract.mintMock(receiverAddress, 5, MAXVAL, [])
 
-      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverAddress, [5], [1], [])
-      await expect(tx).to.be.rejectedWith(RevertError('SafeMath#add: OVERFLOW'))
+      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverAddress, [5], [1], [], HIGH_GAS_LIMIT)
+      await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
     })
 
     it('should update balances of sender and receiver', async () => {
@@ -374,24 +373,18 @@ describe('ERC1155', () => {
     })
 
     it('should REVERT when sending to non-receiver contract', async () => {
-      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, erc1155Contract.address, types, values, [], {
-        gasLimit: 2000000
-      })
+      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, erc1155Contract.address, types, values, [], HIGH_GAS_LIMIT)
       await expect(tx).to.be.rejectedWith(RevertError('ERC1155MetaMintBurnMock: INVALID_METHOD'))
     })
 
     it('should REVERT if invalid response from receiver contract', async () => {
       await receiverContract.setShouldReject(true)
-      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [], {
-        gasLimit: 2000000
-      })
+      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [], HIGH_GAS_LIMIT)
       await expect(tx).to.be.rejectedWith(RevertError('ERC1155#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE'))
     })
 
     it('should pass if valid response from receiver contract', async () => {
-      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [], {
-        gasLimit: 2000000
-      })
+      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [], HIGH_GAS_LIMIT)
       await expect(tx).to.be.fulfilled
     })
 
@@ -400,9 +393,7 @@ describe('ERC1155', () => {
 
       // TODO: remove ts-ignore when contract declaration is fixed
       // @ts-ignore
-      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, data, {
-        gasLimit: 2000000
-      })
+      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, data, HIGH_GAS_LIMIT)
       await expect(tx).to.be.fulfilled
     })
 
@@ -416,9 +407,7 @@ describe('ERC1155', () => {
       // Get event filter to get internal tx event
       const filterFromReceiverContract = receiverContract.filters.TransferBatchReceiver(null, null, null, null)
 
-      await erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [], {
-        gasLimit: 2000000
-      })
+      await erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [], HIGH_GAS_LIMIT)
 
       // Get logs from internal transaction event
       // @ts-ignore (https://github.com/ethers-io/ethers.js/issues/204#issuecomment-427059031)
@@ -441,9 +430,7 @@ describe('ERC1155', () => {
 
     it('should have TransferBatch event emitted before onERC1155BatchReceived is called', async () => {
       // Get event filter to get internal tx event
-      const tx = await erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [], {
-        gasLimit: 2000000
-      })
+      const tx = await erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [], HIGH_GAS_LIMIT)
       const receipt = await tx.wait(1)
 
       const firstEventTopic = receipt.logs![0].topics[0]
@@ -507,7 +494,7 @@ describe('ERC1155', () => {
           types,
           values,
           [],
-          { gasLimit: 2000000 } // INCORRECT GAS ESTIMATION
+          HIGH_GAS_LIMIT // INCORRECT GAS ESTIMATION
         )
 
         // Get logs from internal transaction event

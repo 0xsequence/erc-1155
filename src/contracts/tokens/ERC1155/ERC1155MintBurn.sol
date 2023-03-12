@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity 0.7.4;
+pragma solidity ^0.8.0;
 import "./ERC1155.sol";
 
 
@@ -8,7 +8,6 @@ import "./ERC1155.sol";
  *      a parent contract to be executed as they are `internal` functions
  */
 contract ERC1155MintBurn is ERC1155 {
-  using SafeMath for uint256;
 
   /****************************************|
   |            Minting Functions           |
@@ -25,7 +24,7 @@ contract ERC1155MintBurn is ERC1155 {
     internal
   {
     // Add _amount
-    balances[_to][_id] = balances[_to][_id].add(_amount);
+    balances[_to][_id] += _amount;
 
     // Emit event
     emit TransferSingle(msg.sender, address(0x0), _to, _id, _amount);
@@ -52,7 +51,7 @@ contract ERC1155MintBurn is ERC1155 {
      // Executing all minting
     for (uint256 i = 0; i < nMint; i++) {
       // Update storage balance
-      balances[_to][_ids[i]] = balances[_to][_ids[i]].add(_amounts[i]);
+      balances[_to][_ids[i]] += _amounts[i];
     }
 
     // Emit batch mint event
@@ -77,7 +76,7 @@ contract ERC1155MintBurn is ERC1155 {
     internal
   {
     //Substract _amount
-    balances[_from][_id] = balances[_from][_id].sub(_amount);
+    balances[_from][_id] -= _amount;
 
     // Emit event
     emit TransferSingle(msg.sender, _from, address(0x0), _id, _amount);
@@ -99,7 +98,7 @@ contract ERC1155MintBurn is ERC1155 {
     // Executing all minting
     for (uint256 i = 0; i < nBurn; i++) {
       // Update storage balance
-      balances[_from][_ids[i]] = balances[_from][_ids[i]].sub(_amounts[i]);
+      balances[_from][_ids[i]] -= _amounts[i];
     }
 
     // Emit batch mint event

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity 0.7.4;
+pragma solidity ^0.8.0;
 import "../../utils/ERC165.sol";
-import "../../utils/SafeMath.sol";
 import "../../interfaces/IERC2981.sol";
 
 /**
@@ -9,7 +8,6 @@ import "../../interfaces/IERC2981.sol";
  * @dev This contract sets a global fee information for all token ids.
  */
 contract ERC2981Global is IERC2981, ERC165 {
-  using SafeMath for uint256;
 
   struct FeeInfo {
     address receiver;
@@ -49,7 +47,7 @@ contract ERC2981Global is IERC2981, ERC165 {
   ) external view override returns (address receiver, uint256 royaltyAmount) 
   {
     FeeInfo memory info = globalRoyaltyInfo;
-    return (info.receiver, _saleCost.mul(info.feeBasisPoints).div(1000));
+    return (info.receiver, _saleCost * info.feeBasisPoints / 1000);
   }
 
 
