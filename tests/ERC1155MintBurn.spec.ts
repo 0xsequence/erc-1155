@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 
-import { AbstractContract, expect, RevertError, BigNumber } from './utils'
+import { AbstractContract, expect, RevertError, BigNumber, RevertUnsafeMathError, HIGH_GAS_LIMIT } from './utils'
 import * as utils from './utils'
 
 import {
@@ -85,8 +85,8 @@ describe('ERC1155MintBurn', () => {
           .pow(256)
           .sub(1)
         await erc1155MintBurnContract.mintMock(receiverAddress, tokenID, val, [])
-        const tx = erc1155MintBurnContract.mintMock(receiverAddress, tokenID, 1, [])
-        await expect(tx).to.be.rejectedWith(RevertError('SafeMath#add: OVERFLOW'))
+        const tx = erc1155MintBurnContract.mintMock(receiverAddress, tokenID, 1, [], HIGH_GAS_LIMIT)
+        await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
       })
 
       it('should REVERT when sending to non-receiver contract', async () => {
@@ -362,8 +362,8 @@ describe('ERC1155MintBurn', () => {
 
       it('should REVERT if amount is hgher than balance', async () => {
         const invalidVal = initBalance + 1
-        const tx = erc1155MintBurnContract.burnMock(receiverAddress, tokenID, invalidVal)
-        await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
+        const tx = erc1155MintBurnContract.burnMock(receiverAddress, tokenID, invalidVal, HIGH_GAS_LIMIT)
+        await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
       })
 
       it('should emit a Transfer event', async () => {

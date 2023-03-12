@@ -10,7 +10,9 @@ import {
   encodeMetaApprovalData,
   GasReceiptType,
   ethSign,
-  createTestWallet
+  createTestWallet,
+  HIGH_GAS_LIMIT,
+  RevertUnsafeMathError
 } from './utils'
 
 import { utils, BigNumber } from 'ethers'
@@ -128,7 +130,7 @@ describe('ERC1155MetaPackedBalance', () => {
 
           // Gas Receipt
           gasReceipt = {
-            gasLimitCallback: 130000,
+            gasLimitCallback: 150000,
             gasFee: 30000,
             feeRecipient: operatorAddress,
             feeTokenData: feeTokenDataERC1155
@@ -318,7 +320,7 @@ describe('ERC1155MetaPackedBalance', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
               await expect(tx).to.be.rejectedWith(RevertError('ERC1155MetaPackedBalance#_signatureValidation: INVALID_SIGNATURE'))
             })
@@ -336,7 +338,7 @@ describe('ERC1155MetaPackedBalance', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
               await expect(tx).to.be.rejectedWith(RevertError('ERC1155MetaPackedBalance#_signatureValidation: INVALID_SIGNATURE'))
             })
@@ -353,7 +355,7 @@ describe('ERC1155MetaPackedBalance', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
               await expect(tx).to.be.rejectedWith(RevertError('ERC1155MetaPackedBalance#_signatureValidation: INVALID_SIGNATURE'))
             })
@@ -368,7 +370,7 @@ describe('ERC1155MetaPackedBalance', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
               await expect(tx).to.be.fulfilled
             })
@@ -387,7 +389,7 @@ describe('ERC1155MetaPackedBalance', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
               await expect(tx).to.be.rejectedWith(RevertError('ERC1155MetaPackedBalance#_signatureValidation: INVALID_SIGNATURE'))
             })
@@ -402,7 +404,7 @@ describe('ERC1155MetaPackedBalance', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
               await expect(tx).to.be.fulfilled
             })
@@ -420,9 +422,10 @@ describe('ERC1155MetaPackedBalance', () => {
               id,
               initBalance + 1,
               isGasReceipt,
-              data
+              data,
+              HIGH_GAS_LIMIT,
             )
-            await expect(tx).to.be.rejectedWith(RevertError('ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW'))
+            await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
           })
 
           it('should REVERT if sending to 0x0', async () => {
@@ -456,6 +459,9 @@ describe('ERC1155MetaPackedBalance', () => {
 
           it('should REVERT if invalid response from receiver contract', async () => {
             transferObj.receiver = receiverContract.address
+            if (gasReceipt) {
+              gasReceipt.gasLimitCallback = HIGH_GAS_LIMIT.gasLimit
+            }
             data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
 
             // Force invalid response
@@ -476,6 +482,9 @@ describe('ERC1155MetaPackedBalance', () => {
 
           it('should PASS if valid response from receiver contract', async () => {
             transferObj.receiver = receiverContract.address
+            if (gasReceipt) {
+              gasReceipt.gasLimitCallback = HIGH_GAS_LIMIT.gasLimit
+            }
             data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
 
             const tx = operatorERC1155Contract.metaSafeTransferFrom(
@@ -601,7 +610,7 @@ describe('ERC1155MetaPackedBalance', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
               await expect(tx).to.be.fulfilled
             })
@@ -635,7 +644,7 @@ describe('ERC1155MetaPackedBalance', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
               await expect(tx).to.be.rejectedWith(RevertError('ERC1155PackedBalance#safeTransferFrom: INVALID_OPERATOR'))
             })
@@ -670,9 +679,9 @@ describe('ERC1155MetaPackedBalance', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
-              await expect(tx).to.be.rejectedWith(RevertError('ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW'))
+              await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
             })
 
             it('should PASS if approved ERC20 is used for fee', async () => {
@@ -703,7 +712,7 @@ describe('ERC1155MetaPackedBalance', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
               await expect(tx).to.be.fulfilled
             })
@@ -735,9 +744,9 @@ describe('ERC1155MetaPackedBalance', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
-              await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
+              await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
             })
 
             it('should REVERT if approved ERC20 balance is insufficient', async () => {
@@ -767,9 +776,9 @@ describe('ERC1155MetaPackedBalance', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
-              await expect(tx).to.be.rejectedWith(RevertError('SafeMath#sub: UNDERFLOW'))
+              await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
             })
 
             it('should REVERT if FeeTokenType is not supported', async () => {
@@ -800,7 +809,7 @@ describe('ERC1155MetaPackedBalance', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
               await expect(tx).to.be.rejectedWith(RevertError('ERC1155MetaPackedBalance#_transferGasFee: UNSUPPORTED_TOKEN'))
 
@@ -826,7 +835,7 @@ describe('ERC1155MetaPackedBalance', () => {
                 amount,
                 isGasReceipt,
                 data,
-                { gasLimit: 2000000 }
+                HIGH_GAS_LIMIT
               )
               await expect(tx2).to.be.rejectedWith(RevertError('ERC1155MetaPackedBalance#_transferGasFee: UNSUPPORTED_TOKEN'))
             })
@@ -865,7 +874,7 @@ describe('ERC1155MetaPackedBalance', () => {
                   amount,
                   isGasReceipt,
                   data,
-                  { gasLimit: 2000000 }
+                  HIGH_GAS_LIMIT
                 )
                 await expect(tx).to.be.rejectedWith(RevertOutOfGasError())
               })
@@ -884,7 +893,7 @@ describe('ERC1155MetaPackedBalance', () => {
                   amount,
                   isGasReceipt,
                   data,
-                  { gasLimit: 2000000 }
+                  HIGH_GAS_LIMIT
                 )
                 await expect(tx).to.be.fulfilled
               })
@@ -903,7 +912,7 @@ describe('ERC1155MetaPackedBalance', () => {
                   amount,
                   isGasReceipt,
                   data,
-                  { gasLimit: 2000000 }
+                  HIGH_GAS_LIMIT
                 )
                 await expect(tx).to.be.fulfilled
               })
@@ -1417,7 +1426,8 @@ describe('ERC1155MetaPackedBalance', () => {
               ids,
               amounts,
               isGasReceipt,
-              data
+              data,
+              HIGH_GAS_LIMIT
             )
             await expect(tx).to.be.rejectedWith(RevertError('ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW'))
           })
@@ -1463,13 +1473,16 @@ describe('ERC1155MetaPackedBalance', () => {
               amounts,
               isGasReceipt,
               data,
-              { gasLimit: 2000000 }
+              HIGH_GAS_LIMIT
             )
             await expect(tx).to.be.rejectedWith(RevertError('ERC1155MetaMintBurnPackedBalanceMock: INVALID_METHOD'))
           })
 
           it('should REVERT if invalid response from receiver contract', async () => {
             transferObj.receiver = receiverContract.address
+            if (gasReceipt) {
+              gasReceipt.gasLimitCallback = HIGH_GAS_LIMIT.gasLimit
+            }
             data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
 
             // Force invalid response
@@ -1482,7 +1495,7 @@ describe('ERC1155MetaPackedBalance', () => {
               amounts,
               isGasReceipt,
               data,
-              { gasLimit: 2000000 }
+              HIGH_GAS_LIMIT
             )
             await expect(tx).to.be.rejectedWith(
               RevertError('ERC1155PackedBalance#_callonERC1155BatchReceived: INVALID_ON_RECEIVE_MESSAGE')
@@ -1491,6 +1504,9 @@ describe('ERC1155MetaPackedBalance', () => {
 
           it('should PASS if valid response from receiver contract', async () => {
             transferObj.receiver = receiverContract.address
+            if (gasReceipt) {
+              gasReceipt.gasLimitCallback = HIGH_GAS_LIMIT.gasLimit
+            }
             data = await encodeMetaBatchTransferFromData(transferObj, domainHash, gasReceipt)
 
             const tx = operatorERC1155Contract.metaSafeBatchTransferFrom(
@@ -1500,10 +1516,9 @@ describe('ERC1155MetaPackedBalance', () => {
               amounts,
               isGasReceipt,
               data,
-              { gasLimit: 2000000 }
+              HIGH_GAS_LIMIT,
             )
 
-            //await expect(tx).to.be.fulfilled
             await expect(tx).to.be.fulfilled
           })
 
@@ -1657,7 +1672,7 @@ describe('ERC1155MetaPackedBalance', () => {
                   amounts,
                   isGasReceipt,
                   data,
-                  { gasLimit: 2000000 }
+                  HIGH_GAS_LIMIT
                 )
                 await expect(tx).to.be.rejectedWith(RevertOutOfGasError())
               })
@@ -1676,7 +1691,7 @@ describe('ERC1155MetaPackedBalance', () => {
                   amounts,
                   isGasReceipt,
                   data,
-                  { gasLimit: 2000000 }
+                  HIGH_GAS_LIMIT
                 )
                 await expect(tx).to.be.fulfilled
               })
@@ -1695,7 +1710,7 @@ describe('ERC1155MetaPackedBalance', () => {
                   amounts,
                   isGasReceipt,
                   data,
-                  { gasLimit: 2000000 }
+                  HIGH_GAS_LIMIT
                 )
                 await expect(tx).to.be.fulfilled
               })
@@ -1844,7 +1859,7 @@ describe('ERC1155MetaPackedBalance', () => {
                   amounts,
                   isGasReceipt,
                   data,
-                  { gasLimit: 2000000 } // INCORRECT GAS ESTIMATION
+                  HIGH_GAS_LIMIT // INCORRECT GAS ESTIMATION
                 )
 
                 // Get logs from internal transaction event

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity 0.7.4;
+pragma solidity ^0.8.0;
 
 /**
  * @dev ERC-1155 interface for accepting safe transfers.

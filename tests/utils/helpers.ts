@@ -10,7 +10,7 @@ import {
 } from 'src/typings/tx-types'
 
 export const UNIT_ETH = ethers.utils.parseEther('1')
-export const HIGH_GAS_LIMIT = { gasLimit: 6e9 }
+export const HIGH_GAS_LIMIT = { gasLimit: 6_000_000 }
 
 // createTestWallet creates a new wallet
 export const createTestWallet = (web3: any, addressIndex: number = 0) => {
@@ -37,6 +37,10 @@ export function RevertError(errorMessage?: string) {
 
 export function RevertOutOfGasError() {
   return /out of gas/
+}
+
+export function RevertUnsafeMathError() {
+  return /Arithmetic operation .*flowed/
 }
 
 // Take a message, hash it and sign it with ETH_SIGN SignatureType

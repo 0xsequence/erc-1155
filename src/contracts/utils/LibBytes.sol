@@ -12,7 +12,7 @@
   This is a truncated version of the original LibBytes.sol library from ZeroEx.
 */
 
-pragma solidity 0.7.4;
+pragma solidity ^0.8.0;
 
 
 library LibBytes {

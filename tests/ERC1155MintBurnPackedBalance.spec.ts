@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 
-import { AbstractContract, RevertError, expect, BigNumber } from './utils'
+import { AbstractContract, RevertError, expect, BigNumber, HIGH_GAS_LIMIT, RevertUnsafeMathError } from './utils'
 import * as utils from './utils'
 
 import {
@@ -97,7 +97,7 @@ describe('ERC1155MintBurnPackedBalance', () => {
         await expect(tx).to.be.rejectedWith(RevertError('ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW'))
       })
 
-      it('should REVERT if amount is larger than limit(invalid amount min overflow)', async () => {
+      it('should REVERT if amount is larger than limit (invalid amount min overflow)', async () => {
         const maxVal = BigNumber.from(2).pow(32)
         // Set balance to max acceptable value
         await erc1155MintBurnContract.mintMock(anyoneWallet.address, 0, maxVal.sub(1), [])
@@ -109,8 +109,8 @@ describe('ERC1155MintBurnPackedBalance', () => {
         const maxVal2 = BigNumber.from(2)
           .pow(256)
           .sub(maxVal.sub(1))
-        const tx = erc1155MintBurnContract.mintMock(anyoneWallet.address, 0, maxVal2, [])
-        await expect(tx).to.be.rejectedWith(RevertError('ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW'))
+        const tx = erc1155MintBurnContract.mintMock(anyoneWallet.address, 0, maxVal2, [], HIGH_GAS_LIMIT)
+        await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
       })
 
       it('should REVERT if amount is larger than limit (invalid amount max overflow)', async () => {
@@ -118,7 +118,7 @@ describe('ERC1155MintBurnPackedBalance', () => {
         const maxVal = BigNumber.from(2)
           .pow(256)
           .sub(1)
-        const tx = erc1155MintBurnContract.mintMock(anyoneWallet.address, 0, maxVal, [])
+        const tx = erc1155MintBurnContract.mintMock(anyoneWallet.address, 0, maxVal, [], HIGH_GAS_LIMIT)
         await expect(tx).to.be.rejectedWith(RevertError('ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW'))
       })
 
@@ -297,7 +297,7 @@ describe('ERC1155MintBurnPackedBalance', () => {
         await expect(tx2).to.be.rejectedWith(RevertError('ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW'))
       })
 
-      it('should REVERT if amount is larger than limit (invalid amount min overflow', async () => {
+      it('should REVERT if amount is larger than limit (invalid amount min overflow)', async () => {
         const maxVal = BigNumber.from(2).pow(32)
         // Set balance to max acceptable value
         await erc1155MintBurnContract.batchMintMock(anyoneWallet.address, [0], [maxVal.sub(1)], [])
@@ -308,8 +308,8 @@ describe('ERC1155MintBurnPackedBalance', () => {
         const maxVal2 = BigNumber.from(2)
           .pow(256)
           .sub(maxVal.sub(1))
-        const tx3 = erc1155MintBurnContract.batchMintMock(anyoneWallet.address, [0], [maxVal2], [])
-        await expect(tx3).to.be.rejectedWith(RevertError('ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW'))
+        const tx3 = erc1155MintBurnContract.batchMintMock(anyoneWallet.address, [0], [maxVal2], [], HIGH_GAS_LIMIT)
+        await expect(tx3).to.be.rejectedWith(RevertUnsafeMathError())
       })
 
       it('should REVERT if amount is larger than limit (invalid amount max overflow)', async () => {
@@ -322,8 +322,8 @@ describe('ERC1155MintBurnPackedBalance', () => {
         const maxVal3 = BigNumber.from(2)
           .pow(256)
           .sub(1)
-        const tx4 = erc1155MintBurnContract.batchMintMock(anyoneWallet.address, [0], [maxVal3], [])
-        await expect(tx4).to.be.rejectedWith(RevertError('ERC1155PackedBalance#_viewUpdateBinValue: OVERFLOW'))
+        const tx4 = erc1155MintBurnContract.batchMintMock(anyoneWallet.address, [0], [maxVal3], [], HIGH_GAS_LIMIT)
+        await expect(tx4).to.be.rejectedWith(RevertUnsafeMathError())
       })
 
       it('should pass if valid response from receiver contract', async () => {
@@ -446,7 +446,7 @@ describe('ERC1155MintBurnPackedBalance', () => {
         expect(recipientBalanceB).to.be.eql(recipientBalanceA.sub(amountToBurn))
       })
 
-      it('should REVERT if amount is hgher than balance', async () => {
+      it('should REVERT if amount is higher than balance', async () => {
         // Sanity check
         const balance = await erc1155MintBurnContract.balanceOf(receiverAddress, tokenID)
         expect(balance).to.be.eql(BigNumber.from(initBalance))
@@ -454,8 +454,8 @@ describe('ERC1155MintBurnPackedBalance', () => {
         // Invalid amount to burn that would cause underflow
         const invalidVal = initBalance + 1
 
-        const tx = erc1155MintBurnContract.burnMock(receiverAddress, tokenID, invalidVal)
-        await expect(tx).to.be.rejectedWith(RevertError('ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW'))
+        const tx = erc1155MintBurnContract.burnMock(receiverAddress, tokenID, invalidVal, HIGH_GAS_LIMIT)
+        await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
       })
 
       it('should emit a Transfer event', async () => {
@@ -533,7 +533,7 @@ describe('ERC1155MintBurnPackedBalance', () => {
         // Invalid amount to burn that would cause underflow
         const invalidVal = initBalance + 1
 
-        const tx = erc1155MintBurnContract.batchBurnMock(receiverAddress, [typesArray[0]], [invalidVal])
+        const tx = erc1155MintBurnContract.batchBurnMock(receiverAddress, [typesArray[0]], [invalidVal], HIGH_GAS_LIMIT)
         await expect(tx).to.be.rejectedWith(RevertError('ERC1155PackedBalance#_viewUpdateBinValue: UNDERFLOW'))
       })
 

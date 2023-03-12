@@ -1,18 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity 0.7.4;
+pragma solidity ^0.8.0;
 
-import "../../utils/SafeMath.sol";
 import "../../interfaces/IERC1155TokenReceiver.sol";
 import "../../interfaces/IERC1155.sol";
 import "../../utils/Address.sol";
 import "../../utils/ERC165.sol";
 
-
 /**
  * @dev Implementation of Multi-Token Standard contract
  */
 contract ERC1155 is IERC1155, ERC165 {
-  using SafeMath for uint256;
   using Address for address;
 
   /***********************************|
@@ -47,7 +44,6 @@ contract ERC1155 is IERC1155, ERC165 {
   {
     require((msg.sender == _from) || isApprovedForAll(_from, msg.sender), "ERC1155#safeTransferFrom: INVALID_OPERATOR");
     require(_to != address(0),"ERC1155#safeTransferFrom: INVALID_RECIPIENT");
-    // require(_amount <= balances[_from][_id]) is not necessary since checked with safemath operations
 
     _safeTransferFrom(_from, _to, _id, _amount);
     _callonERC1155Received(_from, _to, _id, _amount, gasleft(), _data);
@@ -88,8 +84,8 @@ contract ERC1155 is IERC1155, ERC165 {
     internal
   {
     // Update balances
-    balances[_from][_id] = balances[_from][_id].sub(_amount); // Subtract amount
-    balances[_to][_id] = balances[_to][_id].add(_amount);     // Add amount
+    balances[_from][_id] -= _amount;
+    balances[_to][_id] += _amount;
 
     // Emit event
     emit TransferSingle(msg.sender, _from, _to, _id, _amount);
@@ -126,8 +122,8 @@ contract ERC1155 is IERC1155, ERC165 {
     // Executing all transfers
     for (uint256 i = 0; i < nTransfer; i++) {
       // Update storage balance of previous bin
-      balances[_from][_ids[i]] = balances[_from][_ids[i]].sub(_amounts[i]);
-      balances[_to][_ids[i]] = balances[_to][_ids[i]].add(_amounts[i]);
+      balances[_from][_ids[i]] -= _amounts[i];
+      balances[_to][_ids[i]] += _amounts[i];
     }
 
     // Emit event
