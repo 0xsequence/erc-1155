@@ -1,9 +1,0 @@
-export { IERC1155__factory } from "./IERC1155__factory";
-export { IERC1155Meta__factory } from "./IERC1155Meta__factory";
-export { IERC1155Metadata__factory } from "./IERC1155Metadata__factory";
-export { IERC1155MintBurn__factory } from "./IERC1155MintBurn__factory";
-export { IERC1155TokenReceiver__factory } from "./IERC1155TokenReceiver__factory";
-export { IERC1271Wallet__factory } from "./IERC1271Wallet__factory";
-export { IERC165__factory } from "./IERC165__factory";
-export { IERC20__factory } from "./IERC20__factory";
-export { IERC2981__factory } from "./IERC2981__factory";
