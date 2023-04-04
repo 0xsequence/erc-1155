@@ -24,7 +24,7 @@
     "start:ganache": "ganache --chain.chainId ${npm_package_config_ganacheChainID} --chain.networkId ${npm_package_config_ganacheChainID} --server.port ${npm_package_config_ganachePort} --miner.blockGasLimit ${npm_package_config_ganacheGasLimit} --miner.defaultGasPrice ${npm_package_config_ganacheGasPrice} --wallet.defaultBalance ${npm_package_config_etherBalance} --wallet.mnemonic \"${npm_package_config_mnemonic}\" ${npm_package_config_extra}",
     "start:ganache:verbose": "pnpm run start:ganache --verbose",
     "stop:ganache": "ps aux | grep ganache | grep -v grep | awk '{print $2}' | xargs kill -9",
-    "release": "pnpm publish src"
+    "release": "pnpm build && pnpm format && pnpm publish src"
   },
   "husky": {
     "hooks": {
