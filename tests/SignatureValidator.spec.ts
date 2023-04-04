@@ -3,10 +3,7 @@ import { ethers } from 'ethers'
 import { AbstractContract, expect, RevertError, ethSign, eip712Sign } from './utils'
 import * as utils from './utils'
 
-import {
-  SignatureValidator,
-  ERC1271WalletValidationMock  
-} from 'src'
+import { SignatureValidator, ERC1271WalletValidationMock } from 'src'
 
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'

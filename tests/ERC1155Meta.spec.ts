@@ -15,13 +15,7 @@ import {
 
 import { BigNumber, utils, ContractTransaction, EventFilter } from 'ethers'
 
-import {
-  ERC1155MetaMintBurnMock,
-  ERC1271WalletValidationMock,
-  ERC1155ReceiverMock,
-  ERC1155OperatorMock,
-  ERC20Mock
-} from 'src'
+import { ERC1155MetaMintBurnMock, ERC1271WalletValidationMock, ERC1155ReceiverMock, ERC1155OperatorMock, ERC20Mock } from 'src'
 
 import { GasReceipt, TransferSignature, ApprovalSignature, BatchTransferSignature } from 'src/typings/tx-types'
 
@@ -46,8 +40,8 @@ describe('ERC1155Meta', () => {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
   const DOMAIN_SEPARATOR_TYPEHASH = '0x035aff83d86937d35b32e04f0ddc6ff469290eef2f1b692d8a815c89404d4749'
 
-  const NAME = "MyERC1155"
-  const METADATA_URI = "https://example.com/"
+  const NAME = 'MyERC1155'
+  const METADATA_URI = 'https://example.com/'
 
   // Pass gas since ganache can't figure it out
   const TX_PARAM = { gasLimit: 2000000 }
@@ -166,14 +160,22 @@ describe('ERC1155Meta', () => {
           data = await encodeMetaTransferFromData(transferObj, domainHash, gasReceipt)
         })
 
-        it("should REVERT if data is random", async () => {
+        it('should REVERT if data is random', async () => {
           const dataUint8 = utils.toUtf8Bytes('Breakthroughs! over the river! flips and crucifixions! gone down the flood!')
           const data = BigNumber.from(dataUint8).toHexString()
 
           // Check if data length is more than 69
           expect(utils.arrayify(data).length).to.be.at.least(70)
 
-          const tx = erc1155Contract.metaSafeTransferFrom(ownerAddress, receiverContract.address, id, amount, isGasReceipt, data, { gasLimit: 100_000 })
+          const tx = erc1155Contract.metaSafeTransferFrom(
+            ownerAddress,
+            receiverContract.address,
+            id,
+            amount,
+            isGasReceipt,
+            data,
+            { gasLimit: 100_000 }
+          )
           await expect(tx).to.be.rejectedWith(RevertError())
         })
 
@@ -438,7 +440,15 @@ describe('ERC1155Meta', () => {
 
           it('should REVERT if transfer leads to overflow', async () => {
             await erc1155Contract.mintMock(receiverAddress, id, MAXVAL, [])
-            const tx = operatorERC1155Contract.metaSafeTransferFrom(ownerAddress, receiverAddress, id, amount, isGasReceipt, data, HIGH_GAS_LIMIT)
+            const tx = operatorERC1155Contract.metaSafeTransferFrom(
+              ownerAddress,
+              receiverAddress,
+              id,
+              amount,
+              isGasReceipt,
+              data,
+              HIGH_GAS_LIMIT
+            )
             await expect(tx).to.be.rejectedWith(RevertUnsafeMathError())
           })
 
@@ -568,7 +578,10 @@ describe('ERC1155Meta', () => {
             })
 
             it('should PASS if another approved ERC-1155 is used for fee', async () => {
-              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet, [NAME, METADATA_URI])) as ERC1155MetaMintBurnMock
+              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet, [
+                NAME,
+                METADATA_URI
+              ])) as ERC1155MetaMintBurnMock
               await erc1155Contract2.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance, [])
               await erc1155Contract2.setApprovalForAll(operatorERC1155Contract.address, true)
 
@@ -603,7 +616,10 @@ describe('ERC1155Meta', () => {
             })
 
             it('should REVERT if NOT approved ERC-1155 is used for fee', async () => {
-              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet, [NAME, METADATA_URI])) as ERC1155MetaMintBurnMock
+              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet, [
+                NAME,
+                METADATA_URI
+              ])) as ERC1155MetaMintBurnMock
               await erc1155Contract2.mintMock(ownerAddress, feeTokenID, feeTokenInitBalance, [])
 
               feeTokenDataERC1155 = utils.defaultAbiCoder.encode(
@@ -637,7 +653,10 @@ describe('ERC1155Meta', () => {
             })
 
             it('should REVERT if another ERC-1155 is used for fee without sufficient balance', async () => {
-              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet, [NAME, METADATA_URI])) as ERC1155MetaMintBurnMock
+              const erc1155Contract2 = (await erc1155Abstract.deploy(ownerWallet, [
+                NAME,
+                METADATA_URI
+              ])) as ERC1155MetaMintBurnMock
               await erc1155Contract2.mintMock(ownerAddress, feeTokenID, 100, [])
               await erc1155Contract2.setApprovalForAll(operatorERC1155Contract.address, true)
 

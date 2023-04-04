@@ -1,6 +1,14 @@
 import { ethers } from 'ethers'
 
-import { AbstractContract, expect, BigNumber, RevertError, RevertUnsafeMathError, createTestWallet, HIGH_GAS_LIMIT } from './utils'
+import {
+  AbstractContract,
+  expect,
+  BigNumber,
+  RevertError,
+  RevertUnsafeMathError,
+  createTestWallet,
+  HIGH_GAS_LIMIT
+} from './utils'
 
 import { ERC1155MetaMintBurnMock, ERC1155ReceiverMock, ERC1155OperatorMock } from 'src'
 
@@ -18,8 +26,8 @@ describe('ERC1155', () => {
     .pow(256)
     .sub(1) // 2**256 - 1
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-  const NAME = "MyERC1155"
-  const METADATA_URI = "https://example.com/"
+  const NAME = 'MyERC1155'
+  const METADATA_URI = 'https://example.com/'
 
   let ownerAddress: string
   let receiverAddress: string
@@ -393,7 +401,14 @@ describe('ERC1155', () => {
 
       // TODO: remove ts-ignore when contract declaration is fixed
       // @ts-ignore
-      const tx = erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, data, HIGH_GAS_LIMIT)
+      const tx = erc1155Contract.safeBatchTransferFrom(
+        ownerAddress,
+        receiverContract.address,
+        types,
+        values,
+        data,
+        HIGH_GAS_LIMIT
+      )
       await expect(tx).to.be.fulfilled
     })
 
@@ -430,7 +445,14 @@ describe('ERC1155', () => {
 
     it('should have TransferBatch event emitted before onERC1155BatchReceived is called', async () => {
       // Get event filter to get internal tx event
-      const tx = await erc1155Contract.safeBatchTransferFrom(ownerAddress, receiverContract.address, types, values, [], HIGH_GAS_LIMIT)
+      const tx = await erc1155Contract.safeBatchTransferFrom(
+        ownerAddress,
+        receiverContract.address,
+        types,
+        values,
+        [],
+        HIGH_GAS_LIMIT
+      )
       const receipt = await tx.wait(1)
 
       const firstEventTopic = receipt.logs![0].topics[0]

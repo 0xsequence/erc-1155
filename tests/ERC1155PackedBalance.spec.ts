@@ -3,11 +3,7 @@ import { ethers } from 'ethers'
 import { AbstractContract, expect, BigNumber, RevertError } from './utils'
 import * as utils from './utils'
 
-import {
-  ERC1155MetaMintBurnPackedBalanceMock,
-  ERC1155ReceiverMock,
-  ERC1155OperatorMock
-} from 'src'
+import { ERC1155MetaMintBurnPackedBalanceMock, ERC1155ReceiverMock, ERC1155OperatorMock } from 'src'
 
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'
@@ -23,8 +19,8 @@ describe('ERC1155PackedBalance', () => {
     .pow(256)
     .sub(2) // 2**256 - 2
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-  const NAME = "MyERC1155"
-  const METADATA_URI = "https://example.com/"
+  const NAME = 'MyERC1155'
+  const METADATA_URI = 'https://example.com/'
 
   let ownerAddress: string
   let receiverAddress: string

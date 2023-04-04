@@ -26,8 +26,8 @@ describe('ERC2981Global', () => {
   let anyoneERC1155MetadataContract
 
   const BASE_FEE = 20 // 2%
-  const NAME = "MyERC1155"
-  const METADATA_URI = "https://example.com/"
+  const NAME = 'MyERC1155'
+  const METADATA_URI = 'https://example.com/'
 
   context('When ERC2981GlobalMock contract is deployed', () => {
     before(async () => {

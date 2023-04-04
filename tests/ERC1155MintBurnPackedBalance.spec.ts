@@ -3,10 +3,7 @@ import { ethers } from 'ethers'
 import { AbstractContract, RevertError, expect, BigNumber, HIGH_GAS_LIMIT, RevertUnsafeMathError } from './utils'
 import * as utils from './utils'
 
-import {
-  ERC1155MetaMintBurnPackedBalanceMock,
-  ERC1155ReceiverMock
-} from 'src'
+import { ERC1155MetaMintBurnPackedBalanceMock, ERC1155ReceiverMock } from 'src'
 
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'
@@ -21,8 +18,8 @@ const { wallet: operatorWallet, provider: operatorProvider, signer: operatorSign
 
 describe('ERC1155MintBurnPackedBalance', () => {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-  const NAME = "MyERC1155"
-  const METADATA_URI = "https://example.com/"
+  const NAME = 'MyERC1155'
+  const METADATA_URI = 'https://example.com/'
 
   let ownerAddress: string
   let receiverAddress: string
