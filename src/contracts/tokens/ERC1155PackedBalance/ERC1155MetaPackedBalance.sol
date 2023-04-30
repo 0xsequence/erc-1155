@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
-pragma experimental ABIEncoderV2;
 
 import "./ERC1155PackedBalance.sol";
 import "../../interfaces/IERC20.sol";
