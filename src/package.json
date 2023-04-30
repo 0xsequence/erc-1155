@@ -1,6 +1,6 @@
 {
   "name": "@0xsequence/erc-1155",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "ERC-1155 implementation for Ethereum",
   "repository": "https://github.com/0xsequence/erc-1155",
   "homepage": "https://sequence.build",
