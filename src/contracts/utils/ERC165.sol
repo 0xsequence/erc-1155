@@ -7,7 +7,7 @@ abstract contract ERC165 is IERC165 {
    * @param _interfaceID The interface identifier, as specified in ERC-165
    * @return `true` if the contract implements `_interfaceID`
    */
-  function supportsInterface(bytes4 _interfaceID) virtual override public pure returns (bool) {
+  function supportsInterface(bytes4 _interfaceID) virtual override public view returns (bool) {
     return _interfaceID == this.supportsInterface.selector;
   }
 }

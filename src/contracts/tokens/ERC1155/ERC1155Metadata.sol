@@ -73,7 +73,7 @@ contract ERC1155Metadata is IERC1155Metadata, ERC165 {
    * @param _interfaceID  The interface identifier, as specified in ERC-165
    * @return `true` if the contract implements `_interfaceID` and
    */
-  function supportsInterface(bytes4 _interfaceID) public pure virtual override returns (bool) {
+  function supportsInterface(bytes4 _interfaceID) public view virtual override returns (bool) {
     if (_interfaceID == type(IERC1155Metadata).interfaceId) {
       return true;
     }

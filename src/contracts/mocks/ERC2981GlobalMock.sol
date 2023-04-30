@@ -22,7 +22,7 @@ contract ERC2981GlobalMock is ERC1155MintBurnMock, ERC2981Global {
     _setGlobalRoyaltyInfo(_recipient, _royaltyBasisPoints);
   }
 
-  function supportsInterface(bytes4 _interfaceID) public override(ERC1155MintBurnMock, ERC2981Global) virtual pure returns (bool) {
+  function supportsInterface(bytes4 _interfaceID) public override(ERC1155MintBurnMock, ERC2981Global) virtual view returns (bool) {
     return super.supportsInterface(_interfaceID);
   }
 }
