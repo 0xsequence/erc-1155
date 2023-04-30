@@ -25,7 +25,7 @@ contract ERC1155MintBurnMockOwned is ERC1155MintBurn, Ownable, ERC1155Metadata {
   ) public override(
     ERC1155,
     ERC1155Metadata
-  ) pure virtual returns (bool) {
+  ) view virtual returns (bool) {
     return super.supportsInterface(_interfaceID);
   }
 

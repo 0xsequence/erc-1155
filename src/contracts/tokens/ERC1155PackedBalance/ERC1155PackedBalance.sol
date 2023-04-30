@@ -388,7 +388,7 @@ contract ERC1155PackedBalance is IERC1155, ERC165 {
    * @param _interfaceID  The interface identifier, as specified in ERC-165
    * @return `true` if the contract implements `_interfaceID` and
    */
-  function supportsInterface(bytes4 _interfaceID) public override(ERC165, IERC165) virtual pure returns (bool) {
+  function supportsInterface(bytes4 _interfaceID) public override(ERC165, IERC165) virtual view returns (bool) {
     if (_interfaceID == type(IERC1155).interfaceId) {
       return true;
     }

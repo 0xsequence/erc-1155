@@ -60,7 +60,7 @@ contract ERC2981Global is IERC2981, ERC165 {
    * @param _interfaceID  The interface identifier, as specified in ERC-165
    * @return `true` if the contract implements `_interfaceID` and
    */
-  function supportsInterface(bytes4 _interfaceID) public override(ERC165, IERC165) virtual pure returns (bool) {
+  function supportsInterface(bytes4 _interfaceID) public override(ERC165, IERC165) virtual view returns (bool) {
     if (_interfaceID == type(IERC2981).interfaceId) {
       return true;
     }

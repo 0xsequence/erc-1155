@@ -60,7 +60,7 @@ contract ERC1155MetadataMock is ERC1155MintBurn, ERC1155Metadata {
   ) public override(
     ERC1155,
     ERC1155Metadata
-  ) pure virtual returns (bool) {
+  ) view virtual returns (bool) {
     return super.supportsInterface(_interfaceID);
   }
 }

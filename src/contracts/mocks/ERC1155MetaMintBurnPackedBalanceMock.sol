@@ -29,7 +29,7 @@ contract ERC1155MetaMintBurnPackedBalanceMock is ERC1155MintBurnPackedBalance, E
   ) public override(
     ERC1155PackedBalance,
     ERC1155Metadata
-  ) pure virtual returns (bool) {
+  ) view virtual returns (bool) {
     return super.supportsInterface(_interfaceID);
   }
 
