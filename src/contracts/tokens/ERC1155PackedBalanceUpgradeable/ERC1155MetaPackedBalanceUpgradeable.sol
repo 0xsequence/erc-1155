@@ -6,7 +6,7 @@ import "../../interfaces/IERC20.sol";
 import "../../interfaces/IERC1155.sol";
 import "../../utils/LibBytes.sol";
 import "../../utils/SignatureValidator.sol";
-
+import '../../utils/StorageSlot.sol';
 
 /**
  * @dev ERC-1155 with native metatransaction methods. These additional functions allow users
@@ -45,7 +45,7 @@ contract ERC1155MetaPackedBalanceUpgradeable is ERC1155PackedBalanceUpgradeable,
   }
 
   // Signature nonce per address
-  mapping (address => uint256) internal nonces;
+  bytes32 constant private _NONCES_SLOT_KEY = keccak256("0xsequence.ERC1155MetaPackedBalanceUpgradeable.nonces");
 
 
   /***********************************|
@@ -227,7 +227,7 @@ contract ERC1155MetaPackedBalanceUpgradeable is ERC1155PackedBalanceUpgradeable,
     );
 
     // Update operator status
-    operators[_owner][_operator] = _approved;
+    _setOperator(_owner, _operator, _approved);
 
     // Emit event
     emit ApprovalForAll(_owner, _operator, _approved);
@@ -284,8 +284,8 @@ contract ERC1155MetaPackedBalanceUpgradeable is ERC1155PackedBalanceUpgradeable,
     (sig, signedData) = abi.decode(_sigData, (bytes, bytes));
 
     // Get current nonce and nonce used for signature
-    uint256 currentNonce = nonces[_signer];        // Lowest valid nonce for signer
-    uint256 nonce = uint256(sig.readBytes32(65));  // Nonce passed in the signature object
+    uint256 currentNonce = _getNonce(_signer);   // Lowest valid nonce for signer
+    uint256 nonce = uint256(sig.readBytes32(65)); // Nonce passed in the signature object
 
     // Verify if nonce is valid
     require(
@@ -300,8 +300,9 @@ contract ERC1155MetaPackedBalanceUpgradeable is ERC1155PackedBalanceUpgradeable,
     bytes memory fullData = abi.encodePacked(_encMembers, nonce, signedData);
 
     //Update signature nonce
-    nonces[_signer] = nonce + 1;
-    emit NonceChange(_signer, nonce + 1);
+    nonce++;
+    _setNonce(_signer, nonce);
+    emit NonceChange(_signer, nonce);
 
     // Verify if _from is the signer
     require(isValidSignature(_signer, hash, fullData, sig), "ERC1155MetaPackedBalance#_signatureValidation: INVALID_SIGNATURE");
@@ -315,7 +316,26 @@ contract ERC1155MetaPackedBalanceUpgradeable is ERC1155PackedBalanceUpgradeable,
   function getNonce(address _signer)
     public view returns (uint256 nonce)
   {
-    return nonces[_signer];
+    return _getNonce(_signer);
+  }
+
+  /**
+   * @notice Returns the current nonce associated with a given address
+   * @param _signer Address to query signature nonce for
+   */
+  function _getNonce(address _signer)
+    internal view returns (uint256 nonce)
+  {
+    return StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_NONCES_SLOT_KEY, _signer))).value;
+  }
+
+  /**
+   * @notice Sets the nonce associated with a given address
+   * @param _signer Address to set signature nonce for
+   * @param _nonce Nonce value to set
+   */
+  function _setNonce(address _signer, uint256 _nonce) internal {
+    StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_NONCES_SLOT_KEY, _signer))).value = _nonce;
   }
 
 

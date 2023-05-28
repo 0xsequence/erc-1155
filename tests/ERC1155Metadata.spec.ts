@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 import { AbstractContract, expect, RevertError, HIGH_GAS_LIMIT } from './utils'
 import * as utils from './utils'
 
-import { ERC1155MetadataMock, ERC1155MetadataUpgradeableMockV2, ProxyUpgradeableDeployerMock, ProxyUpgradeable } from 'src'
+import { ERC1155MetadataMock, ERC1155MetadataUpgradeableMockV2, ProxyUpgradeableDeployerMock } from 'src'
 
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'
@@ -31,6 +31,9 @@ usingUpgradeable.forEach(upgradeable => {
 
         if (upgradeable) {
           abstract = await AbstractContract.fromArtifactName('ERC1155MetadataUpgradeableMock')
+          // Create factory
+          const factoryAbstract = await AbstractContract.fromArtifactName('ProxyUpgradeableDeployerMock')
+          factoryContract = (await factoryAbstract.deploy(ownerWallet, [])) as ProxyUpgradeableDeployerMock
         } else {
           abstract = await AbstractContract.fromArtifactName('ERC1155MetadataMock')
         }
@@ -39,10 +42,6 @@ usingUpgradeable.forEach(upgradeable => {
       beforeEach(async () => {
         if (upgradeable) {
           erc1155MetadataContract = (await abstract.deploy(ownerWallet, [])) as ERC1155MetadataMock
-
-          // Create factory
-          const factoryAbstract = await AbstractContract.fromArtifactName('ProxyUpgradeableDeployerMock')
-          factoryContract = (await factoryAbstract.deploy(ownerWallet, [])) as ProxyUpgradeableDeployerMock
 
           // Create proxy
           let tx = factoryContract.createProxy(erc1155MetadataContract.address, ethers.constants.HashZero, ownerWallet.address);

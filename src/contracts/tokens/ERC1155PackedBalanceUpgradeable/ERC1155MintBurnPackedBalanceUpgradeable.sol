@@ -51,7 +51,7 @@ contract ERC1155MintBurnPackedBalanceUpgradeable is ERC1155PackedBalanceUpgradea
       (uint256 bin, uint256 index) = getIDBinIndex(_ids[0]);
 
       // Balance for current bin in memory (initialized with first transfer)
-      uint256 balTo = _viewUpdateBinValue(balances[_to][bin], index, _amounts[0], Operations.Add);
+      uint256 balTo = _viewUpdateBinValue(_getBalance(_to, bin), index, _amounts[0], Operations.Add);
 
       // Number of transfer to execute
       uint256 nTransfer = _ids.length;
@@ -65,8 +65,8 @@ contract ERC1155MintBurnPackedBalanceUpgradeable is ERC1155PackedBalanceUpgradea
         // If new bin
         if (bin != lastBin) {
           // Update storage balance of previous bin
-          balances[_to][lastBin] = balTo;
-          balTo = balances[_to][bin];
+          _setBalance(_to, lastBin, balTo);
+          balTo = _getBalance(_to, bin);
 
           // Bin will be the most recent bin
           lastBin = bin;
@@ -77,7 +77,7 @@ contract ERC1155MintBurnPackedBalanceUpgradeable is ERC1155PackedBalanceUpgradea
       }
 
       // Update storage of the last bin visited
-      balances[_to][bin] = balTo;
+      _setBalance(_to, bin, balTo);
     }
 
     // //Emit event

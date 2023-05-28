@@ -72,6 +72,6 @@ contract ERC1155MetadataUpgradeableMockV2 is ERC1155MetadataUpgradeableMock {
   }
 
   function uri(uint256 _id) public override view returns (string memory) {
-    return string(abi.encodePacked(baseURI, _uint2str(idMapping[_id]))); // Removes .json extension, swaps ids
+    return string(abi.encodePacked(baseURI(), _uint2str(idMapping[_id]))); // Removes .json extension, swaps ids
   }
 }

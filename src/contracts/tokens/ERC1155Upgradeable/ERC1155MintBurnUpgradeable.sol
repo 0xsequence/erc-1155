@@ -25,7 +25,7 @@ contract ERC1155MintBurnUpgradeable is ERC1155Upgradeable {
     internal
   {
     // Add _amount
-    balances[_to][_id] += _amount;
+    _updateBalance(_to, _id, _amount, Operations.Add);
 
     // Emit event
     emit TransferSingle(_msgSender(), address(0x0), _to, _id, _amount);
@@ -52,7 +52,7 @@ contract ERC1155MintBurnUpgradeable is ERC1155Upgradeable {
      // Executing all minting
     for (uint256 i = 0; i < nMint; i++) {
       // Update storage balance
-      balances[_to][_ids[i]] += _amounts[i];
+      _updateBalance(_to, _ids[i], _amounts[i], Operations.Add);
     }
 
     // Emit batch mint event
@@ -77,7 +77,7 @@ contract ERC1155MintBurnUpgradeable is ERC1155Upgradeable {
     internal
   {
     //Substract _amount
-    balances[_from][_id] -= _amount;
+    _updateBalance(_from, _id, _amount, Operations.Sub);
 
     // Emit event
     emit TransferSingle(_msgSender(), _from, address(0x0), _id, _amount);
@@ -99,7 +99,7 @@ contract ERC1155MintBurnUpgradeable is ERC1155Upgradeable {
     // Executing all minting
     for (uint256 i = 0; i < nBurn; i++) {
       // Update storage balance
-      balances[_from][_ids[i]] -= _amounts[i];
+      _updateBalance(_from, _ids[i], _amounts[i], Operations.Sub);
     }
 
     // Emit batch mint event

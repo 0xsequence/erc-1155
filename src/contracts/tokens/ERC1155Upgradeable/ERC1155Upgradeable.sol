@@ -6,6 +6,7 @@ import "../../interfaces/IERC1155.sol";
 import "../../utils/Address.sol";
 import "../../utils/ContextUpgradeable.sol";
 import "../../utils/ERC165.sol";
+import '../../utils/StorageSlot.sol';
 
 /**
  * @dev Implementation of Multi-Token Standard contract.
@@ -22,11 +23,14 @@ contract ERC1155Upgradeable is ContextUpgradeable, IERC1155, ERC165 {
   bytes4 constant internal ERC1155_RECEIVED_VALUE = 0xf23a6e61;
   bytes4 constant internal ERC1155_BATCH_RECEIVED_VALUE = 0xbc197c81;
 
+  // Math operations
+  enum Operations { Add, Sub }
+
   // Objects balances
-  mapping (address => mapping(uint256 => uint256)) internal balances;
+  bytes32 constant private _BALANCES_SLOT_KEY = keccak256("0xsequence.ERC1155Upgradeable.balances");
 
   // Operator Functions
-  mapping (address => mapping(address => bool)) internal operators;
+  bytes32 constant private _OPERATORS_SLOT_KEY = keccak256("0xsequence.ERC1155Upgradeable.operators");
 
 
   /***********************************|
@@ -86,8 +90,8 @@ contract ERC1155Upgradeable is ContextUpgradeable, IERC1155, ERC165 {
     internal
   {
     // Update balances
-    balances[_from][_id] -= _amount;
-    balances[_to][_id] += _amount;
+    _updateBalance(_from, _id, _amount, Operations.Sub);
+    _updateBalance(_to, _id, _amount, Operations.Add);
 
     // Emit event
     emit TransferSingle(_msgSender(), _from, _to, _id, _amount);
@@ -124,8 +128,8 @@ contract ERC1155Upgradeable is ContextUpgradeable, IERC1155, ERC165 {
     // Executing all transfers
     for (uint256 i = 0; i < nTransfer; i++) {
       // Update storage balance of previous bin
-      balances[_from][_ids[i]] -= _amounts[i];
-      balances[_to][_ids[i]] += _amounts[i];
+      _updateBalance(_from, _ids[i], _amounts[i], Operations.Sub);
+      _updateBalance(_to, _ids[i], _amounts[i], Operations.Add);
     }
 
     // Emit event
@@ -159,7 +163,7 @@ contract ERC1155Upgradeable is ContextUpgradeable, IERC1155, ERC165 {
     external override
   {
     // Update operator status
-    operators[_msgSender()][_operator] = _approved;
+    _setOperator(_msgSender(), _operator, _approved);
     emit ApprovalForAll(_msgSender(), _operator, _approved);
   }
 
@@ -172,7 +176,7 @@ contract ERC1155Upgradeable is ContextUpgradeable, IERC1155, ERC165 {
   function isApprovedForAll(address _owner, address _operator)
     public override view returns (bool isOperator)
   {
-    return operators[_owner][_operator];
+    return _getOperator(_owner, _operator);
   }
 
 
@@ -189,7 +193,7 @@ contract ERC1155Upgradeable is ContextUpgradeable, IERC1155, ERC165 {
   function balanceOf(address _owner, uint256 _id)
     public override view returns (uint256)
   {
-    return balances[_owner][_id];
+    return _getBalance(_owner, _id);
   }
 
   /**
@@ -208,10 +212,41 @@ contract ERC1155Upgradeable is ContextUpgradeable, IERC1155, ERC165 {
 
     // Iterate over each owner and token ID
     for (uint256 i = 0; i < _owners.length; i++) {
-      batchBalances[i] = balances[_owners[i]][_ids[i]];
+      batchBalances[i] = _getBalance(_owners[i], _ids[i]);
     }
 
     return batchBalances;
+  }
+
+  /***********************************|
+  |         Storage Functions         |
+  |__________________________________*/
+
+  function _getBalance(address _owner, uint256 _id) internal view returns (uint256) {
+    return StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_BALANCES_SLOT_KEY, _owner, _id))).value;
+  }
+
+  function _setBalance(address _owner, uint256 _id, uint256 _balance) internal {
+    StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_BALANCES_SLOT_KEY, _owner, _id))).value = _balance;
+  }
+
+  function _updateBalance(address _owner, uint256 _id, uint256 _diff, Operations _operation) internal {
+    StorageSlot.Uint256Slot storage slot = StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_BALANCES_SLOT_KEY, _owner, _id)));
+    if (_operation == Operations.Add) {
+      slot.value += _diff;
+    } else if (_operation == Operations.Sub) {
+      slot.value -= _diff;
+    } else {
+      revert("ERC1155Upgradeable#_updateBalance: INVALID_OPERATION");
+    }
+  }
+
+  function _getOperator(address _owner, address _operator) internal view returns (bool) {
+    return StorageSlot.getBooleanSlot(keccak256(abi.encodePacked(_OPERATORS_SLOT_KEY, _owner, _operator))).value;
+  }
+
+  function _setOperator(address _owner, address _operator, bool _approved) internal {
+    StorageSlot.getBooleanSlot(keccak256(abi.encodePacked(_OPERATORS_SLOT_KEY, _owner, _operator))).value = _approved;
   }
 
 

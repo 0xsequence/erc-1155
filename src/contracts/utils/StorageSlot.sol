@@ -22,6 +22,10 @@ library StorageSlot {
         bytes32 value;
     }
 
+    struct StringSlot {
+        string value;
+    }
+
     struct Uint256Slot {
         uint256 value;
     }
@@ -48,6 +52,15 @@ library StorageSlot {
      * @dev Returns an `Bytes32Slot` with member `value` located at `slot`.
      */
     function getBytes32Slot(bytes32 slot) internal pure returns (Bytes32Slot storage r) {
+        assembly {
+            r.slot := slot
+        }
+    }
+
+    /**
+     * @dev Returns an `StringSlot` with member `value` located at `slot`.
+     */
+    function getStringSlot(bytes32 slot) internal pure returns (StringSlot storage r) {
         assembly {
             r.slot := slot
         }

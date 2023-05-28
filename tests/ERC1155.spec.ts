@@ -10,13 +10,13 @@ import {
   HIGH_GAS_LIMIT
 } from './utils'
 
-import { ERC1155MetaMintBurnMock, ERC1155ReceiverMock, ERC1155OperatorMock } from 'src'
+import { ERC1155MetaMintBurnMock, ERC1155ReceiverMock, ERC1155OperatorMock, ProxyUpgradeableDeployerMock } from 'src'
 
 // init test wallets from package.json mnemonic
 import { web3 } from 'hardhat'
 
-const { wallet: ownerWallet, provider: ownerProvider, signer: ownerSigner } = createTestWallet(web3, 0)
-const { wallet: receiverWallet, provider: receiverProvider, signer: receiverSigner } = createTestWallet(web3, 2)
+const { wallet: ownerWallet, provider: ownerProvider } = createTestWallet(web3, 0)
+const { wallet: receiverWallet } = createTestWallet(web3, 2)
 const { wallet: operatorWallet, provider: operatorProvider, signer: operatorSigner } = createTestWallet(web3, 4)
 
 const usingUpgradeable = [false, true]
@@ -39,6 +39,8 @@ usingUpgradeable.forEach(upgradeable => {
     let erc1155Contract: ERC1155MetaMintBurnMock
     let operatorERC1155Contract: ERC1155MetaMintBurnMock
 
+    let factoryContract: ProxyUpgradeableDeployerMock
+
     // load contract abi and deploy to test server
     before(async () => {
       ownerAddress = await ownerWallet.getAddress()
@@ -47,6 +49,9 @@ usingUpgradeable.forEach(upgradeable => {
 
       if (upgradeable) {
         erc1155Abstract = await AbstractContract.fromArtifactName('ERC1155MetaMintBurnUpgradeableMock')
+        // Create factory
+        const factoryAbstract = await AbstractContract.fromArtifactName('ProxyUpgradeableDeployerMock')
+        factoryContract = (await factoryAbstract.deploy(ownerWallet, [])) as ProxyUpgradeableDeployerMock
       } else {
         erc1155Abstract = await AbstractContract.fromArtifactName('ERC1155MetaMintBurnMock')
       }
@@ -57,7 +62,14 @@ usingUpgradeable.forEach(upgradeable => {
     beforeEach(async () => {
       if (upgradeable) {
         erc1155Contract = (await erc1155Abstract.deploy(ownerWallet, [])) as ERC1155MetaMintBurnMock
-        erc1155Contract.initialize(NAME, METADATA_URI)
+        
+        // Create proxy
+        let tx = factoryContract.createProxy(erc1155Contract.address, ethers.constants.HashZero, ownerWallet.address);
+        await expect(tx).to.be.fulfilled
+        const proxyAddr = await factoryContract.predictProxyAddress(erc1155Contract.address, ethers.constants.HashZero, ownerWallet.address);
+        erc1155Contract = (await erc1155Abstract.connect(ownerWallet, proxyAddr)) as ERC1155MetaMintBurnMock;
+        tx = erc1155Contract.initialize(NAME, METADATA_URI)
+        await expect(tx).to.be.fulfilled
       } else {
         erc1155Contract = (await erc1155Abstract.deploy(ownerWallet, [NAME, METADATA_URI])) as ERC1155MetaMintBurnMock
       }

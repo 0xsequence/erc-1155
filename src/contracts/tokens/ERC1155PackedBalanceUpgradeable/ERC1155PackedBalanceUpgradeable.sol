@@ -6,6 +6,7 @@ import "../../interfaces/IERC1155.sol";
 import "../../utils/Address.sol";
 import "../../utils/ContextUpgradeable.sol";
 import "../../utils/ERC165.sol";
+import '../../utils/StorageSlot.sol';
 
 /**
  * @dev Implementation of Multi-Token Standard contract. This implementation of the ERC-1155 standard
@@ -35,10 +36,10 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
   enum Operations { Add, Sub }
 
   // Token IDs balances ; balances[address][id] => balance (using array instead of mapping for efficiency)
-  mapping (address => mapping(uint256 => uint256)) internal balances;
+  bytes32 constant private _BALANCES_SLOT_KEY = keccak256("0xsequence.ERC1155PackedBalanceUpgradeable.balances");
 
   // Operators
-  mapping (address => mapping(address => bool)) internal operators;
+  bytes32 constant private _OPERATORS_SLOT_KEY = keccak256("0xsequence.ERC1155PackedBalanceUpgradeable.operators");
 
 
   /***********************************|
@@ -140,8 +141,8 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
       (uint256 bin, uint256 index) = getIDBinIndex(_ids[0]);
 
       // Balance for current bin in memory (initialized with first transfer)
-      uint256 balFrom = _viewUpdateBinValue(balances[_from][bin], index, _amounts[0], Operations.Sub);
-      uint256 balTo = _viewUpdateBinValue(balances[_to][bin], index, _amounts[0], Operations.Add);
+      uint256 balFrom = _viewUpdateBinValue(_getBalance(_from, bin), index, _amounts[0], Operations.Sub);
+      uint256 balTo = _viewUpdateBinValue(_getBalance(_to, bin), index, _amounts[0], Operations.Add);
 
       // Last bin updated
       uint256 lastBin = bin;
@@ -152,11 +153,11 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
         // If new bin
         if (bin != lastBin) {
           // Update storage balance of previous bin
-          balances[_from][lastBin] = balFrom;
-          balances[_to][lastBin] = balTo;
+          _setBalance(_from, lastBin, balFrom);
+          _setBalance(_to, lastBin, balTo);
 
-          balFrom = balances[_from][bin];
-          balTo = balances[_to][bin];
+          balFrom = _getBalance(_from, bin);
+          balTo = _getBalance(_to, bin);
 
           // Bin will be the most recent bin
           lastBin = bin;
@@ -168,8 +169,8 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
       }
 
       // Update storage of the last bin visited
-      balances[_from][bin] = balFrom;
-      balances[_to][bin] = balTo;
+      _setBalance(_from, bin, balFrom);
+      _setBalance(_to, bin, balTo);
 
     // If transfer to self, just make sure all amounts are valid
     } else {
@@ -209,7 +210,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
     external override
   {
     // Update operator status
-    operators[_msgSender()][_operator] = _approved;
+    _setOperator(_msgSender(), _operator, _approved);
     emit ApprovalForAll(_msgSender(), _operator, _approved);
   }
 
@@ -222,7 +223,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
   function isApprovedForAll(address _owner, address _operator)
     public override view returns (bool isOperator)
   {
-    return operators[_owner][_operator];
+    return _getOperator(_owner, _operator);
   }
 
 
@@ -244,7 +245,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
 
     //Get bin and index of _id
     (bin, index) = getIDBinIndex(_id);
-    return getValueInBin(balances[_owner][bin], index);
+    return getValueInBin(_getBalance(_owner, bin), index);
   }
 
   /**
@@ -261,7 +262,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
 
     // First values
     (uint256 bin, uint256 index) = getIDBinIndex(_ids[0]);
-    uint256 balance_bin = balances[_owners[0]][bin];
+    uint256 balance_bin = _getBalance(_owners[0], bin);
     uint256 last_bin = bin;
 
     // Initialization
@@ -274,7 +275,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
 
       // SLOAD if bin changed for the same owner or if owner changed
       if (bin != last_bin || _owners[i-1] != _owners[i]) {
-        balance_bin = balances[_owners[i]][bin];
+        balance_bin = _getBalance(_owners[i], bin);
         last_bin = bin;
       }
 
@@ -308,7 +309,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
     (bin, index) = getIDBinIndex(_id);
 
     // Update balance
-    balances[_address][bin] = _viewUpdateBinValue(balances[_address][bin], index, _amount, _operation);
+    _setBalance(_address, bin, _viewUpdateBinValue(_getBalance(_address, bin), index, _amount, _operation));
   }
 
   /**
@@ -377,6 +378,26 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
     // Shift amount
     uint256 rightShift = IDS_BITS_SIZE * _index;
     return (_binValues >> rightShift) & mask;
+  }
+
+  /***********************************|
+  |         Storage Functions         |
+  |__________________________________*/
+
+  function _getBalance(address _owner, uint256 _id) internal view returns (uint256) {
+    return StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_BALANCES_SLOT_KEY, _owner, _id))).value;
+  }
+
+  function _setBalance(address _owner, uint256 _id, uint256 _balance) internal {
+    StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_BALANCES_SLOT_KEY, _owner, _id))).value = _balance;
+  }
+
+  function _getOperator(address _owner, address _operator) internal view returns (bool) {
+    return StorageSlot.getBooleanSlot(keccak256(abi.encodePacked(_OPERATORS_SLOT_KEY, _owner, _operator))).value;
+  }
+
+  function _setOperator(address _owner, address _operator, bool _approved) internal {
+    StorageSlot.getBooleanSlot(keccak256(abi.encodePacked(_OPERATORS_SLOT_KEY, _owner, _operator))).value = _approved;
   }
 
 

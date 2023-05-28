@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 import '../../interfaces/IERC1155Metadata.sol';
 import '../../utils/ERC165.sol';
 import '../../utils/Initializable.sol';
+import '../../utils/StorageSlot.sol';
 
 /**
  * @notice Contract that handles metadata related methods.
@@ -12,8 +13,8 @@ import '../../utils/Initializable.sol';
  */
 contract ERC1155MetadataUpgradeable is Initializable, IERC1155Metadata, ERC165 {
   // URI's default URI prefix
-  string public baseURI;
-  string public name;
+  bytes32 private constant _BASEURI_SLOT = keccak256("0xsequence.ERC1155MetadataUpgradeable.baseURI");
+  bytes32 private constant _NAME_SLOT = keccak256("0xsequence.ERC1155MetadataUpgradeable.name");
 
   constructor() initializer {}
 
@@ -22,13 +23,21 @@ contract ERC1155MetadataUpgradeable is Initializable, IERC1155Metadata, ERC165 {
    * @dev This function should be called once immediately after deployment.
    */
   function initialize(string memory _name, string memory _baseURI) public virtual initializer {
-    name = _name;
-    baseURI = _baseURI;
+    _setContractName(_name);
+    _setBaseMetadataURI(_baseURI);
   }
 
   /***********************************|
-  |     Metadata Public Functions     |
+  |          Public Functions         |
   |__________________________________*/
+
+  function name() public view virtual returns (string memory) {
+    return StorageSlot.getStringSlot(_NAME_SLOT).value;
+  }
+
+  function baseURI() public view virtual returns (string memory) {
+    return StorageSlot.getStringSlot(_BASEURI_SLOT).value;
+  }
 
   /**
    * @notice A distinct Uniform Resource Identifier (URI) for a given token.
@@ -37,7 +46,7 @@ contract ERC1155MetadataUpgradeable is Initializable, IERC1155Metadata, ERC165 {
    * @return URI string
    */
   function uri(uint256 _id) public virtual override view returns (string memory) {
-    return string(abi.encodePacked(baseURI, _uint2str(_id), ".json"));
+    return string(abi.encodePacked(baseURI(), _uint2str(_id), ".json"));
   }
 
 
@@ -50,7 +59,7 @@ contract ERC1155MetadataUpgradeable is Initializable, IERC1155Metadata, ERC165 {
    * @param _tokenIDs Array of IDs of tokens to log default URI
    */
   function _logURIs(uint256[] memory _tokenIDs) internal {
-    string memory baseURL = baseURI;
+    string memory baseURL = baseURI();
     string memory tokenURI;
 
     for (uint256 i = 0; i < _tokenIDs.length; i++) {
@@ -61,18 +70,18 @@ contract ERC1155MetadataUpgradeable is Initializable, IERC1155Metadata, ERC165 {
 
   /**
    * @notice Will update the base URL of token's URI
-   * @param _newBaseMetadataURI New base URL of token's URI
+   * @param _baseURI New base URL of token's URI
    */
-  function _setBaseMetadataURI(string memory _newBaseMetadataURI) internal {
-    baseURI = _newBaseMetadataURI;
+  function _setBaseMetadataURI(string memory _baseURI) internal {
+    StorageSlot.getStringSlot(_BASEURI_SLOT).value = _baseURI;
   }
 
   /**
    * @notice Will update the name of the contract
-   * @param _newName New contract name
+   * @param _name New contract name
    */
-  function _setContractName(string memory _newName) internal {
-    name = _newName;
+  function _setContractName(string memory _name) internal {
+    StorageSlot.getStringSlot(_NAME_SLOT).value = _name;
   }
 
   /**
