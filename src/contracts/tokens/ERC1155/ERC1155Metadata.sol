@@ -29,7 +29,7 @@ contract ERC1155Metadata is IERC1155Metadata, ERC165 {
    *      URIs are assumed to be deterministically generated based on token ID
    * @return URI string
    */
-  function uri(uint256 _id) public override view returns (string memory) {
+  function uri(uint256 _id) public view virtual override returns (string memory) {
     return string(abi.encodePacked(baseURI, _uint2str(_id), ".json"));
   }
 
@@ -42,7 +42,7 @@ contract ERC1155Metadata is IERC1155Metadata, ERC165 {
    * @notice Will emit default URI log event for corresponding token _id
    * @param _tokenIDs Array of IDs of tokens to log default URI
    */
-  function _logURIs(uint256[] memory _tokenIDs) internal {
+  function _logURIs(uint256[] memory _tokenIDs) internal virtual {
     string memory baseURL = baseURI;
     string memory tokenURI;
 

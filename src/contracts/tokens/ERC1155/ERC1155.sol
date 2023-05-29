@@ -40,7 +40,7 @@ contract ERC1155 is IERC1155, ERC165 {
    * @param _data    Additional data with no specified format, sent in call to `_to`
    */
   function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _amount, bytes memory _data)
-    public override
+    public virtual override
   {
     require((msg.sender == _from) || isApprovedForAll(_from, msg.sender), "ERC1155#safeTransferFrom: INVALID_OPERATOR");
     require(_to != address(0),"ERC1155#safeTransferFrom: INVALID_RECIPIENT");
@@ -58,7 +58,7 @@ contract ERC1155 is IERC1155, ERC165 {
    * @param _data     Additional data with no specified format, sent in call to `_to`
    */
   function safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts, bytes memory _data)
-    public override
+    public virtual override
   {
     // Requirements
     require((msg.sender == _from) || isApprovedForAll(_from, msg.sender), "ERC1155#safeBatchTransferFrom: INVALID_OPERATOR");
@@ -81,7 +81,7 @@ contract ERC1155 is IERC1155, ERC165 {
    * @param _amount  Transfered amount
    */
   function _safeTransferFrom(address _from, address _to, uint256 _id, uint256 _amount)
-    internal
+    internal virtual
   {
     // Update balances
     balances[_from][_id] -= _amount;
@@ -95,7 +95,7 @@ contract ERC1155 is IERC1155, ERC165 {
    * @notice Verifies if receiver is contract and if so, calls (_to).onERC1155Received(...)
    */
   function _callonERC1155Received(address _from, address _to, uint256 _id, uint256 _amount, uint256 _gasLimit, bytes memory _data)
-    internal
+    internal virtual
   {
     // Check if recipient is contract
     if (_to.isContract()) {
@@ -112,7 +112,7 @@ contract ERC1155 is IERC1155, ERC165 {
    * @param _amounts  Transfer amounts per token type
    */
   function _safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts)
-    internal
+    internal virtual
   {
     require(_ids.length == _amounts.length, "ERC1155#_safeBatchTransferFrom: INVALID_ARRAYS_LENGTH");
 
@@ -134,7 +134,7 @@ contract ERC1155 is IERC1155, ERC165 {
    * @notice Verifies if receiver is contract and if so, calls (_to).onERC1155BatchReceived(...)
    */
   function _callonERC1155BatchReceived(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts, uint256 _gasLimit, bytes memory _data)
-    internal
+    internal virtual
   {
     // Pass data if recipient is contract
     if (_to.isContract()) {
@@ -154,7 +154,7 @@ contract ERC1155 is IERC1155, ERC165 {
    * @param _approved  True if the operator is approved, false to revoke approval
    */
   function setApprovalForAll(address _operator, bool _approved)
-    external override
+    external virtual override
   {
     // Update operator status
     operators[msg.sender][_operator] = _approved;
@@ -168,7 +168,7 @@ contract ERC1155 is IERC1155, ERC165 {
    * @return isOperator True if the operator is approved, false if not
    */
   function isApprovedForAll(address _owner, address _operator)
-    public override view returns (bool isOperator)
+    public view virtual override returns (bool isOperator)
   {
     return operators[_owner][_operator];
   }
@@ -185,7 +185,7 @@ contract ERC1155 is IERC1155, ERC165 {
    * @return The _owner's balance of the Token type requested
    */
   function balanceOf(address _owner, uint256 _id)
-    public override view returns (uint256)
+    public view virtual override returns (uint256)
   {
     return balances[_owner][_id];
   }
@@ -197,7 +197,7 @@ contract ERC1155 is IERC1155, ERC165 {
    * @return        The _owner's balance of the Token types requested (i.e. balance for each (owner, id) pair)
    */
   function balanceOfBatch(address[] memory _owners, uint256[] memory _ids)
-    public override view returns (uint256[] memory)
+    public view virtual override returns (uint256[] memory)
   {
     require(_owners.length == _ids.length, "ERC1155#balanceOfBatch: INVALID_ARRAY_LENGTH");
 
@@ -222,7 +222,7 @@ contract ERC1155 is IERC1155, ERC165 {
    * @param _interfaceID  The interface identifier, as specified in ERC-165
    * @return `true` if the contract implements `_interfaceID` and
    */
-  function supportsInterface(bytes4 _interfaceID) public override(ERC165, IERC165) virtual view returns (bool) {
+  function supportsInterface(bytes4 _interfaceID) public view virtual override(ERC165, IERC165) returns (bool) {
     if (_interfaceID == type(IERC1155).interfaceId) {
       return true;
     }

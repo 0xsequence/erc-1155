@@ -79,7 +79,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
     uint256 _amount,
     bool _isGasFee,
     bytes memory _data)
-    public
+    public virtual
   {
     require(_to != address(0), "ERC1155MetaPackedBalance#metaSafeTransferFrom: INVALID_RECIPIENT");
 
@@ -143,7 +143,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
     uint256[] memory _amounts,
     bool _isGasFee,
     bytes memory _data)
-    public
+    public virtual
   {
     require(_to != address(0), "ERC1155MetaPackedBalance#metaSafeBatchTransferFrom: INVALID_RECIPIENT");
 
@@ -210,7 +210,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
     bool _approved,
     bool _isGasFee,
     bytes memory _data)
-    public
+    public virtual
   {
     // Verify signature and extract the signed data
     bytes memory signedData = _signatureValidation(
@@ -275,7 +275,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
     address _signer,
     bytes memory _sigData,
     bytes memory _encMembers)
-    internal returns (bytes memory signedData)
+    internal virtual returns (bytes memory signedData)
   {
     bytes memory sig;
 
@@ -312,7 +312,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
    * @param _signer Address to query signature nonce for
    */
   function getNonce(address _signer)
-    public view returns (uint256 nonce)
+    public view virtual returns (uint256 nonce)
   {
     return nonces[_signer];
   }
@@ -329,7 +329,7 @@ contract ERC1155MetaPackedBalance is ERC1155PackedBalance, SignatureValidator {
    * @param _g     GasReceipt object that contains gas reimbursement information
    */
   function _transferGasFee(address _from, GasReceipt memory _g)
-      internal
+    internal virtual
   {
     // Pop last byte to get token fee type
     uint8 feeTokenTypeRaw = uint8(_g.feeTokenData.popLastByte());

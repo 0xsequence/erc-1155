@@ -23,7 +23,7 @@ contract ERC2981Global is IERC2981, ERC165 {
    * @param _royaltyBasisPoints Basis points with 3 decimals representing the fee %
    *        e.g. a fee of 2% would be 20 (i.e. 20 / 1000 == 0.02, or 2%)
    */
-  function _setGlobalRoyaltyInfo(address _receiver, uint256 _royaltyBasisPoints) internal {
+  function _setGlobalRoyaltyInfo(address _receiver, uint256 _royaltyBasisPoints) internal virtual {
     require(_receiver != address(0x0), "ERC2981Global#_setGlobalRoyalty: RECIPIENT_IS_0x0");
     require(_royaltyBasisPoints <= 1000, "ERC2981Global#_setGlobalRoyalty: FEE_IS_ABOVE_100_PERCENT");
     globalRoyaltyInfo.receiver = _receiver;
@@ -44,8 +44,7 @@ contract ERC2981Global is IERC2981, ERC165 {
   function royaltyInfo(
     uint256, 
     uint256 _saleCost
-  ) external view override returns (address receiver, uint256 royaltyAmount) 
-  {
+  ) external view virtual override returns (address receiver, uint256 royaltyAmount) {
     FeeInfo memory info = globalRoyaltyInfo;
     return (info.receiver, _saleCost * info.feeBasisPoints / 1000);
   }
@@ -60,7 +59,7 @@ contract ERC2981Global is IERC2981, ERC165 {
    * @param _interfaceID  The interface identifier, as specified in ERC-165
    * @return `true` if the contract implements `_interfaceID` and
    */
-  function supportsInterface(bytes4 _interfaceID) public override(ERC165, IERC165) virtual view returns (bool) {
+  function supportsInterface(bytes4 _interfaceID) public view virtual override(ERC165, IERC165) returns (bool) {
     if (_interfaceID == type(IERC2981).interfaceId) {
       return true;
     }

@@ -22,7 +22,7 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
    * @param _data    Data to pass if receiver is contract
    */
   function _mint(address _to, uint256 _id, uint256 _amount, bytes memory _data)
-    internal
+    internal virtual
   {
     //Add _amount
     _updateIDBalance(_to,   _id, _amount, Operations.Add); // Add amount to recipient
@@ -42,7 +42,7 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
    * @param _data    Data to pass if receiver is contract
    */
   function _batchMint(address _to, uint256[] memory _ids, uint256[] memory _amounts, bytes memory _data)
-    internal
+    internal virtual
   {
     require(_ids.length == _amounts.length, "ERC1155MintBurnPackedBalance#_batchMint: INVALID_ARRAYS_LENGTH");
 
@@ -99,7 +99,7 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
    * @param _amount  The amount to be burned
    */
   function _burn(address _from, uint256 _id, uint256 _amount)
-    internal
+    internal virtual
   {
     // Substract _amount
     _updateIDBalance(_from, _id, _amount, Operations.Sub);
@@ -119,7 +119,7 @@ contract ERC1155MintBurnPackedBalance is ERC1155PackedBalance {
    * @param _amounts  Array of the amount to be burned
    */
   function _batchBurn(address _from, uint256[] memory _ids, uint256[] memory _amounts)
-    internal
+    internal virtual
   {
     // Number of burning to execute
     uint256 nBurn = _ids.length;
