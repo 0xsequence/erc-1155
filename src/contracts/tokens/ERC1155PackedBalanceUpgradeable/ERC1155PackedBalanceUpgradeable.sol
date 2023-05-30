@@ -55,7 +55,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
    * @param _data    Additional data with no specified format, sent in call to `_to`
    */
   function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _amount, bytes memory _data)
-    public override
+    public virtual override
   {
     // Requirements
     require((_msgSender() == _from) || isApprovedForAll(_from, _msgSender()), "ERC1155PackedBalance#safeTransferFrom: INVALID_OPERATOR");
@@ -76,7 +76,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
    * @param _data     Additional data with no specified format, sent in call to `_to`
    */
   function safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts, bytes memory _data)
-    public override
+    public virtual override
   {
     // Requirements
     require((_msgSender() == _from) || isApprovedForAll(_from, _msgSender()), "ERC1155PackedBalance#safeBatchTransferFrom: INVALID_OPERATOR");
@@ -99,7 +99,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
    * @param _amount  Transfered amount
    */
   function _safeTransferFrom(address _from, address _to, uint256 _id, uint256 _amount)
-    internal
+    internal virtual
   {
     //Update balances
     _updateIDBalance(_from, _id, _amount, Operations.Sub); // Subtract amount from sender
@@ -113,7 +113,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
    * @notice Verifies if receiver is contract and if so, calls (_to).onERC1155Received(...)
    */
   function _callonERC1155Received(address _from, address _to, uint256 _id, uint256 _amount, uint256 _gasLimit, bytes memory _data)
-    internal
+    internal virtual
   {
     // Check if recipient is contract
     if (_to.isContract()) {
@@ -131,7 +131,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
    * @param _amounts  Transfer amounts per token type
    */
   function _safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts)
-    internal
+    internal virtual
   {
     uint256 nTransfer = _ids.length; // Number of transfer to execute
     require(nTransfer == _amounts.length, "ERC1155PackedBalance#_safeBatchTransferFrom: INVALID_ARRAYS_LENGTH");
@@ -187,7 +187,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
    * @notice Verifies if receiver is contract and if so, calls (_to).onERC1155BatchReceived(...)
    */
   function _callonERC1155BatchReceived(address _from, address _to, uint256[] memory _ids, uint256[] memory _amounts, uint256 _gasLimit, bytes memory _data)
-    internal
+    internal virtual
   {
     // Pass data if recipient is contract
     if (_to.isContract()) {
@@ -207,7 +207,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
    * @param _approved  True if the operator is approved, false to revoke approval
    */
   function setApprovalForAll(address _operator, bool _approved)
-    external override
+    external virtual override
   {
     // Update operator status
     _setOperator(_msgSender(), _operator, _approved);
@@ -221,7 +221,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
    * @return isOperator True if the operator is approved, false if not
    */
   function isApprovedForAll(address _owner, address _operator)
-    public override view returns (bool isOperator)
+    public view virtual override returns (bool isOperator)
   {
     return _getOperator(_owner, _operator);
   }
@@ -238,7 +238,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
    * @return The _owner's balance of the Token type requested
    */
   function balanceOf(address _owner, uint256 _id)
-    public override view returns (uint256)
+    public view virtual override returns (uint256)
   {
     uint256 bin;
     uint256 index;
@@ -255,7 +255,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
    * @return The _owner's balance of the Token types requested (i.e. balance for each (owner, id) pair)
     */
   function balanceOfBatch(address[] memory _owners, uint256[] memory _ids)
-    public override view returns (uint256[] memory)
+    public view virtual override returns (uint256[] memory)
   {
     uint256 n_owners = _owners.length;
     require(n_owners == _ids.length, "ERC1155PackedBalance#balanceOfBatch: INVALID_ARRAY_LENGTH");
@@ -300,7 +300,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
    *   Operations.Sub: Substract _amount from id balance
    */
   function _updateIDBalance(address _address, uint256 _id, uint256 _amount, Operations _operation)
-    internal
+    internal virtual
   {
     uint256 bin;
     uint256 index;
@@ -322,7 +322,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
    *   Operations.Sub: Substract _amount from value in _binValues at _index
    */
   function _viewUpdateBinValue(uint256 _binValues, uint256 _index, uint256 _amount, Operations _operation)
-    internal pure returns (uint256 newBinValues)
+    internal pure virtual returns (uint256 newBinValues)
   {
     uint256 shift = IDS_BITS_SIZE * _index;
     uint256 mask = (uint256(1) << IDS_BITS_SIZE) - 1;
@@ -354,7 +354,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
   * @return bin index (Bin number, ID"s index within that bin)
   */
   function getIDBinIndex(uint256 _id)
-    public pure returns (uint256 bin, uint256 index)
+    public pure virtual returns (uint256 bin, uint256 index)
   {
     bin = _id / IDS_PER_UINT256;
     index = _id % IDS_PER_UINT256;
@@ -368,7 +368,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
    * @return amount at given _index in _bin
    */
   function getValueInBin(uint256 _binValues, uint256 _index)
-    public pure returns (uint256)
+    public pure virtual returns (uint256)
   {
     // require(_index < IDS_PER_UINT256) is not required since getIDBinIndex ensures `_index < IDS_PER_UINT256`
 
@@ -384,19 +384,19 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
   |         Storage Functions         |
   |__________________________________*/
 
-  function _getBalance(address _owner, uint256 _id) internal view returns (uint256) {
+  function _getBalance(address _owner, uint256 _id) internal view virtual returns (uint256) {
     return StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_BALANCES_SLOT_KEY, _owner, _id))).value;
   }
 
-  function _setBalance(address _owner, uint256 _id, uint256 _balance) internal {
+  function _setBalance(address _owner, uint256 _id, uint256 _balance) internal virtual {
     StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_BALANCES_SLOT_KEY, _owner, _id))).value = _balance;
   }
 
-  function _getOperator(address _owner, address _operator) internal view returns (bool) {
+  function _getOperator(address _owner, address _operator) internal view virtual returns (bool) {
     return StorageSlot.getBooleanSlot(keccak256(abi.encodePacked(_OPERATORS_SLOT_KEY, _owner, _operator))).value;
   }
 
-  function _setOperator(address _owner, address _operator, bool _approved) internal {
+  function _setOperator(address _owner, address _operator, bool _approved) internal virtual {
     StorageSlot.getBooleanSlot(keccak256(abi.encodePacked(_OPERATORS_SLOT_KEY, _owner, _operator))).value = _approved;
   }
 
@@ -410,7 +410,7 @@ contract ERC1155PackedBalanceUpgradeable is ContextUpgradeable, IERC1155, ERC165
    * @param _interfaceID  The interface identifier, as specified in ERC-165
    * @return `true` if the contract implements `_interfaceID` and
    */
-  function supportsInterface(bytes4 _interfaceID) public override(ERC165, IERC165) virtual view returns (bool) {
+  function supportsInterface(bytes4 _interfaceID) public view virtual override(ERC165, IERC165) returns (bool) {
     if (_interfaceID == type(IERC1155).interfaceId) {
       return true;
     }

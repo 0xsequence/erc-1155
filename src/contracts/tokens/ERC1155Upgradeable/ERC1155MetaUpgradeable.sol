@@ -271,7 +271,7 @@ contract ERC1155MetaUpgradeable is ERC1155Upgradeable, SignatureValidator {
     address _signer,
     bytes memory _sigData,
     bytes memory _encMembers)
-    internal returns (bytes memory signedData)
+    internal virtual returns (bytes memory signedData)
   {
     bytes memory sig;
 
@@ -310,7 +310,7 @@ contract ERC1155MetaUpgradeable is ERC1155Upgradeable, SignatureValidator {
    * @param _signer Address to query signature nonce for
    */
   function getNonce(address _signer)
-    public view returns (uint256 nonce)
+    public view virtual returns (uint256 nonce)
   {
     return _getNonce(_signer);
   }
@@ -320,7 +320,7 @@ contract ERC1155MetaUpgradeable is ERC1155Upgradeable, SignatureValidator {
    * @param _signer Address to query signature nonce for
    */
   function _getNonce(address _signer)
-    internal view returns (uint256 nonce)
+    internal view virtual returns (uint256 nonce)
   {
     return StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_NONCES_SLOT_KEY, _signer))).value;
   }
@@ -330,7 +330,7 @@ contract ERC1155MetaUpgradeable is ERC1155Upgradeable, SignatureValidator {
    * @param _signer Address to set signature nonce for
    * @param _nonce Nonce value to set
    */
-  function _setNonce(address _signer, uint256 _nonce) internal {
+  function _setNonce(address _signer, uint256 _nonce) internal virtual {
     StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_NONCES_SLOT_KEY, _signer))).value = _nonce;
   }
 
@@ -346,7 +346,7 @@ contract ERC1155MetaUpgradeable is ERC1155Upgradeable, SignatureValidator {
    * @param _g     GasReceipt object that contains gas reimbursement information
    */
   function _transferGasFee(address _from, GasReceipt memory _g)
-      internal
+      internal virtual
   {
     // Pop last byte to get token fee type
     uint8 feeTokenTypeRaw = uint8(_g.feeTokenData.popLastByte());
