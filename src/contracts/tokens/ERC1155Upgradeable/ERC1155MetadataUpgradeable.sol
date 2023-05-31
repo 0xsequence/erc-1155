@@ -23,6 +23,14 @@ contract ERC1155MetadataUpgradeable is Initializable, IERC1155Metadata, ERC165 {
    * @dev This function should be called once immediately after deployment.
    */
   function initialize(string memory _name, string memory _baseURI) public virtual initializer {
+    _ERC1155MetadataUpgradeable_init(_name, _baseURI);
+  }
+
+  /**
+   * @notice Set the initial name and base URI.
+   * @dev Use this function when extending the contract.
+   */
+  function _ERC1155MetadataUpgradeable_init(string memory _name, string memory _baseURI) internal virtual onlyInitializing {
     _setContractName(_name);
     _setBaseMetadataURI(_baseURI);
   }
