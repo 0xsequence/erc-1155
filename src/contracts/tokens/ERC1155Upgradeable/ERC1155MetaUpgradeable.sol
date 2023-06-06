@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
 
-import "./ERC1155.sol";
+import "./ERC1155Upgradeable.sol";
 import "../../interfaces/IERC20.sol";
 import "../../interfaces/IERC1155.sol";
 import "../../utils/LibBytes.sol";
 import "../../utils/SignatureValidator.sol";
-
+import '../../utils/StorageSlot.sol';
 
 /**
  * @dev ERC-1155 with native metatransaction methods. These additional functions allow users
- *      to presign function calls and allow third parties to execute these on their behalf
+ *      to presign function calls and allow third parties to execute these on their behalf. 
+ *      This contract uses an upgradeable context.
  */
-contract ERC1155Meta is ERC1155, SignatureValidator {
+contract ERC1155MetaUpgradeable is ERC1155Upgradeable, SignatureValidator {
   using LibBytes for bytes;
 
   /***********************************|
@@ -41,8 +42,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
   }
 
   // Signature nonce per address
-  mapping (address => uint256) internal nonces;
-
+  bytes32 constant private _NONCES_SLOT_KEY = keccak256("0xsequence.ERC1155MetaUpgradeable.nonces");
 
   /***********************************|
   |               Events              |
@@ -76,7 +76,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     uint256 _amount,
     bool _isGasFee,
     bytes memory _data)
-    public virtual
+    public
   {
     require(_to != address(0), "ERC1155Meta#metaSafeTransferFrom: INVALID_RECIPIENT");
 
@@ -140,7 +140,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     uint256[] memory _amounts,
     bool _isGasFee,
     bytes memory _data)
-    public virtual
+    public
   {
     require(_to != address(0), "ERC1155Meta#metaSafeBatchTransferFrom: INVALID_RECIPIENT");
 
@@ -207,7 +207,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     bool _approved,
     bool _isGasFee,
     bytes memory _data)
-    public virtual
+    public
   {
     // Verify signature and extract the signed data
     bytes memory signedData = _signatureValidation(
@@ -223,7 +223,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     );
 
     // Update operator status
-    operators[_owner][_operator] = _approved;
+    _setOperator(_owner, _operator, _approved);
 
     // Emit event
     emit ApprovalForAll(_owner, _operator, _approved);
@@ -279,8 +279,8 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     (sig, signedData) = abi.decode(_sigData, (bytes, bytes));
 
     // Get current nonce and nonce used for signature
-    uint256 currentNonce = nonces[_signer];        // Lowest valid nonce for signer
-    uint256 nonce = uint256(sig.readBytes32(65));  // Nonce passed in the signature object
+    uint256 currentNonce = _getNonce(_signer);   // Lowest valid nonce for signer
+    uint256 nonce = uint256(sig.readBytes32(65)); // Nonce passed in the signature object
 
     // Verify if nonce is valid
     require(
@@ -298,8 +298,9 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     require(isValidSignature(_signer, hash, fullData, sig), "ERC1155Meta#_signatureValidation: INVALID_SIGNATURE");
 
     // Update signature nonce
-    nonces[_signer] = nonce + 1;
-    emit NonceChange(_signer, nonce + 1);
+    nonce++;
+    _setNonce(_signer, nonce);
+    emit NonceChange(_signer, nonce);
 
     return signedData;
   }
@@ -311,7 +312,26 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
   function getNonce(address _signer)
     public view virtual returns (uint256 nonce)
   {
-    return nonces[_signer];
+    return _getNonce(_signer);
+  }
+
+  /**
+   * @notice Returns the current nonce associated with a given address
+   * @param _signer Address to query signature nonce for
+   */
+  function _getNonce(address _signer)
+    internal view virtual returns (uint256 nonce)
+  {
+    return StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_NONCES_SLOT_KEY, _signer))).value;
+  }
+
+  /**
+   * @notice Sets the nonce associated with a given address
+   * @param _signer Address to set signature nonce for
+   * @param _nonce Nonce value to set
+   */
+  function _setNonce(address _signer, uint256 _nonce) internal virtual {
+    StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_NONCES_SLOT_KEY, _signer))).value = _nonce;
   }
 
 
@@ -347,7 +367,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     uint256 fee = _g.gasFee;
 
     // If receiver is 0x0, then anyone can claim, otherwise, refund addresse provided
-    feeRecipient = _g.feeRecipient == address(0) ? msg.sender : _g.feeRecipient;
+    feeRecipient = _g.feeRecipient == address(0) ? _msgSender() : _g.feeRecipient;
 
     // Fee token is ERC1155
     if (feeTokenType == FeeTokenType.ERC1155) {
