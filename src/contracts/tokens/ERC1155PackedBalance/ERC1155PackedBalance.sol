@@ -205,7 +205,7 @@ contract ERC1155PackedBalance is IERC1155, ERC165 {
    * @param _approved  True if the operator is approved, false to revoke approval
    */
   function setApprovalForAll(address _operator, bool _approved)
-    external virtual override
+    public virtual override
   {
     // Update operator status
     operators[msg.sender][_operator] = _approved;

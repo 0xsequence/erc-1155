@@ -44,7 +44,7 @@ contract ERC2981Global is IERC2981, ERC165 {
   function royaltyInfo(
     uint256, 
     uint256 _saleCost
-  ) external view virtual override returns (address receiver, uint256 royaltyAmount) {
+  ) public view virtual override returns (address receiver, uint256 royaltyAmount) {
     FeeInfo memory info = globalRoyaltyInfo;
     return (info.receiver, _saleCost * info.feeBasisPoints / 1000);
   }
