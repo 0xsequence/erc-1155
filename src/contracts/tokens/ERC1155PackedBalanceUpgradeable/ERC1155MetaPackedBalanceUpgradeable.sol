@@ -1,18 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
 
-import "./ERC1155.sol";
+import "./ERC1155PackedBalanceUpgradeable.sol";
 import "../../interfaces/IERC20.sol";
 import "../../interfaces/IERC1155.sol";
 import "../../utils/LibBytes.sol";
 import "../../utils/SignatureValidator.sol";
-
+import '../../utils/StorageSlot.sol';
 
 /**
  * @dev ERC-1155 with native metatransaction methods. These additional functions allow users
- *      to presign function calls and allow third parties to execute these on their behalf
+ *      to presign function calls and allow third parties to execute these on their behalf.
+ *      This contract uses an upgradeable context.
+ *
+ * Note: This contract is identical to the ERC1155Meta.sol contract,
+ *       except for the ERC1155PackedBalanceUpgradeable parent contract.
  */
-contract ERC1155Meta is ERC1155, SignatureValidator {
+contract ERC1155MetaPackedBalanceUpgradeable is ERC1155PackedBalanceUpgradeable, SignatureValidator {
   using LibBytes for bytes;
 
   /***********************************|
@@ -41,7 +45,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
   }
 
   // Signature nonce per address
-  mapping (address => uint256) internal nonces;
+  bytes32 constant private _NONCES_SLOT_KEY = keccak256("0xsequence.ERC1155MetaPackedBalanceUpgradeable.nonces");
 
 
   /***********************************|
@@ -78,7 +82,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     bytes memory _data)
     public virtual
   {
-    require(_to != address(0), "ERC1155Meta#metaSafeTransferFrom: INVALID_RECIPIENT");
+    require(_to != address(0), "ERC1155MetaPackedBalance#metaSafeTransferFrom: INVALID_RECIPIENT");
 
     // Initializing
     bytes memory transferData;
@@ -142,7 +146,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     bytes memory _data)
     public virtual
   {
-    require(_to != address(0), "ERC1155Meta#metaSafeBatchTransferFrom: INVALID_RECIPIENT");
+    require(_to != address(0), "ERC1155MetaPackedBalance#metaSafeBatchTransferFrom: INVALID_RECIPIENT");
 
     // Initializing
     bytes memory transferData;
@@ -223,7 +227,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     );
 
     // Update operator status
-    operators[_owner][_operator] = _approved;
+    _setOperator(_owner, _operator, _approved);
 
     // Emit event
     emit ApprovalForAll(_owner, _operator, _approved);
@@ -234,6 +238,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
       _transferGasFee(_owner, gasReceipt);
     }
   }
+
 
 
   /****************************************|
@@ -279,13 +284,13 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     (sig, signedData) = abi.decode(_sigData, (bytes, bytes));
 
     // Get current nonce and nonce used for signature
-    uint256 currentNonce = nonces[_signer];        // Lowest valid nonce for signer
-    uint256 nonce = uint256(sig.readBytes32(65));  // Nonce passed in the signature object
+    uint256 currentNonce = _getNonce(_signer);   // Lowest valid nonce for signer
+    uint256 nonce = uint256(sig.readBytes32(65)); // Nonce passed in the signature object
 
     // Verify if nonce is valid
     require(
       (nonce >= currentNonce) && (nonce < (currentNonce + 100)),
-      "ERC1155Meta#_signatureValidation: INVALID_NONCE"
+      "ERC1155MetaPackedBalance#_signatureValidation: INVALID_NONCE"
     );
 
     // Take hash of bytes arrays
@@ -294,13 +299,13 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     // Complete data to pass to signer verifier
     bytes memory fullData = abi.encodePacked(_encMembers, nonce, signedData);
 
+    //Update signature nonce
+    nonce++;
+    _setNonce(_signer, nonce);
+    emit NonceChange(_signer, nonce);
+
     // Verify if _from is the signer
-    require(isValidSignature(_signer, hash, fullData, sig), "ERC1155Meta#_signatureValidation: INVALID_SIGNATURE");
-
-    // Update signature nonce
-    nonces[_signer] = nonce + 1;
-    emit NonceChange(_signer, nonce + 1);
-
+    require(isValidSignature(_signer, hash, fullData, sig), "ERC1155MetaPackedBalance#_signatureValidation: INVALID_SIGNATURE");
     return signedData;
   }
 
@@ -311,7 +316,26 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
   function getNonce(address _signer)
     public view virtual returns (uint256 nonce)
   {
-    return nonces[_signer];
+    return _getNonce(_signer);
+  }
+
+  /**
+   * @notice Returns the current nonce associated with a given address
+   * @param _signer Address to query signature nonce for
+   */
+  function _getNonce(address _signer)
+    internal view virtual returns (uint256 nonce)
+  {
+    return StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_NONCES_SLOT_KEY, _signer))).value;
+  }
+
+  /**
+   * @notice Sets the nonce associated with a given address
+   * @param _signer Address to set signature nonce for
+   * @param _nonce Nonce value to set
+   */
+  function _setNonce(address _signer, uint256 _nonce) internal virtual {
+    StorageSlot.getUint256Slot(keccak256(abi.encodePacked(_NONCES_SLOT_KEY, _signer))).value = _nonce;
   }
 
 
@@ -334,7 +358,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     // Ensure valid fee token type
     require(
       feeTokenTypeRaw < uint8(FeeTokenType.NTypes),
-      "ERC1155Meta#_transferGasFee: UNSUPPORTED_TOKEN"
+      "ERC1155MetaPackedBalance#_transferGasFee: UNSUPPORTED_TOKEN"
     );
 
     // Convert to FeeTokenType corresponding value
@@ -347,7 +371,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
     uint256 fee = _g.gasFee;
 
     // If receiver is 0x0, then anyone can claim, otherwise, refund addresse provided
-    feeRecipient = _g.feeRecipient == address(0) ? msg.sender : _g.feeRecipient;
+    feeRecipient = _g.feeRecipient == address(0) ? _msgSender() : _g.feeRecipient;
 
     // Fee token is ERC1155
     if (feeTokenType == FeeTokenType.ERC1155) {
@@ -370,7 +394,7 @@ contract ERC1155Meta is ERC1155, SignatureValidator {
       tokenAddress = abi.decode(_g.feeTokenData, (address));
       require(
         IERC20(tokenAddress).transferFrom(_from, feeRecipient, fee),
-        "ERC1155Meta#_transferGasFee: ERC20_TRANSFER_FAILED"
+        "ERC1155MetaPackedBalance#_transferGasFee: ERC20_TRANSFER_FAILED"
       );
     }
   }

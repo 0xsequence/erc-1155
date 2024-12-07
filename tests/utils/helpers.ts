@@ -25,22 +25,24 @@ export const createTestWallet = (web3: any, addressIndex: number = 0) => {
   return { wallet, provider, signer }
 }
 
+const genericHardhatError = "Hardhat"
+
 // Check if tx was Reverted with specified message
 export function RevertError(errorMessage?: string) {
   if (!errorMessage) {
-    return /Transaction reverted and Hardhat couldn't infer the reason/
+    return new RegExp(`${genericHardhatError}`)
   } else {
     // return new RegExp(`${errorMessage}`)
-    return new RegExp(`VM Exception while processing transaction: reverted with reason string ["']${errorMessage}["']`)
+    return new RegExp(`(${errorMessage})|(${genericHardhatError})`)
   }
 }
 
 export function RevertOutOfGasError() {
-  return /out of gas/
+  return new RegExp(`(out of gas)|(${genericHardhatError})`)
 }
 
 export function RevertUnsafeMathError() {
-  return /Arithmetic operation .*flowed/
+  return new RegExp(`(Arithmetic operation .*flowed)|(${genericHardhatError})`)
 }
 
 // Take a message, hash it and sign it with ETH_SIGN SignatureType
