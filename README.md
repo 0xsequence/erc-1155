@@ -1,7 +1,7 @@
 ERC-1155: Semi Fungible Token Standard implementation
 =====================================================
 
-This repository maintains a secure, efficient and standards-compliant implementation of the ERC-1155 token standard for Ethereum. The implementation was created during Horizon Blockchain Games' participation in the coauthoring of the [ERC-1155](https://github.com/ethereum/EIPs/issues/1155) and is used by [Skyweaver](https://www.skyweaver.net), [Opensea](https://github.com/ProjectOpenSea/opensea-erc1155#erc1155-implementation), and many other projects since its release.
+This repository maintains a secure, efficient and standards-compliant implementation of the ERC-1155 token standard for Ethereum. The implementation was created during Sequence Platforms ULC' participation in the coauthoring of the [ERC-1155](https://github.com/ethereum/EIPs/issues/1155) and is used by [Skyweaver](https://www.skyweaver.net), [Opensea](https://github.com/ProjectOpenSea/opensea-erc1155#erc1155-implementation), and many other projects since its release.
 
 The ERC-1155 token standard contains multiple classes of tokens referenced by IDs from non-fungible (max supply=1), to semi-fungible (supply=low), to highly fungible (supply=high). Standard interface discussion at [ERC-1155](https://github.com/ethereum/EIPs/issues/1155). 
 
@@ -38,10 +38,10 @@ A detailed specification document can be found at [SPECIFICATIONS.md](<https://g
 ## Security Review
 
 `@0xsequence/erc-1155` has been audited by two independant parties and all issues discovered were addressed. 
-- [Agustín Aguilar**](https://github.com/0xsequence/erc-1155/blob/master/audits/Security_Audit_Horizon_Games_23-12-19_2.pdf)
+- [Agustín Aguilar**](https://github.com/0xsequence/erc-1155/blob/master/audits/Security_Audit_Sequence_Games_23-12-19_2.pdf)
 - [Consensys Diligence](https://github.com/0xsequence/erc-1155/blob/master/audits/horizon-games-audit-2020-02.pdf) 
 
-** Agustín was hired as a full-time employee at Horizon after the audit was completed. Agustín did not take part in the writing of Semi Fungible contracts.
+** Agustín was hired as a full-time employee at Sequence after the audit was completed. Agustín did not take part in the writing of Semi Fungible contracts.
 
 
 ## Dev env & release
@@ -58,6 +58,6 @@ in their toolchains as our build and contract packages are separated.
 
 ## LICENSE
 
-Copyright (c) 2017-present [Horizon Blockchain Games Inc](https://horizon.io).
+Copyright (c) 2017-present [Sequence Platforms ULC Inc](https://horizon.io).
 
 Licensed under [Apache-2.0](./LICENSE)
